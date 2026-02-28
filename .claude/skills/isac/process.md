@@ -1,23 +1,26 @@
-# Processo de Replicacao de Pagina
+# Processo ISAC — Replicacao de Pagina
 
 Documentacao detalhada do pipeline de replicacao visual usado neste projeto.
 
 ## Visao Geral
 
-O processo replica paginas web a partir de screenshots, usando um pipeline de 4 fases
+O processo replica paginas web a partir de uma URL, usando um pipeline de 5 fases
 com subagentes especializados. A chave e **nunca hardcodar valores visuais** — tudo
 passa por um design system intermediario com CSS custom properties.
 
 ## Por que este processo funciona
 
-1. **Design System como contrato**: tokens CSS sao a interface entre design e codigo
-2. **Dark mode gratis**: tokens semanticos com variantes light/dark
-3. **Consistencia**: componentes consomem tokens, nao valores magicos
-4. **Manutenibilidade**: mudar uma cor no token atualiza toda a pagina
+1. **Captura automatica**: nao precisa tirar screenshots manualmente — a Fase 0 faz isso
+2. **Design System como contrato**: tokens CSS sao a interface entre design e codigo
+3. **Dark mode gratis**: tokens semanticos com variantes light/dark
+4. **Consistencia**: componentes consomem tokens, nao valores magicos
+5. **Manutenibilidade**: mudar uma cor no token atualiza toda a pagina
 
 ## Fluxo
 
 ```
+URL ──── Fase 0 ──► Screenshots (.claude/screenshots/)
+                         │
 Screenshots ─── Fase 1 ──► Design System (tokens CSS)
     │                           │
     │                           ▼
@@ -32,6 +35,26 @@ Screenshots ─── Fase 1 ──► Design System (tokens CSS)
                             ┌───┴───┐
                             │       │
                          APROVADO  CORRIGIR ──► volta Fase 3
+```
+
+## Fase 0: Captura de Screenshots
+
+### Processo
+
+1. Navegue ate a URL fornecida via chrome-devtools MCP
+2. Aguarde carregamento completo (networkIdle)
+3. Redimensione viewport para 1440px (desktop padrao)
+4. Capture screenshot full-page em light mode
+5. Tente emular dark mode (`prefers-color-scheme: dark`) e capture
+6. Para paginas longas, capture secoes individuais
+
+### Saida
+
+```
+.claude/screenshots/
+  full-page.png          # Light mode
+  full-page-dark.png     # Dark mode (se disponivel)
+  section-*.png          # Secoes individuais (opcional)
 ```
 
 ## Fase 1: Extracao de Design System
@@ -158,10 +181,35 @@ Screenshots ─── Fase 1 ──► Design System (tokens CSS)
 
 | Subagente | Funcao | Model | Tools |
 |---|---|---|---|
+| screenshot-capturer | Captura screenshots da URL | haiku | MCP chrome-devtools |
 | ds-extractor | Extrai tokens de screenshots | opus | Read, Write, Edit, Glob |
 | page-planner | Planeja estrutura da pagina | opus | Read, Glob, Grep |
 | page-builder | Implementa o codigo | opus | Read, Write, Edit, Glob, Grep, Bash |
 | visual-verifier | Compara screenshots | sonnet | Read, Glob, Bash, MCP chrome-devtools |
+
+## Modo Agent Teams (--teams)
+
+Quando invocado com `--teams`, o pipeline usa agent teams em vez de subagents sequenciais.
+
+### Diferenca principal
+
+| Aspecto | Subagents (padrao) | Agent Teams (--teams) |
+|---|---|---|
+| Orquestracao | Sessao principal delega sequencialmente | Team lead cria tasks com dependencias |
+| Comunicacao | Via orquestrador (hub-and-spoke) | Direta entre teammates (task list compartilhado) |
+| Loop de correcao | Orquestrador intermedia builder↔verifier | Verifier cria task direto para builder |
+| Overhead | Maior (contexto passa pelo orquestrador) | Menor (comunicacao peer-to-peer) |
+
+### Quando usar --teams
+
+- Paginas complexas com muitas secoes
+- Quando o loop de correcao e esperado (paginas detalhadas)
+- Para aproveitar comunicacao direta builder↔verifier
+
+### Requisitos
+
+- `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` deve estar definida na env
+- Configuravel em `.claude/settings.local.json`
 
 ## Exemplo Real: slopforks.com
 

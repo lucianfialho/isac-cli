@@ -35,7 +35,7 @@ Analisar screenshots de uma pagina web e extrair um design system completo com C
 ## Arquivos a criar
 
 ### `app/globals.css`
-Use o template em `.claude/skills/replicate-page/templates/design-tokens.css`.
+Use o template em `.claude/skills/isac/templates/design-tokens.css`.
 Preencha os valores primitivos (--sf-*) e semanticos (--color-*) extraidos.
 
 ### `app/design-system/page.tsx`
