@@ -35,4 +35,20 @@ program
     await statusCommand();
   });
 
+program
+  .command("billing")
+  .description("Open Stripe billing portal")
+  .action(async () => {
+    const { billingCommand } = await import("./commands/billing.js");
+    await billingCommand();
+  });
+
+program
+  .command("referral")
+  .description("Show your referral code and stats")
+  .action(async () => {
+    const { referralCommand } = await import("./commands/referral.js");
+    await referralCommand();
+  });
+
 program.parse();

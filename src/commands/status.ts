@@ -7,17 +7,28 @@ export async function statusCommand(): Promise<void> {
   printBanner();
 
   const config = readConfig();
-  const license = validateLicense();
+  const license = await validateLicense();
 
   console.log("  Version:   0.1.0");
-  console.log(
-    `  License:   ${license.valid ? `valid (${license.key?.slice(0, 8)}...)` : "not configured"}`
-  );
+
+  if (config.apiKey) {
+    console.log(
+      `  Auth:      logged in${config.user?.email ? ` (${config.user.email})` : ""}`
+    );
+    console.log(
+      `  Plan:      ${license.valid ? license.status || "active" : "no active subscription"}`
+    );
+    if (license.subscriptionExpiresAt) {
+      console.log(
+        `  Renews:    ${new Date(license.subscriptionExpiresAt).toLocaleDateString()}`
+      );
+    }
+  } else {
+    console.log("  Auth:      not logged in");
+  }
+
   console.log(
     `  Provider:  ${config.provider ?? "not configured"}`
-  );
-  console.log(
-    `  API Key:   ${config.apiKey ? "configured" : "not configured"}`
   );
   console.log();
 }

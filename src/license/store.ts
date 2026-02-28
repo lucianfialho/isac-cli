@@ -5,10 +5,25 @@ import { homedir } from "node:os";
 const CONFIG_DIR = join(homedir(), ".isac");
 const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 
+export interface LicenseCache {
+  valid: boolean;
+  status: string;
+  email?: string;
+  subscriptionExpiresAt?: string;
+  cachedAt: string;
+}
+
+export interface IsacUser {
+  email: string;
+  userId?: string;
+}
+
 export interface IsacConfig {
-  licenseKey?: string;
-  provider?: string;
   apiKey?: string;
+  user?: IsacUser;
+  licenseCache?: LicenseCache;
+  provider?: string;
+  apiKeyProvider?: string; // renamed from apiKey to avoid collision
 }
 
 export function readConfig(): IsacConfig {

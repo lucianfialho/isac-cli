@@ -1,5 +1,6 @@
 import { resolve } from "node:path";
 import { bootOpencode } from "../opencode/client.js";
+import { validateLicense } from "../license/client.js";
 import { log } from "../ui/logger.js";
 import { runPhase0 } from "./phase-0-screenshot.js";
 import { runPhase1a } from "./phase-1a-tokens.js";
@@ -14,6 +15,13 @@ export async function runPipeline(
   url: string,
   opts: PipelineOptions
 ): Promise<void> {
+  // License guard
+  const license = await validateLicense();
+  if (!license.valid) {
+    log.error(license.message || "No valid license. Run: isac auth login");
+    process.exit(1);
+  }
+
   const cwd = resolve(opts.cwd);
   const results: PhaseResult[] = [];
   const totalStart = Date.now();
