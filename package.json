@@ -1,0 +1,27 @@
+{
+  "name": "@isac/cli",
+  "version": "0.1.0",
+  "description": "ISAC — Intelligent Site Automated Cloner",
+  "type": "module",
+  "bin": {
+    "isac": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "dependencies": {
+    "@opencode-ai/sdk": "1.2.15",
+    "chalk": "^5.4.1",
+    "commander": "^13.1.0",
+    "ora": "^8.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
