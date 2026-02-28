@@ -51,20 +51,36 @@ Delegue ao subagente **screenshot-capturer** com o prompt:
 
 ---
 
-### Fase 1: Extracao de Design System
+### Fase 1a: Extracao de Tokens
 
 Delegue ao subagente **ds-extractor** com o prompt:
 
 > Analise os screenshots em `.claude/screenshots/` e extraia o design system completo.
-> Crie:
-> 1. CSS custom properties em `app/globals.css` com tokens light/dark
-> 2. Pagina de documentacao em `app/design-system/page.tsx`
-> 3. Componente ThemeToggle em `app/design-system/components/theme-toggle.tsx`
+> Crie CSS custom properties em `app/globals.css` com tokens light/dark.
 >
 > Use o template em `.claude/skills/isac/templates/design-tokens.css` como referencia.
 > Screenshots estao em: `.claude/screenshots/`
 
 **Criterio de sucesso**: `app/globals.css` contem tokens semanticos com variantes light e dark.
+
+---
+
+### Fase 1b: Documentacao do Design System
+
+Delegue ao subagente **ds-page-builder** com o prompt:
+
+> Construa a pagina de documentacao visual do design system.
+> Leia os tokens em `app/globals.css` e os screenshots em `.claude/screenshots/`.
+> Use o template em `.claude/skills/isac/templates/design-system-page.tsx` como scaffolding.
+> Crie:
+> 1. `app/design-system/page.tsx` — documentacao completa com todas as secoes
+> 2. `app/design-system/layout.tsx` — layout wrapper
+> 3. `app/design-system/components/theme-toggle.tsx` — toggle system/light/dark
+> 4. `app/components/theme-toggle.tsx` — copia para uso na pagina principal
+>
+> Screenshots estao em: `.claude/screenshots/`
+
+**Criterio de sucesso**: `app/design-system/page.tsx` renderiza sem erros, mostra todas as secoes (primitivos, semanticos, tipografia, radii, componentes).
 
 ---
 
@@ -133,12 +149,13 @@ Neste modo, o orquestrador (sessao principal) atua como **team lead** usando age
 
 ### 1. Criar agent team
 
-Crie um time com 5 teammates especializados, um para cada fase:
+Crie um time com 6 teammates especializados, um para cada fase:
 
 | Teammate | Agente base | Responsabilidade |
 |---|---|---|
 | capturer | screenshot-capturer | Fase 0: Captura de screenshots |
-| extractor | ds-extractor | Fase 1: Extracao de design system |
+| extractor | ds-extractor | Fase 1a: Extracao de tokens CSS |
+| ds-documenter | ds-page-builder | Fase 1b: Documentacao do design system |
 | planner | page-planner | Fase 2: Planejamento |
 | builder | page-builder | Fase 3: Implementacao |
 | verifier | visual-verifier | Fase 4: Verificacao visual |
@@ -149,10 +166,11 @@ Use o task list compartilhado para definir dependencias:
 
 ```
 Task 1: "Capturar screenshots de <URL>" (sem bloqueio)
-Task 2: "Extrair design system dos screenshots" (blocked by 1)
-Task 3: "Planejar estrutura da pagina" (blocked by 2)
-Task 4: "Implementar pagina em page.tsx" (blocked by 3)
-Task 5: "Verificar fidelidade visual" (blocked by 4)
+Task 2: "Extrair tokens CSS dos screenshots" (blocked by 1)
+Task 3: "Construir pagina de documentacao do design system" (blocked by 2)
+Task 4: "Planejar estrutura da pagina" (blocked by 2, 3)
+Task 5: "Implementar pagina em page.tsx" (blocked by 4)
+Task 6: "Verificar fidelidade visual" (blocked by 5)
 ```
 
 ### 3. Execucao

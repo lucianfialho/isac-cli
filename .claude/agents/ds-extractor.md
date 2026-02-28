@@ -12,6 +12,8 @@ Voce e um especialista em design systems e extracao de tokens visuais.
 
 Analisar screenshots de uma pagina web e extrair um design system completo com CSS custom properties que suporta light e dark mode.
 
+> **Nota**: Este agente e responsavel apenas pela extracao de tokens CSS. A documentacao visual (pagina design-system) e construida pelo agente `ds-page-builder`.
+
 ## Processo
 
 1. **Leia cada screenshot** no diretorio fornecido usando a tool Read (ela suporta imagens)
@@ -32,27 +34,32 @@ Analisar screenshots de uma pagina web e extrair um design system completo com C
    - Headers (sticky, glass-morphism)
 5. **Infira os valores dark mode** invertendo a paleta de forma semantica
 
-## Arquivos a criar
+## Arquivo a criar
 
 ### `app/globals.css`
 Use o template em `.claude/skills/isac/templates/design-tokens.css`.
 Preencha os valores primitivos (--sf-*) e semanticos (--color-*) extraidos.
 
-### `app/design-system/page.tsx`
-Pagina de documentacao visual que mostra:
-- Paleta primitiva (swatches coloridos)
-- Tokens semanticos com light/dark references
-- Tipografia (families, sizes, weights)
-- Border radii
-- Componentes (header, botoes, badges, tabela, CTA)
-- Hero/definition block
+Estrutura esperada:
+```css
+:root {
+  /* Primitivos — valores absolutos */
+  --sf-white: #ffffff;
+  --sf-gray-100: #f5f5f5;
+  /* ... */
 
-### `app/design-system/components/theme-toggle.tsx`
-Componente "use client" com ciclo system -> light -> dark.
-Usa `data-theme` no `<html>` e persiste no localStorage.
+  /* Semanticos — referenciam primitivos via var() */
+  --color-bg-primary: var(--sf-white);
+  --color-text-primary: var(--sf-gray-900);
+  /* ... */
+}
 
-### `app/design-system/layout.tsx`
-Layout simples para a rota /design-system.
+[data-theme="dark"] {
+  --color-bg-primary: var(--sf-gray-950);
+  --color-text-primary: var(--sf-gray-100);
+  /* ... */
+}
+```
 
 ## Regras
 
@@ -64,4 +71,4 @@ Layout simples para a rota /design-system.
 
 ## Validacao
 
-Apos criar os arquivos, execute `npm run build` para garantir que nao ha erros de compilacao.
+Apos criar o arquivo, execute `npm run build` para garantir que nao ha erros de compilacao.

@@ -4,7 +4,7 @@ Documentacao detalhada do pipeline de replicacao visual usado neste projeto.
 
 ## Visao Geral
 
-O processo replica paginas web a partir de uma URL, usando um pipeline de 5 fases
+O processo replica paginas web a partir de uma URL, usando um pipeline de 6 fases
 com subagentes especializados. A chave e **nunca hardcodar valores visuais** — tudo
 passa por um design system intermediario com CSS custom properties.
 
@@ -15,13 +15,17 @@ passa por um design system intermediario com CSS custom properties.
 3. **Dark mode gratis**: tokens semanticos com variantes light/dark
 4. **Consistencia**: componentes consomem tokens, nao valores magicos
 5. **Manutenibilidade**: mudar uma cor no token atualiza toda a pagina
+6. **Separacao de responsabilidades**: extracao de tokens e documentacao visual sao fases independentes
 
 ## Fluxo
 
 ```
 URL ──── Fase 0 ──► Screenshots (.claude/screenshots/)
                          │
-Screenshots ─── Fase 1 ──► Design System (tokens CSS)
+Screenshots ─── Fase 1a ──► Tokens CSS (globals.css)
+    │                           │
+    │                           ▼
+    └───── Fase 1b ──► Documentacao DS (design-system/page.tsx)
     │                           │
     │                           ▼
     └───────── Fase 2 ──► Plano (estrutura + dados)
@@ -57,7 +61,7 @@ Screenshots ─── Fase 1 ──► Design System (tokens CSS)
   section-*.png          # Secoes individuais (opcional)
 ```
 
-## Fase 1: Extracao de Design System
+## Fase 1a: Extracao de Tokens
 
 ### O que extrair dos screenshots
 
@@ -107,8 +111,57 @@ Screenshots ─── Fase 1 ──► Design System (tokens CSS)
 
 ### Resultado esperado
 - `app/globals.css` com tokens primitivos + semanticos + dark mode
-- `app/design-system/page.tsx` com documentacao visual dos tokens
-- `app/design-system/components/theme-toggle.tsx` com toggle system/light/dark
+
+## Fase 1b: Documentacao do Design System
+
+### O que a pagina deve conter
+
+A pagina `app/design-system/page.tsx` e uma documentacao visual interativa de todos os tokens e componentes extraidos. Ela serve como referencia para a Fase 3 (implementacao) e como validacao visual dos tokens.
+
+### Estrutura esperada (secoes obrigatorias)
+
+1. **Header** — titulo "Design System" + ThemeToggle para alternar temas
+2. **Primitive Palette** — grid de swatches coloridos com nome e variavel CSS de cada primitivo
+3. **Semantic Tokens** — tabela com 5 colunas (Token / Light swatch / Light ref / Dark swatch / Dark ref), agrupada por categoria (Background, Text, Border, Surface, Accent)
+4. **Typography** — font families com preview, font sizes com preview "Aa", font weights com preview "The quick brown fox", type scale in context
+5. **Border Radius** — quadrados com diferentes radii e valores exibidos
+6. **Components** — preview visual de cada componente do site:
+   - Sticky Header (glass-morphism com blur)
+   - Buttons (primary + small)
+   - Links (inline + project com seta)
+   - Language Badge (pills com borda)
+   - Fork Badge (com icone SVG)
+   - Star Count (com estrela em accent color)
+7. **Leaderboard Table** — tabela com dados reais extraidos dos screenshots
+8. **CTA Banner** — card com texto persuasivo + botao de acao
+9. **Hero / Definition Block** — titulo serif 72px, fonetica, definicoes numeradas (se aplicavel)
+
+### Relacao com o template
+
+O agente `ds-page-builder` usa o template em `.claude/skills/isac/templates/design-system-page.tsx` como scaffolding. O template contem a estrutura JSX completa com comentarios `/* PREENCHER */` indicando onde inserir dados reais. O agente deve:
+
+1. Ler o template para entender a estrutura
+2. Ler `app/globals.css` para obter os tokens
+3. Ler screenshots para extrair dados de exemplo
+4. Gerar a pagina final substituindo todos os placeholders
+
+### Arquivos gerados
+
+| Arquivo | Descricao |
+|---|---|
+| `app/design-system/page.tsx` | Documentacao visual completa |
+| `app/design-system/layout.tsx` | Layout wrapper (bg + color + min-height) |
+| `app/design-system/components/theme-toggle.tsx` | Toggle system/light/dark com localStorage |
+| `app/components/theme-toggle.tsx` | Copia para uso na pagina principal |
+
+### Criterios de aprovacao
+
+- `npm run build` passa sem erros
+- Pagina contem TODAS as 9 secoes listadas acima
+- Arrays `primitives` e `semanticTokens` correspondem 1:1 com o globals.css
+- Dados da tabela sao reais (extraidos dos screenshots), nao lorem ipsum
+- ThemeToggle funciona (cicla system → light → dark)
+- Cores usam exclusivamente `var()`, sem hex/rgb hardcoded nos componentes
 
 ## Fase 2: Planejamento
 
@@ -182,7 +235,8 @@ Screenshots ─── Fase 1 ──► Design System (tokens CSS)
 | Subagente | Funcao | Model | Tools |
 |---|---|---|---|
 | screenshot-capturer | Captura screenshots da URL | haiku | MCP chrome-devtools |
-| ds-extractor | Extrai tokens de screenshots | opus | Read, Write, Edit, Glob |
+| ds-extractor | Extrai tokens CSS de screenshots | opus | Read, Write, Edit, Glob |
+| ds-page-builder | Constroi documentacao visual do DS | opus | Read, Write, Edit, Glob, Bash |
 | page-planner | Planeja estrutura da pagina | opus | Read, Glob, Grep |
 | page-builder | Implementa o codigo | opus | Read, Write, Edit, Glob, Grep, Bash |
 | visual-verifier | Compara screenshots | sonnet | Read, Glob, Bash, MCP chrome-devtools |
