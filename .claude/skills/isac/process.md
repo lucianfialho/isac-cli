@@ -22,16 +22,19 @@ goes through an intermediary design system with CSS custom properties.
 ```
 URL ──── Phase 0 ──► Screenshots (.claude/screenshots/)
                          │
-Screenshots ─── Phase 1a ──► CSS Tokens (globals.css)
-    │                           │
-    │                           ▼
-    └───── Phase 1b ──► DS Documentation (design-system/page.tsx)
-    │                           │
-    │                           ▼
-    └───────── Phase 2 ──► Plan (structure + data)
+                    ┌────┴──────────────────┐
+                    │                        │
+Screenshots ─── Phase 1a ──► CSS Tokens    Phase 1c ──► Animation Catalog
+    │               │    (globals.css)      (.claude/animations/catalog.json)
+    │               ▼                        │
+    └───── Phase 1b ──► DS Documentation     │
+    │          (design-system/page.tsx)       │
+    │               │                        │
+    │               ▼                        │
+    └───────── Phase 2 ──► Plan (structure + data + animations)
                                 │
                                 ▼
-                   Phase 3 ──► Implementation (page.tsx)
+                   Phase 3 ──► Implementation (page.tsx + motion)
                                 │
                                 ▼
                    Phase 4 ──► Visual Verification
@@ -163,6 +166,83 @@ The `ds-page-builder` agent uses the template at `.claude/skills/isac/templates/
 - ThemeToggle works (cycles system → light → dark)
 - Colors use exclusively `var()`, no hardcoded hex/rgb in components
 
+## Phase 1c: Animation Detection
+
+### Purpose
+
+Detect all animations on the reference page and produce a structured catalog that Phase 3 can use to reproduce them with the `motion` package.
+
+### What to detect
+
+1. **CSS Animations**: elements with `animationName` via `getComputedStyle()`
+2. **CSS Transitions**: elements with non-default `transition` property (hover effects, state changes)
+3. **Web Animations API**: active animations via `document.getAnimations()`
+4. **Scroll-triggered**: elements with scroll-reveal classes (`data-aos`, `data-scroll`, GSAP markers, IntersectionObserver patterns)
+5. **@keyframes**: all keyframe rules from accessible stylesheets
+6. **Animation libraries**: GSAP, Anime.js, Framer Motion, Motion, AOS, Lottie, ScrollReveal
+
+### Detection methodology
+
+The `animation-detector` agent uses chrome-devtools `evaluate_script` to run a detection script (`.claude/skills/isac/templates/animation-detection.js`) in the page context. The script:
+
+1. Iterates all DOM elements checking computed styles for animations and transitions
+2. Calls `document.getAnimations()` for Web Animations API usage
+3. Checks for scroll-library-specific attributes and classes
+4. Extracts `@keyframes` rules from all accessible stylesheets
+5. Checks `window` globals and `<script>` tags for known animation libraries
+
+### Catalog format
+
+Output: `.claude/animations/catalog.json`
+
+```json
+{
+  "url": "https://example.com",
+  "detectedLibraries": [{ "name": "gsap", "version": "3.12" }],
+  "keyframes": { "fadeIn": [{ "keyText": "from", "style": "opacity: 0" }] },
+  "animations": [
+    {
+      "id": "css-animation-1",
+      "selector": ".hero h1",
+      "type": "css-animation",
+      "trigger": "page-load",
+      "properties": { "opacity": [0, 1], "transform": ["translateY(20px)", "translateY(0)"] },
+      "duration": 800,
+      "delay": 200,
+      "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "motionEquivalent": "animate('.hero h1', { opacity: [0,1], y: [20,0] }, { duration: 0.8, delay: 0.2 })"
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "byType": { "css-animation": 3, "css-transition": 5, "scroll-triggered": 4 },
+    "byTrigger": { "page-load": 3, "hover": 5, "in-view": 4 },
+    "complexity": "intermediate"
+  }
+}
+```
+
+### Motion.dev mapping rules
+
+| Animation type | Trigger | Motion.dev equivalent |
+|---|---|---|
+| CSS animation (entrance) | page-load | `animate(selector, keyframes, options)` |
+| CSS animation (infinite) | page-load | `animate(selector, keyframes, { repeat: Infinity })` |
+| CSS transition (hover) | hover | Keep as CSS `transition` property |
+| CSS transition (state) | interaction | `animate(selector, newState, options)` |
+| Scroll reveal | in-view | `inView(selector, ({ target }) => animate(target, ...))` |
+| Scroll parallax | scroll | `scroll(animate(selector, keyframes), { target })` |
+| Staggered entrance | page-load | `animate(selector, keyframes, { delay: stagger(0.1) })` |
+| Complex sequence | page-load | `timeline([...])` from `motion` |
+
+### Approval criteria
+
+- `.claude/animations/catalog.json` exists and is valid JSON
+- All visible CSS animations detected
+- All interactive transitions detected
+- Each animation has type, trigger, and `motionEquivalent`
+- Summary counts are accurate
+
 ## Phase 2: Planning
 
 ### What to analyze
@@ -172,6 +252,7 @@ The `ds-page-builder` agent uses the template at `.claude/skills/isac/templates/
 3. **Hierarchy**: which component contains which
 4. **Links**: visible external URLs
 5. **Behaviors**: sticky headers, scroll effects
+6. **Animations**: read `.claude/animations/catalog.json` and map animations to sections
 
 ### Plan format
 
@@ -196,9 +277,23 @@ The `ds-page-builder` agent uses the template at `.claude/skills/isac/templates/
 
 1. **Colors**: `var(--color-token)` — NEVER `#hex` or `rgb()`
 2. **Fonts**: define stacks as JS constants, use var() for custom fonts
-3. **Client components**: only where necessary (ThemeToggle). Page can be a server component
+3. **Client components**: only where necessary (ThemeToggle, animated sections). Page can be a server component
 4. **Inline styles**: follow design-system pattern for consistency with tokens
-5. **Build**: `npm run build` must pass
+5. **Animations**: use `motion` package (`npm install motion`) for detected animations
+6. **Build**: `npm run build` must pass
+
+### Animation implementation
+
+When `.claude/animations/catalog.json` exists:
+
+1. Install `motion`: `npm install motion`
+2. Import: `import { animate, stagger, inView, scroll, timeline } from 'motion'`
+3. Simple hover transitions → CSS `transition` property (no JS)
+4. Entrance animations → `animate()` in `useEffect`
+5. Scroll-triggered → `inView()` from `motion`
+6. Scroll-linked → `scroll(animate(...))` from `motion`
+7. Components using `motion` JS APIs must have `"use client"`
+8. Extract animated sections into separate client components
 
 ### Checklist
 
@@ -207,6 +302,9 @@ The `ds-page-builder` agent uses the template at `.claude/skills/isac/templates/
 - [ ] Dark mode functional
 - [ ] ThemeToggle integrated
 - [ ] Basic responsive layout (overflow-x on tables)
+- [ ] Animations implemented per catalog (if available)
+- [ ] Animated components have `"use client"` directive
+- [ ] `motion` in package.json (if animations exist)
 - [ ] Build without errors
 
 ## Phase 4: Visual Verification
@@ -237,8 +335,9 @@ The `ds-page-builder` agent uses the template at `.claude/skills/isac/templates/
 | screenshot-capturer | Captures screenshots from URL | haiku | MCP chrome-devtools |
 | ds-extractor | Extracts CSS tokens from screenshots | opus | Read, Write, Edit, Glob |
 | ds-page-builder | Builds DS visual documentation | opus | Read, Write, Edit, Glob, Bash |
+| animation-detector | Detects and catalogs animations | sonnet | MCP chrome-devtools |
 | page-planner | Plans page structure | opus | Read, Glob, Grep |
-| page-builder | Implements the code | opus | Read, Write, Edit, Glob, Grep, Bash |
+| page-builder | Implements the code | opus | Read, Write, Edit, Glob, Grep, Bash, MCP motion-dev |
 | visual-verifier | Compares screenshots | sonnet | Read, Glob, Bash, MCP chrome-devtools |
 
 ## Agent Teams Mode (--teams)

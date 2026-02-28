@@ -18,9 +18,11 @@ Analyze reference screenshots along with the already-extracted design system, an
 
 1. **Read the screenshots** in the provided directory (Read tool supports images)
 2. **Read the design system** in `app/globals.css` and `app/design-system/page.tsx`
-3. **Identify each section** of the page, from top to bottom
-4. **Extract real data** visible in the screenshots (text, numbers, names, URLs)
-5. **Map tokens** — for each visual element, identify which CSS token to use
+3. **Read the animation catalog** at `.claude/animations/catalog.json` (if it exists)
+4. **Identify each section** of the page, from top to bottom
+5. **Extract real data** visible in the screenshots (text, numbers, names, URLs)
+6. **Map tokens** — for each visual element, identify which CSS token to use
+7. **Map animations** — for each section, include any animations from the catalog
 
 ## Plan format
 
@@ -59,8 +61,19 @@ Return the plan in this format:
 | Text | URL |
 |---|---|
 
+## Animations (if catalog exists)
+
+### Section: [Section Name]
+| Animation ID | Type | Trigger | Motion.dev API |
+|---|---|---|---|
+| hero-fade-in | css-animation | page-load | `animate('.hero h1', ...)` |
+
+### Client components needed
+- [Component] — reason: uses `animate()` / `inView()` / `scroll()`
+
 ## Dependencies
 - Fonts to load (Google Fonts via next/font)
+- `motion` package (if animations detected)
 - Extra libraries (none if possible)
 ```
 
@@ -72,6 +85,9 @@ Return the plan in this format:
 - Map EVERY color to a semantic token from the design system
 - Prefer server components (only ThemeToggle needs "use client")
 - Plan for basic responsiveness (overflow-x on tables)
+- If animation catalog exists, include animation specs per section
+- Flag components that need `"use client"` due to `motion` JS APIs
+- Keep simple hover transitions as CSS (no `"use client"` needed)
 
 ## Plan validation
 
@@ -80,3 +96,5 @@ Before returning, verify:
 - [ ] Numeric data extracted correctly
 - [ ] Each element has an associated CSS token
 - [ ] HTML structure is semantic (h1, h2, table, section, header, etc.)
+- [ ] If animation catalog exists: all animations are mapped to sections
+- [ ] If animation catalog exists: client components are identified for animated sections

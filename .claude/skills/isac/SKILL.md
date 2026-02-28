@@ -84,17 +84,35 @@ Delegate to the **ds-page-builder** subagent with the prompt:
 
 ---
 
+### Phase 1c: Animation Detection
+
+Delegate to the **animation-detector** subagent with the prompt:
+
+> Detect all animations on the reference page at `<URL>`.
+> The page should already be open in chrome-devtools from Phase 0.
+> Run the detection script from `.claude/skills/isac/templates/animation-detection.js` via `evaluate_script`.
+> Parse the results, add Motion.dev equivalents, and write the catalog to `.claude/animations/catalog.json`.
+>
+> Screenshots are in: `.claude/screenshots/`
+
+**Success criteria**: `.claude/animations/catalog.json` exists with animation type, trigger, and motionEquivalent for each detected animation.
+
+---
+
 ### Phase 2: Planning
 
 Delegate to the **page-planner** subagent with the prompt:
 
 > Analyze the screenshots in `.claude/screenshots/` and the design system in `app/globals.css` and `app/design-system/page.tsx`.
+> Also read the animation catalog at `.claude/animations/catalog.json` if it exists.
 > Create a detailed plan covering:
 > 1. Page section structure (hero, header, tables, CTAs, footer)
 > 2. Real data extracted from screenshots (text, numbers, names)
 > 3. Component hierarchy
 > 4. Mapping of each visual element to CSS tokens
 > 5. External links visible in screenshots
+> 6. Animation specifications per section (from catalog, if available)
+> 7. Components that need `"use client"` due to Motion.dev animations
 >
 > Return the complete plan as structured text.
 
@@ -114,9 +132,11 @@ Delegate to the **page-builder** subagent with the prompt:
 > - Support dark mode via `[data-theme="dark"]` (already configured in globals.css)
 > - Reuse ThemeToggle from `app/components/theme-toggle.tsx` (copy from design-system if it doesn't exist)
 > - Update metadata in `app/layout.tsx`
+> - If `.claude/animations/catalog.json` exists, implement animations using the `motion` package (install with `npm install motion` if needed)
 > - Run `npm run build` at the end to validate
 >
 > Design system is in: `app/globals.css`
+> Animation catalog: `.claude/animations/catalog.json` (if available)
 > Visual reference: screenshots in `.claude/screenshots/`
 
 **Success criteria**: `npm run build` passes without errors.
@@ -156,6 +176,7 @@ Create a team with 6 specialized teammates, one for each phase:
 | capturer | screenshot-capturer | Phase 0: Screenshot capture |
 | extractor | ds-extractor | Phase 1a: CSS token extraction |
 | ds-documenter | ds-page-builder | Phase 1b: Design system documentation |
+| animator | animation-detector | Phase 1c: Animation detection |
 | planner | page-planner | Phase 2: Planning |
 | builder | page-builder | Phase 3: Implementation |
 | verifier | visual-verifier | Phase 4: Visual verification |
@@ -168,9 +189,10 @@ Use the shared task list to define dependencies:
 Task 1: "Capture screenshots of <URL>" (no blockers)
 Task 2: "Extract CSS tokens from screenshots" (blocked by 1)
 Task 3: "Build design system documentation page" (blocked by 2)
-Task 4: "Plan page structure" (blocked by 2, 3)
-Task 5: "Implement page in page.tsx" (blocked by 4)
-Task 6: "Verify visual fidelity" (blocked by 5)
+Task 4: "Detect animations on reference page" (blocked by 1)
+Task 5: "Plan page structure" (blocked by 2, 3, 4)
+Task 6: "Implement page in page.tsx" (blocked by 5)
+Task 7: "Verify visual fidelity" (blocked by 6)
 ```
 
 ### 3. Execution

@@ -15,13 +15,13 @@ const geistMono = Geist_Mono({
 const sourceSerif = Source_Serif_4({
   variable: "--font-source-serif",
   subsets: ["latin"],
-  weight: ["700"],
+  weight: ["300", "400", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "Slop Forks",
+  title: "Claude AI Powers NASA's First AI-Planned Mars Rover Drive | Anthropic",
   description:
-    "A curated leaderboard of open-source forks built primarily with AI",
+    "The first AI-planned drive on another planet. Claude helped NASA's Perseverance Rover navigate four hundred meters on Mars.",
 };
 
 export default function RootLayout({

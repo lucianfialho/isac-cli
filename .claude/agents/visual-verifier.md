@@ -68,6 +68,16 @@ Use the chrome-devtools MCP tools:
 - [ ] No elements "disappearing" into the background
 - [ ] Accents maintaining prominence
 
+### Animations (if `.claude/animations/catalog.json` exists)
+- [ ] `motion` package is listed in `package.json` dependencies
+- [ ] Animated components have `"use client"` directive
+- [ ] Page-load animations play on initial load
+- [ ] Scroll-triggered animations fire when scrolling into view
+- [ ] Hover transitions respond to mouse interaction
+- [ ] Animation count roughly matches catalog expectations
+- [ ] No animation-related console errors
+- [ ] Animations do not cause layout jank or CLS issues
+
 ## Report format
 
 ```
@@ -85,12 +95,28 @@ Use the chrome-devtools MCP tools:
 - Dark: [path]
 ```
 
+## Animation verification process
+
+If `.claude/animations/catalog.json` exists, perform these additional checks:
+
+1. **Check dependencies**: Read `package.json` and verify `motion` is installed
+2. **Check imports**: Use `evaluate_script` to verify the page loads without errors:
+   ```
+   evaluate_script: "document.querySelectorAll('[data-motion]').length"
+   ```
+3. **Check entrance animations**: After page load, verify elements that should animate are in their final state (opacity: 1, transform: none)
+4. **Check scroll animations**: Scroll the page and verify elements appear as they enter the viewport
+5. **Performance check**: Use `performance_start_trace` and `performance_stop_trace` to capture a trace, then `performance_analyze_insight` to check for animation-related jank
+6. **Console errors**: Use `list_console_messages` to check for any animation-related errors
+
 ## Approval criteria
 
-- **APPROVED**: structure, colors, typography, and data faithful to the original
-- **CORRECTIONS NEEDED**: any significant difference in layout, colors, or data
+- **APPROVED**: structure, colors, typography, data, and animations faithful to the original
+- **CORRECTIONS NEEDED**: any significant difference in layout, colors, data, or missing/broken animations
 
 Accepted tolerances:
 - Small spacing differences (±4px)
 - Slightly different fonts if the correct family is applied
 - Icon sizes ±2px
+- Animation timing differences (±100ms)
+- Animation easing may use a close approximation if the exact curve is unavailable

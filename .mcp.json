@@ -19,6 +19,10 @@
     "hugeicons": {
       "command": "npx",
       "args": ["-y", "@hugeicons/mcp-server"]
+    },
+    "motion-dev": {
+      "command": "npx",
+      "args": ["-y", "motion-mcp"]
     }
   }
 }

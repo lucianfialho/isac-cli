@@ -1,0 +1,636 @@
+{
+  "url": "https://www.anthropic.com/features/claude-on-mars",
+  "detectedLibraries": [],
+  "keyframes": {
+    "IFrame-module-scss-module__uG2PrG__spin": [
+      { "keyText": "100%", "style": "transform: rotate(360deg);" }
+    ],
+    "IllustrationGenerator-module-scss-module__xpp0Ya__spin": [
+      { "keyText": "100%", "style": "transform: rotate(360deg);" }
+    ],
+    "IllustrationGenerator-module-scss-module__xpp0Ya__fade-out": [
+      { "keyText": "0%, 70%", "style": "opacity: 1;" },
+      { "keyText": "100%", "style": "opacity: 0;" }
+    ],
+    "EconomicIndexHub-module-scss-module__CsCanG__spin": [
+      { "keyText": "0%", "style": "transform: rotate(0deg);" },
+      { "keyText": "100%", "style": "transform: rotate(360deg);" }
+    ],
+    "EconomicIndexHub-module-scss-module__CsCanG__ellipses": [
+      { "keyText": "0%", "style": "content: \".\";" },
+      { "keyText": "33%", "style": "content: \"..\";" },
+      { "keyText": "66%", "style": "content: \"...\";" },
+      { "keyText": "100%", "style": "content: \".\";" }
+    ],
+    "CountryStats-module-scss-module__FiTelq__fade-in": [
+      { "keyText": "0%", "style": "opacity: 0;" },
+      { "keyText": "100%", "style": "opacity: 1;" }
+    ],
+    "TreeMap-module-scss-module__kz-3HG__tooltip-fade-in": [
+      { "keyText": "0%", "style": "opacity: 0; transform: translate(-50%, -90%);" },
+      { "keyText": "100%", "style": "opacity: 1; transform: translate(-50%, -100%);" }
+    ],
+    "SiteMobileNav-module-scss-module__quY58a__slide-down": [
+      { "keyText": "0%", "style": "opacity: 0; transform: translateY(-10px);" },
+      { "keyText": "100%", "style": "opacity: 1; transform: translateY(0px);" }
+    ],
+    "StateUsage-module-scss-module__ivIcsG__fade-in": [
+      { "keyText": "0%", "style": "opacity: 0;" },
+      { "keyText": "100%", "style": "opacity: 1;" }
+    ],
+    "Dropdown-module-scss-module__u2lsCq__dropdown-fade-in": [
+      { "keyText": "0%", "style": "opacity: 0; visibility: hidden;" },
+      { "keyText": "100%", "style": "opacity: 1; visibility: visible;" }
+    ],
+    "AudioBar-module-scss-module__zwJY6q__marquee": [
+      { "keyText": "0%", "style": "transform: translate(0px);" },
+      { "keyText": "100%", "style": "transform: translate(-50%);" }
+    ],
+    "TreeMap-module-scss-module__svXXhW__tooltip-fade-in": [
+      { "keyText": "0%", "style": "opacity: 0; transform: translate(-50%, -90%);" },
+      { "keyText": "100%", "style": "opacity: 1; transform: translate(-50%, -100%);" }
+    ],
+    "CameraSection-module-scss-module__zAxgdG__blink": [
+      { "keyText": "0%", "style": "opacity: 1;" },
+      { "keyText": "50%", "style": "opacity: 0;" },
+      { "keyText": "100%", "style": "opacity: 1;" }
+    ],
+    "StateStats-module-scss-module__jnAwRG__fade-in": [
+      { "keyText": "0%", "style": "opacity: 0;" },
+      { "keyText": "100%", "style": "opacity: 1;" }
+    ],
+    "MarsSignal-module-scss-module__hExYUq__pulsate": [
+      { "keyText": "0%, 100%", "style": "transform: scale(1);" },
+      { "keyText": "50%", "style": "transform: scale(1.2);" }
+    ],
+    "MarsSignal-module-scss-module__hExYUq__pulsate-signal": [
+      { "keyText": "0%, 100%", "style": "transform: scale(1);" },
+      { "keyText": "50%", "style": "transform: scale(1.2);" }
+    ],
+    "MarsSignal-module-scss-module__hExYUq__pulsate-signal-mobile": [
+      { "keyText": "0%, 100%", "style": "transform: scale(1);" },
+      { "keyText": "50%", "style": "transform: scale(1.1);" }
+    ],
+    "RoverViewer-module-scss-module__WUesoG__slide-up": [
+      { "keyText": "0%", "style": "opacity: 0; transform: translateY(10px);" },
+      { "keyText": "100%", "style": "opacity: 1; transform: translateY(0px);" }
+    ]
+  },
+  "animations": [
+    {
+      "id": "css-animation-1",
+      "selector": "#main-content > div.page-module-scss-module__1625La__container > div.Body-module-scss-module__ic-n1G__body:nth-of-type(2) > section.page-wrapper:nth-of-type(1) > div.Body-module-scss-module__ic-n1G__readingColumn > svg > circle:nth-of-type(1)",
+      "type": "css-animation",
+      "trigger": "page-load",
+      "animationName": "MarsSignal-module-scss-module__hExYUq__pulsate-signal",
+      "properties": {
+        "transform": ["scale(1)", "scale(1.2)", "scale(1)"]
+      },
+      "duration": 4000,
+      "delay": 1500,
+      "easing": "cubic-bezier(0.895, 0.03, 0.685, 0.22)",
+      "iterationCount": "infinite",
+      "fillMode": "none",
+      "direction": "normal",
+      "description": "Mars signal pulse ring - outer circle 1, pulsates to indicate active signal transmission",
+      "motionEquivalent": "animate('svg circle:nth-of-type(1)', { scale: [1, 1.2, 1] }, { duration: 4, delay: 1.5, repeat: Infinity, easing: 'cubic-bezier(0.895, 0.03, 0.685, 0.22)' })"
+    },
+    {
+      "id": "css-animation-2",
+      "selector": "#main-content > div.page-module-scss-module__1625La__container > div.Body-module-scss-module__ic-n1G__body:nth-of-type(2) > section.page-wrapper:nth-of-type(1) > div.Body-module-scss-module__ic-n1G__readingColumn > svg > circle:nth-of-type(2)",
+      "type": "css-animation",
+      "trigger": "page-load",
+      "animationName": "MarsSignal-module-scss-module__hExYUq__pulsate-signal",
+      "properties": {
+        "transform": ["scale(1)", "scale(1.2)", "scale(1)"]
+      },
+      "duration": 4000,
+      "delay": 1650,
+      "easing": "cubic-bezier(0.895, 0.03, 0.685, 0.22)",
+      "iterationCount": "infinite",
+      "fillMode": "none",
+      "direction": "normal",
+      "description": "Mars signal pulse ring - outer circle 2, staggered 150ms after circle 1",
+      "motionEquivalent": "animate('svg circle:nth-of-type(2)', { scale: [1, 1.2, 1] }, { duration: 4, delay: 1.65, repeat: Infinity, easing: 'cubic-bezier(0.895, 0.03, 0.685, 0.22)' })"
+    },
+    {
+      "id": "css-animation-3",
+      "selector": "#main-content > div.page-module-scss-module__1625La__container > div.Body-module-scss-module__ic-n1G__body:nth-of-type(2) > section.page-wrapper:nth-of-type(1) > div.Body-module-scss-module__ic-n1G__readingColumn > svg > circle:nth-of-type(3)",
+      "type": "css-animation",
+      "trigger": "page-load",
+      "animationName": "MarsSignal-module-scss-module__hExYUq__pulsate",
+      "properties": {
+        "transform": ["scale(1)", "scale(1.2)", "scale(1)"]
+      },
+      "duration": 4000,
+      "delay": 0,
+      "easing": "cubic-bezier(0.895, 0.03, 0.685, 0.22)",
+      "iterationCount": "infinite",
+      "fillMode": "none",
+      "direction": "normal",
+      "description": "Mars signal center dot - inner circle 1, continuous pulsate starting immediately",
+      "motionEquivalent": "animate('svg circle:nth-of-type(3)', { scale: [1, 1.2, 1] }, { duration: 4, repeat: Infinity, easing: 'cubic-bezier(0.895, 0.03, 0.685, 0.22)' })"
+    },
+    {
+      "id": "css-animation-4",
+      "selector": "#main-content > div.page-module-scss-module__1625La__container > div.Body-module-scss-module__ic-n1G__body:nth-of-type(2) > section.page-wrapper:nth-of-type(1) > div.Body-module-scss-module__ic-n1G__readingColumn > svg > circle:nth-of-type(4)",
+      "type": "css-animation",
+      "trigger": "page-load",
+      "animationName": "MarsSignal-module-scss-module__hExYUq__pulsate",
+      "properties": {
+        "transform": ["scale(1)", "scale(1.2)", "scale(1)"]
+      },
+      "duration": 4000,
+      "delay": 800,
+      "easing": "cubic-bezier(0.895, 0.03, 0.685, 0.22)",
+      "iterationCount": "infinite",
+      "fillMode": "none",
+      "direction": "normal",
+      "description": "Mars signal center dot - inner circle 2, staggered 800ms from circle 3 to create ripple effect",
+      "motionEquivalent": "animate('svg circle:nth-of-type(4)', { scale: [1, 1.2, 1] }, { duration: 4, delay: 0.8, repeat: Infinity, easing: 'cubic-bezier(0.895, 0.03, 0.685, 0.22)' })"
+    },
+    {
+      "id": "css-animation-5",
+      "selector": ".CameraSection-module-scss-module__zAxgdG__cameraMobileIndicator",
+      "type": "css-animation",
+      "trigger": "page-load",
+      "animationName": "CameraSection-module-scss-module__zAxgdG__blink",
+      "properties": {
+        "opacity": [1, 0, 1]
+      },
+      "duration": 1000,
+      "delay": 0,
+      "easing": "steps(1)",
+      "iterationCount": "infinite",
+      "fillMode": "none",
+      "direction": "normal",
+      "description": "Camera mobile header recording indicator - hard blink using steps(1) to simulate camera REC light",
+      "motionEquivalent": "animate('.CameraSection-module-scss-module__zAxgdG__cameraMobileIndicator', { opacity: [1, 0, 1] }, { duration: 1, repeat: Infinity, easing: 'steps(1, end)' })"
+    },
+    {
+      "id": "css-animation-6",
+      "selector": ".CameraSection-module-scss-module__zAxgdG__cameraIndicator",
+      "type": "css-animation",
+      "trigger": "page-load",
+      "animationName": "CameraSection-module-scss-module__zAxgdG__blink",
+      "properties": {
+        "opacity": [1, 0, 1]
+      },
+      "duration": 1000,
+      "delay": 0,
+      "easing": "steps(1)",
+      "iterationCount": "infinite",
+      "fillMode": "none",
+      "direction": "normal",
+      "description": "Active camera label indicator dot - hard blink to show active/recording state on desktop camera UI",
+      "motionEquivalent": "animate('.CameraSection-module-scss-module__zAxgdG__cameraIndicator', { opacity: [1, 0, 1] }, { duration: 1, repeat: Infinity, easing: 'steps(1, end)' })"
+    },
+    {
+      "id": "css-animation-7",
+      "selector": ".AudioBar-module-scss-module__zwJY6q__labelWrapper.AudioBar-module-scss-module__zwJY6q__labelScroll",
+      "type": "css-animation",
+      "trigger": "page-load",
+      "animationName": "AudioBar-module-scss-module__zwJY6q__marquee",
+      "properties": {
+        "transform": ["translate(0px)", "translate(-50%)"]
+      },
+      "duration": 12000,
+      "delay": 0,
+      "easing": "linear",
+      "iterationCount": "infinite",
+      "fillMode": "none",
+      "direction": "normal",
+      "description": "Audio bar marquee text scroll - scrolls duplicated label text horizontally at constant speed to create a ticker-tape effect",
+      "motionEquivalent": "animate('.AudioBar-module-scss-module__zwJY6q__labelWrapper', { x: ['0%', '-50%'] }, { duration: 12, repeat: Infinity, easing: 'linear' })"
+    },
+    {
+      "id": "scroll-reveal-fadein-1",
+      "selector": ".FadeIn-module-scss-module__C4C9Kq__fadeIn.FadeIn-module-scss-module__C4C9Kq__directionUp",
+      "type": "scroll-triggered",
+      "trigger": "in-view",
+      "library": "custom-FadeIn-component",
+      "properties": {
+        "opacity": [0, 1],
+        "transform": ["translateY(20px)", "translateY(0)"]
+      },
+      "duration": 600,
+      "delay": 0,
+      "easing": "cubic-bezier(0.25, 0.1, 0.25, 1)",
+      "totalElements": 16,
+      "visibleOnLoad": 2,
+      "pendingReveal": 14,
+      "description": "Custom FadeIn component used throughout the page for scroll-reveal. Elements start invisible (opacity: 0, translateY offset) and transition to visible when they enter the viewport. The .visible class is toggled by an IntersectionObserver. 16 total instances with various staggered delays (0s, 0.15s, 0.2s, 0.3s, 0.45s, 0.6s, 0.75s, 0.9s).",
+      "motionEquivalent": "inView('.FadeIn-module-scss-module__C4C9Kq__fadeIn', ({ target }) => animate(target, { opacity: [0, 1], y: [20, 0] }, { duration: 0.6, easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)' }))"
+    },
+    {
+      "id": "scroll-reveal-fadein-hero",
+      "selector": ".Hero-module-scss-module__S69W4q__heroWrapper .FadeIn-module-scss-module__C4C9Kq__fadeIn",
+      "type": "scroll-triggered",
+      "trigger": "page-load",
+      "library": "custom-FadeIn-component",
+      "properties": {
+        "opacity": [0, 1],
+        "transform": ["translateY(20px)", "translateY(0)"]
+      },
+      "duration": 600,
+      "delay": 0,
+      "easing": "cubic-bezier(0.25, 0.1, 0.25, 1)",
+      "description": "Hero section FadeIn entrance - the hero content fades up on initial page load",
+      "motionEquivalent": "animate('.Hero-module-scss-module__S69W4q__heroWrapper .FadeIn-module-scss-module__C4C9Kq__fadeIn', { opacity: [0, 1], y: [20, 0] }, { duration: 0.6, easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)' })"
+    },
+    {
+      "id": "scroll-reveal-mars-globe",
+      "selector": ".Hero-module-scss-module__S69W4q__marsGlobe .FadeIn-module-scss-module__C4C9Kq__fadeIn",
+      "type": "scroll-triggered",
+      "trigger": "page-load",
+      "library": "custom-FadeIn-component",
+      "properties": {
+        "opacity": [0, 1],
+        "transform": ["translateY(20px)", "translateY(0)"]
+      },
+      "duration": 1200,
+      "delay": 600,
+      "easing": "cubic-bezier(0.25, 0.1, 0.25, 1)",
+      "description": "Mars globe hero image delayed entrance - fades in 600ms after the hero text, creating a two-stage reveal",
+      "motionEquivalent": "animate('.Hero-module-scss-module__S69W4q__marsGlobe .FadeIn-module-scss-module__C4C9Kq__fadeIn', { opacity: [0, 1], y: [20, 0] }, { duration: 1.2, delay: 0.6, easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)' })"
+    },
+    {
+      "id": "scroll-reveal-photo-collage",
+      "selector": ".PhotoCollage-module-scss-module__JWYmlW__photoWrapper .FadeIn-module-scss-module__C4C9Kq__fadeIn",
+      "type": "scroll-triggered",
+      "trigger": "in-view",
+      "library": "custom-FadeIn-component",
+      "properties": {
+        "opacity": [0, 1],
+        "transform": ["translateY(20px)", "translateY(0)"]
+      },
+      "duration": 600,
+      "delays": [0.15, 0.3, 0.45, 0.6, 0.75, 0.9],
+      "easing": "cubic-bezier(0.25, 0.1, 0.25, 1)",
+      "description": "Photo collage staggered reveal - 6 photo wrapper FadeIn elements each staggered by 150ms for a cascading entrance effect",
+      "motionEquivalent": "inView('.PhotoCollage-module-scss-module__JWYmlW__collage', ({ target }) => { animate(target.querySelectorAll('.FadeIn-module-scss-module__C4C9Kq__fadeIn'), { opacity: [0, 1], y: [20, 0] }, { duration: 0.6, delay: stagger(0.15), easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)' }) })"
+    },
+    {
+      "id": "css-transition-color-nav-links",
+      "selector": "header.SiteHeader-module-scss-module__zKj4Ca__header a",
+      "type": "css-transition",
+      "trigger": "hover",
+      "transition": "color 0.1s cubic-bezier(0.165, 0.84, 0.44, 1)",
+      "transitionProperty": "color",
+      "transitionDuration": "0.1s",
+      "transitionTimingFunction": "cubic-bezier(0.165, 0.84, 0.44, 1)",
+      "transitionDelay": "0s",
+      "affectedElements": 5,
+      "description": "Navigation header links - fast color transition on hover using ease-out cubic curve",
+      "motionEquivalent": "Keep as CSS transition: color 0.1s cubic-bezier(0.165, 0.84, 0.44, 1)"
+    },
+    {
+      "id": "css-transition-transform-nav-svg",
+      "selector": ".SiteHeader-module-scss-module__zKj4Ca__navText > svg",
+      "type": "css-transition",
+      "trigger": "hover",
+      "transition": "transform 0.2s ease-in-out",
+      "transitionProperty": "transform",
+      "transitionDuration": "0.2s",
+      "transitionTimingFunction": "ease-in-out",
+      "transitionDelay": "0s",
+      "affectedElements": 3,
+      "description": "Navigation dropdown arrow icons - rotates on hover to indicate dropdown open/close state",
+      "motionEquivalent": "Keep as CSS transition: transform 0.2s ease-in-out"
+    },
+    {
+      "id": "css-transition-bg-cta-button",
+      "selector": ".SiteHeader-module-scss-module__zKj4Ca__claudeCtaButton",
+      "type": "css-transition",
+      "trigger": "hover",
+      "transition": "background-color 0.2s",
+      "transitionProperty": "background-color",
+      "transitionDuration": "0.2s",
+      "transitionTimingFunction": "ease",
+      "transitionDelay": "0s",
+      "affectedElements": 2,
+      "description": "Header CTA button - background-color transition on hover for visual feedback",
+      "motionEquivalent": "Keep as CSS transition: background-color 0.2s ease"
+    },
+    {
+      "id": "css-transition-opacity-links",
+      "selector": ".Body-module-scss-module__ic-n1G__marsBodyText a",
+      "type": "css-transition",
+      "trigger": "hover",
+      "transition": "opacity 0.15s cubic-bezier(0.77, 0, 0.175, 1)",
+      "transitionProperty": "opacity",
+      "transitionDuration": "0.15s",
+      "transitionTimingFunction": "cubic-bezier(0.77, 0, 0.175, 1)",
+      "transitionDelay": "0s",
+      "affectedElements": 14,
+      "description": "Body text inline links - quick opacity fade on hover using a swift ease-in curve",
+      "motionEquivalent": "Keep as CSS transition: opacity 0.15s cubic-bezier(0.77, 0, 0.175, 1)"
+    },
+    {
+      "id": "css-transition-transform-camera-pan",
+      "selector": ".CameraSection-module-scss-module__zAxgdG__cameraPanContainer",
+      "type": "css-transition",
+      "trigger": "interaction",
+      "transition": "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+      "transitionProperty": "transform",
+      "transitionDuration": "0.6s",
+      "transitionTimingFunction": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "transitionDelay": "0s",
+      "affectedElements": 1,
+      "description": "Camera pan container - smooth transform transition for panning the Mars camera image on crosshair interaction",
+      "motionEquivalent": "animate('.CameraSection-module-scss-module__zAxgdG__cameraPanContainer', { x: targetX, y: targetY }, { duration: 0.6, easing: 'cubic-bezier(0.4, 0, 0.2, 1)' })"
+    },
+    {
+      "id": "css-transition-multi-carousel-buttons",
+      "selector": ".CameraSection-module-scss-module__zAxgdG__carouselNumber",
+      "type": "css-transition",
+      "trigger": "hover",
+      "transition": "background 0.2s, color 0.2s, border-color 0.2s",
+      "transitionProperty": "background, color, border-color",
+      "transitionDuration": "0.2s, 0.2s, 0.2s",
+      "transitionTimingFunction": "ease, ease, ease",
+      "transitionDelay": "0s, 0s, 0s",
+      "affectedElements": 15,
+      "description": "Camera carousel number buttons - simultaneous background, color and border-color transitions for active/hover state changes",
+      "motionEquivalent": "Keep as CSS transition: background 0.2s, color 0.2s, border-color 0.2s"
+    },
+    {
+      "id": "css-transition-opacity-crosshairs",
+      "selector": ".CameraSection-module-scss-module__zAxgdG__crosshair",
+      "type": "css-transition",
+      "trigger": "hover",
+      "transition": "opacity 0.2s",
+      "transitionProperty": "opacity",
+      "transitionDuration": "0.2s",
+      "transitionTimingFunction": "ease",
+      "transitionDelay": "0s",
+      "affectedElements": 7,
+      "description": "Camera crosshair targeting buttons - fade in/out on hover to reveal interactive areas on the Mars camera image",
+      "motionEquivalent": "Keep as CSS transition: opacity 0.2s ease"
+    },
+    {
+      "id": "css-transition-multi-camera-svg",
+      "selector": ".CameraSection-module-scss-module__zAxgdG__cameraFrame > svg",
+      "type": "css-transition",
+      "trigger": "hover",
+      "transition": "color 0.2s, opacity 0.2s",
+      "transitionProperty": "color, opacity",
+      "transitionDuration": "0.2s, 0.2s",
+      "transitionTimingFunction": "ease, ease",
+      "transitionDelay": "0s, 0s",
+      "affectedElements": 7,
+      "description": "Camera frame SVG overlay icons - color and opacity transition for interactive hover states",
+      "motionEquivalent": "Keep as CSS transition: color 0.2s, opacity 0.2s"
+    },
+    {
+      "id": "css-transition-multi-camera-indicator",
+      "selector": ".CameraSection-module-scss-module__zAxgdG__cameraIndicator",
+      "type": "css-transition",
+      "trigger": "hover",
+      "transition": "background 0.2s, opacity 0.2s",
+      "transitionProperty": "background, opacity",
+      "transitionDuration": "0.2s, 0.2s",
+      "transitionTimingFunction": "ease, ease",
+      "transitionDelay": "0s, 0s",
+      "affectedElements": 4,
+      "description": "Camera label indicator dots - background and opacity transitions for active camera selection state",
+      "motionEquivalent": "Keep as CSS transition: background 0.2s, opacity 0.2s"
+    },
+    {
+      "id": "css-transition-border-audio-bar",
+      "selector": ".AudioBar-module-scss-module__zwJY6q__audioBar",
+      "type": "css-transition",
+      "trigger": "hover",
+      "transition": "border-color 0.2s",
+      "transitionProperty": "border-color",
+      "transitionDuration": "0.2s",
+      "transitionTimingFunction": "ease",
+      "transitionDelay": "0s",
+      "affectedElements": 16,
+      "description": "Audio bar container button - border-color transition on hover/active state",
+      "motionEquivalent": "Keep as CSS transition: border-color 0.2s ease"
+    },
+    {
+      "id": "css-transition-transform-viewfinder-dot",
+      "selector": ".CameraSection-module-scss-module__zAxgdG__dot",
+      "type": "css-transition",
+      "trigger": "interaction",
+      "transition": "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+      "transitionProperty": "transform",
+      "transitionDuration": "0.5s",
+      "transitionTimingFunction": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "transitionDelay": "0s",
+      "affectedElements": 1,
+      "description": "Camera viewfinder center dot - smooth scale/position transform when viewfinder reticle moves",
+      "motionEquivalent": "animate('.CameraSection-module-scss-module__zAxgdG__dot', { scale: newScale }, { duration: 0.5, easing: 'cubic-bezier(0.4, 0, 0.2, 1)' })"
+    },
+    {
+      "id": "css-transition-color-window-title",
+      "selector": ".DraggableWindows-module-scss-module__KbekZG__windowTitle",
+      "type": "css-transition",
+      "trigger": "hover",
+      "transition": "color 0.2s",
+      "transitionProperty": "color",
+      "transitionDuration": "0.2s",
+      "transitionTimingFunction": "ease",
+      "transitionDelay": "0s",
+      "affectedElements": 3,
+      "description": "Draggable window title text - color transition on hover to indicate the window is draggable/interactive",
+      "motionEquivalent": "Keep as CSS transition: color 0.2s ease"
+    },
+    {
+      "id": "scroll-reveal-draggable-windows",
+      "selector": ".DraggableWindows-module-scss-module__KbekZG__window .FadeIn-module-scss-module__C4C9Kq__fadeIn",
+      "type": "scroll-triggered",
+      "trigger": "in-view",
+      "library": "custom-FadeIn-component",
+      "properties": {
+        "opacity": [0, 1],
+        "transform": ["translateY(20px)", "translateY(0)"]
+      },
+      "duration": 600,
+      "delays": [0, 0.2],
+      "easing": "cubic-bezier(0.25, 0.1, 0.25, 1)",
+      "description": "Draggable windows section scroll reveal - windows fade up into view with staggered delays (0s and 0.2s) as the section enters the viewport",
+      "motionEquivalent": "inView('.DraggableWindows-module-scss-module__KbekZG__windowsContainer', ({ target }) => { animate(target.querySelectorAll('.FadeIn-module-scss-module__C4C9Kq__fadeIn'), { opacity: [0, 1], y: [20, 0] }, { duration: 0.6, delay: stagger(0.2), easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)' }) })"
+    },
+    {
+      "id": "css-transition-opacity-transform-archive-link",
+      "selector": ".DraggableWindows-module-scss-module__KbekZG__archiveLink",
+      "type": "css-transition",
+      "trigger": "hover",
+      "transition": "opacity 0.2s, transform 0.2s",
+      "transitionProperty": "opacity, transform",
+      "transitionDuration": "0.2s, 0.2s",
+      "transitionTimingFunction": "ease, ease",
+      "transitionDelay": "0s, 0s",
+      "affectedElements": 1,
+      "description": "DraggableWindows archive link - combined opacity and transform transition for hover state, likely a subtle lift/fade effect",
+      "motionEquivalent": "Keep as CSS transition: opacity 0.2s, transform 0.2s"
+    },
+    {
+      "id": "css-transition-transform-photo-wrapper",
+      "selector": ".PhotoCollage-module-scss-module__JWYmlW__photoWrapper",
+      "type": "css-transition",
+      "trigger": "hover",
+      "transition": "transform 0.3s",
+      "transitionProperty": "transform",
+      "transitionDuration": "0.3s",
+      "transitionTimingFunction": "ease",
+      "transitionDelay": "0s",
+      "affectedElements": 7,
+      "description": "Photo collage image wrappers - subtle scale/translate transform on hover for photo lift effect",
+      "motionEquivalent": "Keep as CSS transition: transform 0.3s ease"
+    },
+    {
+      "id": "css-transition-color-rover-annotation",
+      "selector": ".RoverViewer-module-scss-module__WUesoG__annotation",
+      "type": "css-transition",
+      "trigger": "hover",
+      "transition": "color 0.4s",
+      "transitionProperty": "color",
+      "transitionDuration": "0.4s",
+      "transitionTimingFunction": "ease",
+      "transitionDelay": "0s",
+      "affectedElements": 10,
+      "description": "Rover viewer annotation labels - slower color transition on hover for tooltip/label highlight effect",
+      "motionEquivalent": "Keep as CSS transition: color 0.4s ease"
+    },
+    {
+      "id": "css-transition-rover-zoom-controls",
+      "selector": ".RoverViewer-module-scss-module__WUesoG__zoomBtn",
+      "type": "css-transition",
+      "trigger": "hover",
+      "transition": "0.4s",
+      "transitionProperty": "all",
+      "transitionDuration": "0.4s",
+      "transitionTimingFunction": "ease",
+      "transitionDelay": "0s",
+      "affectedElements": 2,
+      "description": "Rover viewer zoom buttons - all-properties transition on hover for visual state change",
+      "motionEquivalent": "Keep as CSS transition: all 0.4s ease"
+    },
+    {
+      "id": "web-animation-1",
+      "selector": "#main-content > div.page-module-scss-module__1625La__container > div.Body-module-scss-module__ic-n1G__body:nth-of-type(2) > section.page-wrapper:nth-of-type(1) > div.Body-module-scss-module__ic-n1G__readingColumn > svg > circle:nth-of-type(1)",
+      "type": "web-animation",
+      "trigger": "page-load",
+      "name": "MarsSignal-module-scss-module__hExYUq__pulsate-signal",
+      "duration": 4000,
+      "delay": 1500,
+      "easing": "linear",
+      "playState": "running",
+      "description": "Web Animations API instance for pulsate-signal on circle 1 - mirrors the CSS animation, confirms it is actively running via WAAPI",
+      "motionEquivalent": "animate('svg circle:nth-of-type(1)', { scale: [1, 1.2, 1] }, { duration: 4, delay: 1.5, repeat: Infinity })"
+    },
+    {
+      "id": "web-animation-2",
+      "selector": "#main-content > div.page-module-scss-module__1625La__container > div.Body-module-scss-module__ic-n1G__body:nth-of-type(2) > section.page-wrapper:nth-of-type(1) > div.Body-module-scss-module__ic-n1G__readingColumn > svg > circle:nth-of-type(2)",
+      "type": "web-animation",
+      "trigger": "page-load",
+      "name": "MarsSignal-module-scss-module__hExYUq__pulsate-signal",
+      "duration": 4000,
+      "delay": 1650,
+      "easing": "linear",
+      "playState": "running",
+      "description": "Web Animations API instance for pulsate-signal on circle 2 - staggered running animation",
+      "motionEquivalent": "animate('svg circle:nth-of-type(2)', { scale: [1, 1.2, 1] }, { duration: 4, delay: 1.65, repeat: Infinity })"
+    },
+    {
+      "id": "web-animation-3",
+      "selector": "#main-content > div.page-module-scss-module__1625La__container > div.Body-module-scss-module__ic-n1G__body:nth-of-type(2) > section.page-wrapper:nth-of-type(1) > div.Body-module-scss-module__ic-n1G__readingColumn > svg > circle:nth-of-type(3)",
+      "type": "web-animation",
+      "trigger": "page-load",
+      "name": "MarsSignal-module-scss-module__hExYUq__pulsate",
+      "duration": 4000,
+      "delay": 0,
+      "easing": "linear",
+      "playState": "running",
+      "description": "Web Animations API instance for pulsate on circle 3 - inner dot running from page load",
+      "motionEquivalent": "animate('svg circle:nth-of-type(3)', { scale: [1, 1.2, 1] }, { duration: 4, repeat: Infinity })"
+    },
+    {
+      "id": "web-animation-4",
+      "selector": "#main-content > div.page-module-scss-module__1625La__container > div.Body-module-scss-module__ic-n1G__body:nth-of-type(2) > section.page-wrapper:nth-of-type(1) > div.Body-module-scss-module__ic-n1G__readingColumn > svg > circle:nth-of-type(4)",
+      "type": "web-animation",
+      "trigger": "page-load",
+      "name": "MarsSignal-module-scss-module__hExYUq__pulsate",
+      "duration": 4000,
+      "delay": 800,
+      "easing": "linear",
+      "playState": "running",
+      "description": "Web Animations API instance for pulsate on circle 4 - inner dot staggered 800ms",
+      "motionEquivalent": "animate('svg circle:nth-of-type(4)', { scale: [1, 1.2, 1] }, { duration: 4, delay: 0.8, repeat: Infinity })"
+    },
+    {
+      "id": "web-animation-5",
+      "selector": ".CameraSection-module-scss-module__zAxgdG__cameraIndicator",
+      "type": "web-animation",
+      "trigger": "page-load",
+      "name": "CameraSection-module-scss-module__zAxgdG__blink",
+      "duration": 1000,
+      "delay": 0,
+      "easing": "linear",
+      "playState": "running",
+      "description": "Web Animations API instance for camera indicator blink - confirms WAAPI is running the blink alongside CSS animation",
+      "motionEquivalent": "animate('.CameraSection-module-scss-module__zAxgdG__cameraIndicator', { opacity: [1, 0, 1] }, { duration: 1, repeat: Infinity, easing: 'steps(1, end)' })"
+    },
+    {
+      "id": "web-animation-6",
+      "selector": ".AudioBar-module-scss-module__zwJY6q__labelWrapper.AudioBar-module-scss-module__zwJY6q__labelScroll",
+      "type": "web-animation",
+      "trigger": "page-load",
+      "name": "AudioBar-module-scss-module__zwJY6q__marquee",
+      "duration": 12000,
+      "delay": 0,
+      "easing": "linear",
+      "playState": "running",
+      "description": "Web Animations API instance for the audio bar marquee scroll - WAAPI confirmation of the 12s linear marquee",
+      "motionEquivalent": "animate('.AudioBar-module-scss-module__zwJY6q__labelWrapper', { x: ['0%', '-50%'] }, { duration: 12, repeat: Infinity, easing: 'linear' })"
+    }
+  ],
+  "scrollBehavior": "smooth",
+  "notes": {
+    "fadeInComponent": "The page uses a custom React FadeIn component (FadeIn-module-scss-module__C4C9Kq__fadeIn) that applies CSS transitions (opacity + transform) controlled by an IntersectionObserver. When elements enter the viewport, a .visible class is added which triggers the transition. This is a scroll-reveal pattern implemented via CSS transitions rather than CSS animations. 16 total FadeIn elements exist on the page; 2 are immediately visible (hero section), 14 are pending viewport entry.",
+    "noLibraries": "No third-party animation libraries (GSAP, Framer Motion, AOS, Lottie, etc.) were detected on this page. All animations are implemented using native CSS animations, CSS transitions, and the Web Animations API.",
+    "webAnimationsApi": "6 Web Animations API animations are running, all corresponding to the same CSS animations (pulsate-signal x2, pulsate x2, blink x1, marquee x1). This duplication is likely due to how the browser reports CSS animations via document.getAnimations().",
+    "transitionNotes": "741 CSS transitions were detected in total, but 627 of them are the default 'all 0s ease' universal reset which has no practical visual effect. The 26 unique meaningful transition patterns are fully represented in this catalog."
+  },
+  "summary": {
+    "total": 33,
+    "rawDetected": 754,
+    "rawBreakdown": {
+      "css-animation": 7,
+      "css-transition": 741,
+      "web-animation": 6
+    },
+    "curated": {
+      "css-animation": 7,
+      "css-transition-unique-patterns": 17,
+      "web-animation": 6,
+      "scroll-triggered": 4
+    },
+    "byType": {
+      "css-animation": 7,
+      "css-transition": 17,
+      "web-animation": 6,
+      "scroll-triggered": 4
+    },
+    "byTrigger": {
+      "page-load": 13,
+      "hover": 14,
+      "interaction": 2,
+      "in-view": 4
+    },
+    "complexity": "complex",
+    "highlights": [
+      "Mars signal pulsating SVG circles with staggered delays create a radar-like ripple effect",
+      "Custom FadeIn scroll-reveal component with 16 instances and various stagger delays",
+      "Camera interface with blink indicator, pan container, crosshair opacity reveals and carousel buttons",
+      "Audio bar marquee ticker animation at 12s linear loop",
+      "Photo collage staggered entrance with 150ms delay increments (up to 0.9s total)",
+      "Draggable windows section with scroll-triggered reveal",
+      "No animation libraries - all native CSS and WAAPI"
+    ]
+  }
+}
