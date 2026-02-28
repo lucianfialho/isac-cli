@@ -87,7 +87,7 @@ async function loginFlow(): Promise<void> {
         log.dim(`  Renews: ${new Date(license.subscriptionExpiresAt).toLocaleDateString()}`);
       }
     } else {
-      log.warn("No active subscription. Visit https://isac.dev/pricing to subscribe.");
+      log.warn("No active subscription. Visit https://thedevhype.online/pricing to subscribe.");
     }
   }
 }

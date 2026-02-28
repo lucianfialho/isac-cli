@@ -1,4 +1,4 @@
-const API_BASE = "https://isac.dev";
+const API_BASE = "https://thedevhype.online";
 
 interface DeviceCodeResponse {
   userCode: string;
