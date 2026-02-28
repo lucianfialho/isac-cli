@@ -2,19 +2,19 @@ import type { Metadata } from "next";
 import { ThemeToggle } from "./components/theme-toggle";
 
 export const metadata: Metadata = {
-  title: "Design System — /* PREENCHER: nome do site */",
+  title: "Design System — /* FILL IN: site name */",
   description:
-    "Design system tokens and components extracted from /* PREENCHER: dominio */",
+    "Design system tokens and components extracted from /* FILL IN: domain */",
 };
 
 /* ───────── static tokens (non-color) ───────── */
 const fonts = {
-  serif: /* PREENCHER: font stack serif */ '"Georgia", serif',
-  sans: /* PREENCHER: font stack sans */ 'ui-sans-serif, system-ui, sans-serif',
-  mono: /* PREENCHER: font stack mono */ 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+  serif: /* FILL IN: serif font stack */ '"Georgia", serif',
+  sans: /* FILL IN: sans font stack */ 'ui-sans-serif, system-ui, sans-serif',
+  mono: /* FILL IN: mono font stack */ 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
 };
 const fontSizes = {
-  /* PREENCHER: escala de tamanhos extraida dos screenshots */
+  /* FILL IN: size scale extracted from screenshots */
   xs: "12px",
   sm: "13px",
   base: "14px",
@@ -22,34 +22,34 @@ const fontSizes = {
   display: "72px",
 };
 const fontWeights = {
-  /* PREENCHER: pesos usados no site */
+  /* FILL IN: weights used on the site */
   regular: 400,
   medium: 500,
   semibold: 600,
   bold: 700,
 };
 const radii = {
-  /* PREENCHER: border-radius extraidos */
+  /* FILL IN: extracted border-radius values */
   sm: "6px",
   md: "8px",
   pill: "9999px",
 };
 
 /* ───────── primitive palette ───────── */
-/* PREENCHER: Adicionar todas as cores primitivas extraidas dos screenshots.
-   Cada entrada deve ter: name (nome curto), var (CSS custom property --sf-*),
-   light (valor hex/oklch no light mode), dark (valor hex/oklch no dark mode).
-   Primitivos sao cores absolutas, nao referenciam outras variaveis. */
+/* FILL IN: Add all primitive colors extracted from screenshots.
+   Each entry must have: name (short name), var (CSS custom property --sf-*),
+   light (hex/oklch value in light mode), dark (hex/oklch value in dark mode).
+   Primitives are absolute colors, they do not reference other variables. */
 const primitives: { name: string; var: string; light: string; dark: string }[] = [
   { name: "white", var: "--sf-white", light: "#ffffff", dark: "#ffffff" },
   { name: "black", var: "--sf-black", light: "#000000", dark: "#000000" },
-  /* PREENCHER: gray scale (50-950), accent colors, etc. */
+  /* FILL IN: gray scale (50-950), accent colors, etc. */
 ];
 
 /* ───────── semantic tokens ───────── */
-/* PREENCHER: Agrupar tokens semanticos por categoria.
-   Cada token mapeia para um primitivo (lightRef/darkRef = nome do primitivo).
-   Categorias tipicas: Background, Text, Border, Surface, Accent. */
+/* FILL IN: Group semantic tokens by category.
+   Each token maps to a primitive (lightRef/darkRef = primitive name).
+   Typical categories: Background, Text, Border, Surface, Accent. */
 const semanticTokens: {
   category: string;
   tokens: { name: string; var: string; lightRef: string; darkRef: string }[];
@@ -57,32 +57,32 @@ const semanticTokens: {
   {
     category: "Background",
     tokens: [
-      /* PREENCHER: bg-primary, bg-secondary, bg-tertiary, bg-glass, etc. */
-      { name: "bg-primary", var: "--color-bg-primary", lightRef: "white", darkRef: "/* PREENCHER */" },
+      /* FILL IN: bg-primary, bg-secondary, bg-tertiary, bg-glass, etc. */
+      { name: "bg-primary", var: "--color-bg-primary", lightRef: "white", darkRef: "/* FILL IN */" },
     ],
   },
   {
     category: "Text",
     tokens: [
-      /* PREENCHER: text-primary, text-secondary, text-tertiary, text-inverse */
+      /* FILL IN: text-primary, text-secondary, text-tertiary, text-inverse */
     ],
   },
   {
     category: "Border",
     tokens: [
-      /* PREENCHER: border-primary, border-secondary, border-subtle */
+      /* FILL IN: border-primary, border-secondary, border-subtle */
     ],
   },
   {
     category: "Surface",
     tokens: [
-      /* PREENCHER: surface-elevated, surface-sunken */
+      /* FILL IN: surface-elevated, surface-sunken */
     ],
   },
   {
     category: "Accent",
     tokens: [
-      /* PREENCHER: accent color(s) */
+      /* FILL IN: accent color(s) */
     ],
   },
 ];
@@ -170,12 +170,12 @@ function TokenRow({ name, value, preview }: { name: string; value: string; previ
 }
 
 /* ───────── sample data ───────── */
-/* PREENCHER: Extrair dados reais dos screenshots para popular a tabela.
-   Cada item deve ter os campos relevantes para o leaderboard do site. */
+/* FILL IN: Extract real data from screenshots to populate the table.
+   Each item should have the relevant fields for the site's leaderboard. */
 const sampleProjects = [
-  { rank: 1, name: "/* PREENCHER */", description: "/* PREENCHER */", original: "/* PREENCHER */", language: "/* PREENCHER */", stars: "/* PREENCHER */" },
-  { rank: 2, name: "/* PREENCHER */", description: "/* PREENCHER */", original: "/* PREENCHER */", language: "/* PREENCHER */", stars: "/* PREENCHER */" },
-  { rank: 3, name: "/* PREENCHER */", description: "/* PREENCHER */", original: "/* PREENCHER */", language: "/* PREENCHER */", stars: "/* PREENCHER */" },
+  { rank: 1, name: "/* FILL IN */", description: "/* FILL IN */", original: "/* FILL IN */", language: "/* FILL IN */", stars: "/* FILL IN */" },
+  { rank: 2, name: "/* FILL IN */", description: "/* FILL IN */", original: "/* FILL IN */", language: "/* FILL IN */", stars: "/* FILL IN */" },
+  { rank: 3, name: "/* FILL IN */", description: "/* FILL IN */", original: "/* FILL IN */", language: "/* FILL IN */", stars: "/* FILL IN */" },
 ];
 
 /* ───────── page ───────── */
@@ -208,7 +208,7 @@ export default function DesignSystemPage() {
         <p style={{ fontSize: 16, color: "var(--color-text-secondary)" }}>
           Tokens and components extracted from{" "}
           <span style={{ fontWeight: fontWeights.semibold, color: "var(--color-text-primary)" }}>
-            {/* PREENCHER: dominio do site */}
+            {/* FILL IN: site domain */}
           </span>{" "}
           — with dark mode support
         </p>
@@ -350,7 +350,7 @@ export default function DesignSystemPage() {
       <Section title="Typography">
         <div style={{ marginBottom: 32 }}>
           <SubHeading>Font Families</SubHeading>
-          {/* PREENCHER: ajustar preview text para o nome/contexto do site */}
+          {/* FILL IN: adjust preview text for the site name/context */}
           <TokenRow name="serif" value={fonts.serif} preview={<span style={{ fontFamily: fonts.serif, fontSize: 18 }}>preview text</span>} />
           <TokenRow name="sans" value="ui-sans-serif, system-ui, sans-serif…" preview={<span style={{ fontFamily: fonts.sans, fontSize: 18 }}>preview text</span>} />
           <TokenRow name="mono" value="ui-monospace, SFMono-Regular…" preview={<span style={{ fontFamily: fonts.mono, fontSize: 18 }}>preview text</span>} />
@@ -396,15 +396,15 @@ export default function DesignSystemPage() {
               borderRadius: radii.md,
             }}
           >
-            {/* PREENCHER: ajustar textos de exemplo para refletir o site */}
+            {/* FILL IN: adjust sample text to reflect the site */}
             <span style={{ fontFamily: fonts.serif, fontSize: 72, fontWeight: fontWeights.bold, lineHeight: 1, letterSpacing: "-0.02em" }}>
-              {/* PREENCHER: display heading */}
+              {/* FILL IN: display heading */}
             </span>
             <span style={{ fontFamily: fonts.sans, fontSize: 14, color: "var(--color-text-secondary)" }}>
-              {/* PREENCHER: subtitle/phonetic */}
+              {/* FILL IN: subtitle/phonetic */}
             </span>
             <span style={{ fontFamily: fonts.sans, fontSize: 13, fontStyle: "italic", color: "var(--color-text-secondary)" }}>
-              {/* PREENCHER: tipo gramatical */}
+              {/* FILL IN: grammatical type */}
             </span>
           </div>
         </div>
@@ -443,7 +443,7 @@ export default function DesignSystemPage() {
               borderRadius: radii.md,
             }}
           >
-            {/* PREENCHER: logo/nome do site */}
+            {/* FILL IN: site logo/name */}
             <span style={{ fontFamily: fonts.serif, fontWeight: fontWeights.bold, fontSize: 16 }}>site name</span>
             <button
               style={{
@@ -458,7 +458,7 @@ export default function DesignSystemPage() {
                 cursor: "pointer",
               }}
             >
-              {/* PREENCHER: texto do CTA */}
+              {/* FILL IN: CTA text */}
               Action
             </button>
           </div>
@@ -468,7 +468,7 @@ export default function DesignSystemPage() {
         <div style={{ marginBottom: 48 }}>
           <h3 style={{ fontSize: 16, fontWeight: fontWeights.semibold, marginBottom: 12 }}>Button</h3>
           <p style={{ fontSize: 13, color: "var(--color-text-secondary)", marginBottom: 16 }}>
-            {/* PREENCHER: descricao do estilo de botao */}
+            {/* FILL IN: button style description */}
             Outlined style. Border with subtle radius. Used for CTAs.
           </p>
           <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
@@ -485,7 +485,7 @@ export default function DesignSystemPage() {
                 cursor: "pointer",
               }}
             >
-              {/* PREENCHER */}
+              {/* FILL IN */}
               Primary Button
             </button>
             <button
@@ -501,7 +501,7 @@ export default function DesignSystemPage() {
                 cursor: "pointer",
               }}
             >
-              {/* PREENCHER */}
+              {/* FILL IN */}
               Small Button
             </button>
           </div>
@@ -516,7 +516,7 @@ export default function DesignSystemPage() {
           <div style={{ display: "flex", gap: 24, fontSize: 14 }}>
             <span style={{ textDecoration: "underline", cursor: "pointer" }}>Inline Link</span>
             <span style={{ textDecoration: "underline", fontWeight: fontWeights.semibold, cursor: "pointer" }}>
-              {/* PREENCHER */}
+              {/* FILL IN */}
               Project Link ↗
             </span>
           </div>
@@ -529,7 +529,7 @@ export default function DesignSystemPage() {
             Pill-shaped badge showing the programming language.
           </p>
           <div style={{ display: "flex", gap: 12 }}>
-            {/* PREENCHER: linguagens extraidas dos screenshots */}
+            {/* FILL IN: languages extracted from screenshots */}
             {["TypeScript", "Rust", "Python"].map((lang) => (
               <span
                 key={lang}
@@ -549,14 +549,14 @@ export default function DesignSystemPage() {
           </div>
         </div>
 
-        {/* Fork Badge — se aplicavel ao site */}
+        {/* Fork Badge — if applicable to the site */}
         <div style={{ marginBottom: 48 }}>
           <h3 style={{ fontSize: 16, fontWeight: fontWeights.semibold, marginBottom: 12 }}>Fork Badge</h3>
           <p style={{ fontSize: 13, color: "var(--color-text-secondary)", marginBottom: 16 }}>
             Shows the original repository with a fork icon.
           </p>
           <div style={{ display: "flex", gap: 16 }}>
-            {/* PREENCHER: nomes de repos originais */}
+            {/* FILL IN: original repo names */}
             {["repo-a", "repo-b", "repo-c"].map((repo) => (
               <span
                 key={repo}
@@ -587,7 +587,7 @@ export default function DesignSystemPage() {
             Gold star icon with formatted count. Accent color stays consistent across themes.
           </p>
           <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
-            {/* PREENCHER: valores de star count */}
+            {/* FILL IN: star count values */}
             {["10.0k", "5.2k", "917", "61"].map((count) => (
               <span key={count} style={{ display: "flex", alignItems: "center", gap: 4, fontFamily: fonts.mono, fontSize: 14, fontWeight: fontWeights.semibold }}>
                 <span style={{ color: "var(--color-accent)", fontSize: 16 }}>★</span>
@@ -604,7 +604,7 @@ export default function DesignSystemPage() {
           Main data table. Uses semantic tokens for all colors — automatically adapts to dark mode.
         </p>
         <div style={{ border: "1px solid var(--color-border-primary)", borderRadius: radii.md, overflow: "hidden" }}>
-          {/* PREENCHER: ajustar colunas conforme dados do site */}
+          {/* FILL IN: adjust columns according to site data */}
           <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: fonts.sans, fontSize: 14 }}>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--color-border-primary)", background: "var(--color-bg-secondary)" }}>
@@ -678,7 +678,7 @@ export default function DesignSystemPage() {
           }}
         >
           <div>
-            {/* PREENCHER: texto do CTA */}
+            {/* FILL IN: CTA text */}
             <div style={{ fontWeight: fontWeights.bold, fontSize: 16, marginBottom: 4 }}>CTA headline</div>
             <div style={{ fontSize: 14, color: "var(--color-text-secondary)" }}>
               CTA description text goes here.
@@ -698,7 +698,7 @@ export default function DesignSystemPage() {
               whiteSpace: "nowrap",
             }}
           >
-            {/* PREENCHER */}
+            {/* FILL IN */}
             Action Button
           </button>
         </div>
@@ -710,24 +710,24 @@ export default function DesignSystemPage() {
           Dictionary-style hero with serif display heading, phonetic pronunciation, and numbered definitions.
         </p>
         <div style={{ padding: "48px 32px", border: "1px solid var(--color-border-primary)", borderRadius: radii.md }}>
-          {/* PREENCHER: titulo display, fonetica, definicoes */}
+          {/* FILL IN: display title, phonetics, definitions */}
           <h1 style={{ fontFamily: fonts.serif, fontSize: 72, fontWeight: fontWeights.bold, letterSpacing: "-0.02em", lineHeight: 1, marginBottom: 8 }}>
-            {/* PREENCHER: display heading */}
+            {/* FILL IN: display heading */}
           </h1>
           <div style={{ fontFamily: fonts.sans, fontSize: 14, color: "var(--color-text-secondary)", marginBottom: 2 }}>
-            {/* PREENCHER: phonetic */}
+            {/* FILL IN: phonetic */}
           </div>
           <div style={{ fontFamily: fonts.sans, fontSize: 13, fontStyle: "italic", color: "var(--color-text-secondary)", marginBottom: 24 }}>
-            {/* PREENCHER: parte do discurso */}
+            {/* FILL IN: part of speech */}
           </div>
           <hr style={{ border: "none", borderTop: "1px solid var(--color-border-primary)", marginBottom: 24 }} />
           <ol style={{ paddingLeft: 20, display: "flex", flexDirection: "column", gap: 16, fontSize: 16, lineHeight: 1.6 }}>
-            {/* PREENCHER: definicoes */}
+            {/* FILL IN: definitions */}
             <li>First definition goes here.</li>
             <li>Second definition goes here.</li>
           </ol>
           <p style={{ fontSize: 13, color: "var(--color-text-secondary)", marginTop: 24 }}>
-            {/* PREENCHER: creditos/atribuicao */}
+            {/* FILL IN: credits/attribution */}
           </p>
         </div>
       </Section>

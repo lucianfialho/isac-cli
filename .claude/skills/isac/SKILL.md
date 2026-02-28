@@ -1,207 +1,207 @@
 ---
 name: isac
-description: Pipeline automatizado para replicar paginas web. Captura screenshots de uma URL, extrai design system, planeja, implementa e verifica visualmente.
+description: Automated pipeline to replicate web pages. Captures screenshots from a URL, extracts design system, plans, implements, and visually verifies.
 disable-model-invocation: true
 argument-hint: replicate <url> [--teams]
 ---
 
-# Pipeline ISAC — Replicacao de Pagina
+# ISAC Pipeline — Page Replication
 
-Voce e um orquestrador que coordena subagentes especializados para replicar uma pagina web a partir de uma URL.
+You are an orchestrator that coordinates specialized subagents to replicate a web page from a URL.
 
-Para documentacao detalhada do processo, consulte [process.md](process.md).
+For detailed process documentation, see [process.md](process.md).
 
-## Entrada
+## Input
 
-`$ARGUMENTS` contem a string completa de argumentos. Parse da seguinte forma:
+`$ARGUMENTS` contains the full argument string. Parse as follows:
 
-1. **Subcomando** (primeiro token): deve ser `replicate`. Se nao for, responda com erro:
-   > Subcomando desconhecido. Uso: `/isac replicate <url> [--teams]`
-2. **URL** (segundo token): deve comecar com `http`. Se ausente ou invalida, responda com erro:
-   > URL invalida. Forneca uma URL completa (ex: `https://example.com`)
-3. **Flag --teams**: verificar se `$ARGUMENTS` contem `--teams`
+1. **Subcommand** (first token): must be `replicate`. If not, respond with error:
+   > Unknown subcommand. Usage: `/isac replicate <url> [--teams]`
+2. **URL** (second token): must start with `http`. If missing or invalid, respond with error:
+   > Invalid URL. Provide a full URL (e.g., `https://example.com`)
+3. **Flag --teams**: check if `$ARGUMENTS` contains `--teams`
 
-Exemplo de parsing:
-- `replicate https://example.com` → subcomando=replicate, url=https://example.com, teams=false
-- `replicate https://example.com --teams` → subcomando=replicate, url=https://example.com, teams=true
+Parsing examples:
+- `replicate https://example.com` → subcommand=replicate, url=https://example.com, teams=false
+- `replicate https://example.com --teams` → subcommand=replicate, url=https://example.com, teams=true
 
-## Pre-requisitos
+## Prerequisites
 
-Antes de iniciar, verifique:
-1. Projeto Next.js esta configurado (package.json com next)
-2. `app/globals.css` existe
-3. Se `--teams` foi usado, verifique que `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` esta definida como `1`
-
----
-
-## Pipeline (modo padrao — sem --teams)
-
-Execute as fases **sequencialmente** via Task tool. Cada fase depende da anterior.
-
-### Fase 0: Captura de Screenshots
-
-Delegue ao subagente **screenshot-capturer** com o prompt:
-
-> Capture screenshots full-page da URL `<URL>`.
-> Salve em `.claude/screenshots/`.
-> Capture em light e dark mode se disponivel.
-> Use viewport de 1440px (desktop).
-
-**Criterio de sucesso**: `.claude/screenshots/full-page.png` existe.
+Before starting, verify:
+1. Next.js project is configured (package.json with next)
+2. `app/globals.css` exists
+3. If `--teams` was used, verify that `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` is set to `1`
 
 ---
 
-### Fase 1a: Extracao de Tokens
+## Pipeline (default mode — without --teams)
 
-Delegue ao subagente **ds-extractor** com o prompt:
+Execute phases **sequentially** via the Task tool. Each phase depends on the previous one.
 
-> Analise os screenshots em `.claude/screenshots/` e extraia o design system completo.
-> Crie CSS custom properties em `app/globals.css` com tokens light/dark.
+### Phase 0: Screenshot Capture
+
+Delegate to the **screenshot-capturer** subagent with the prompt:
+
+> Capture full-page screenshots of the URL `<URL>`.
+> Save to `.claude/screenshots/`.
+> Capture in light and dark mode if available.
+> Use 1440px viewport (desktop).
+
+**Success criteria**: `.claude/screenshots/full-page.png` exists.
+
+---
+
+### Phase 1a: Token Extraction
+
+Delegate to the **ds-extractor** subagent with the prompt:
+
+> Analyze the screenshots in `.claude/screenshots/` and extract the complete design system.
+> Create CSS custom properties in `app/globals.css` with light/dark tokens.
 >
-> Use o template em `.claude/skills/isac/templates/design-tokens.css` como referencia.
-> Screenshots estao em: `.claude/screenshots/`
+> Use the template at `.claude/skills/isac/templates/design-tokens.css` as reference.
+> Screenshots are in: `.claude/screenshots/`
 
-**Criterio de sucesso**: `app/globals.css` contem tokens semanticos com variantes light e dark.
+**Success criteria**: `app/globals.css` contains semantic tokens with light and dark variants.
 
 ---
 
-### Fase 1b: Documentacao do Design System
+### Phase 1b: Design System Documentation
 
-Delegue ao subagente **ds-page-builder** com o prompt:
+Delegate to the **ds-page-builder** subagent with the prompt:
 
-> Construa a pagina de documentacao visual do design system.
-> Leia os tokens em `app/globals.css` e os screenshots em `.claude/screenshots/`.
-> Use o template em `.claude/skills/isac/templates/design-system-page.tsx` como scaffolding.
-> Crie:
-> 1. `app/design-system/page.tsx` — documentacao completa com todas as secoes
+> Build the design system visual documentation page.
+> Read the tokens in `app/globals.css` and the screenshots in `.claude/screenshots/`.
+> Use the template at `.claude/skills/isac/templates/design-system-page.tsx` as scaffolding.
+> Create:
+> 1. `app/design-system/page.tsx` — complete documentation with all sections
 > 2. `app/design-system/layout.tsx` — layout wrapper
-> 3. `app/design-system/components/theme-toggle.tsx` — toggle system/light/dark
-> 4. `app/components/theme-toggle.tsx` — copia para uso na pagina principal
+> 3. `app/design-system/components/theme-toggle.tsx` — system/light/dark toggle
+> 4. `app/components/theme-toggle.tsx` — copy for use on the main page
 >
-> Screenshots estao em: `.claude/screenshots/`
+> Screenshots are in: `.claude/screenshots/`
 
-**Criterio de sucesso**: `app/design-system/page.tsx` renderiza sem erros, mostra todas as secoes (primitivos, semanticos, tipografia, radii, componentes).
+**Success criteria**: `app/design-system/page.tsx` renders without errors, shows all sections (primitives, semantics, typography, radii, components).
 
 ---
 
-### Fase 2: Planejamento
+### Phase 2: Planning
 
-Delegue ao subagente **page-planner** com o prompt:
+Delegate to the **page-planner** subagent with the prompt:
 
-> Analise os screenshots em `.claude/screenshots/` e o design system em `app/globals.css` e `app/design-system/page.tsx`.
-> Crie um plano detalhado cobrindo:
-> 1. Estrutura de secoes da pagina (hero, header, tabelas, CTAs, footer)
-> 2. Dados reais extraidos dos screenshots (textos, numeros, nomes)
-> 3. Hierarquia de componentes
-> 4. Mapeamento de cada elemento visual para tokens CSS
-> 5. Links externos visiveis nos screenshots
+> Analyze the screenshots in `.claude/screenshots/` and the design system in `app/globals.css` and `app/design-system/page.tsx`.
+> Create a detailed plan covering:
+> 1. Page section structure (hero, header, tables, CTAs, footer)
+> 2. Real data extracted from screenshots (text, numbers, names)
+> 3. Component hierarchy
+> 4. Mapping of each visual element to CSS tokens
+> 5. External links visible in screenshots
 >
-> Retorne o plano completo como texto estruturado.
+> Return the complete plan as structured text.
 
-**Criterio de sucesso**: plano identifica todas as secoes visiveis nos screenshots com dados concretos.
+**Success criteria**: plan identifies all sections visible in screenshots with concrete data.
 
 ---
 
-### Fase 3: Implementacao
+### Phase 3: Implementation
 
-Delegue ao subagente **page-builder** com o prompt:
+Delegate to the **page-builder** subagent with the prompt:
 
-> Implemente a pagina em `app/page.tsx` seguindo este plano:
-> [INSERIR PLANO DA FASE 2]
+> Implement the page in `app/page.tsx` following this plan:
+> [INSERT PHASE 2 PLAN]
 >
-> Regras obrigatorias:
-> - Use APENAS `var(--token)` para cores — NUNCA valores hex/rgb hardcoded
-> - Suporte dark mode via `[data-theme="dark"]` (ja configurado no globals.css)
-> - Reutilize ThemeToggle de `app/components/theme-toggle.tsx` (copie de design-system se nao existir)
-> - Atualize metadata em `app/layout.tsx`
-> - Rode `npm run build` ao final para validar
+> Mandatory rules:
+> - Use ONLY `var(--token)` for colors — NEVER hardcoded hex/rgb values
+> - Support dark mode via `[data-theme="dark"]` (already configured in globals.css)
+> - Reuse ThemeToggle from `app/components/theme-toggle.tsx` (copy from design-system if it doesn't exist)
+> - Update metadata in `app/layout.tsx`
+> - Run `npm run build` at the end to validate
 >
-> Design system esta em: `app/globals.css`
-> Referencia visual: screenshots em `.claude/screenshots/`
+> Design system is in: `app/globals.css`
+> Visual reference: screenshots in `.claude/screenshots/`
 
-**Criterio de sucesso**: `npm run build` passa sem erros.
+**Success criteria**: `npm run build` passes without errors.
 
 ---
 
-### Fase 4: Verificacao Visual
+### Phase 4: Visual Verification
 
-Delegue ao subagente **visual-verifier** com o prompt:
+Delegate to the **visual-verifier** subagent with the prompt:
 
-> Verifique a implementacao comparando com os screenshots de referencia.
-> 1. Inicie `npm run dev` se nao estiver rodando
-> 2. Navegue para http://localhost:3000
-> 3. Capture screenshot da pagina completa em light mode
-> 4. Capture screenshot em dark mode
-> 5. Compare visualmente com os screenshots em `.claude/screenshots/`
-> 6. Liste diferencas encontradas (layout, cores, tipografia, espacamento, dados)
+> Verify the implementation by comparing with reference screenshots.
+> 1. Start `npm run dev` if not already running
+> 2. Navigate to http://localhost:3000
+> 3. Capture full page screenshot in light mode
+> 4. Capture screenshot in dark mode
+> 5. Visually compare with screenshots in `.claude/screenshots/`
+> 6. List differences found (layout, colors, typography, spacing, data)
 >
-> Reporte: APROVADO se fiel, ou lista de correcoes necessarias.
+> Report: APPROVED if faithful, or list of needed corrections.
 
-**Criterio de sucesso**: pagina visualmente fiel ao screenshot de referencia em ambos os modos.
+**Success criteria**: page visually faithful to the reference screenshot in both modes.
 
 ---
 
-## Pipeline (modo teams — com --teams)
+## Pipeline (teams mode — with --teams)
 
-> Requer `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` na env.
+> Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in env.
 
-Neste modo, o orquestrador (sessao principal) atua como **team lead** usando agent teams em vez de subagents sequenciais.
+In this mode, the orchestrator (main session) acts as **team lead** using agent teams instead of sequential subagents.
 
-### 1. Criar agent team
+### 1. Create agent team
 
-Crie um time com 6 teammates especializados, um para cada fase:
+Create a team with 6 specialized teammates, one for each phase:
 
-| Teammate | Agente base | Responsabilidade |
+| Teammate | Base agent | Responsibility |
 |---|---|---|
-| capturer | screenshot-capturer | Fase 0: Captura de screenshots |
-| extractor | ds-extractor | Fase 1a: Extracao de tokens CSS |
-| ds-documenter | ds-page-builder | Fase 1b: Documentacao do design system |
-| planner | page-planner | Fase 2: Planejamento |
-| builder | page-builder | Fase 3: Implementacao |
-| verifier | visual-verifier | Fase 4: Verificacao visual |
+| capturer | screenshot-capturer | Phase 0: Screenshot capture |
+| extractor | ds-extractor | Phase 1a: CSS token extraction |
+| ds-documenter | ds-page-builder | Phase 1b: Design system documentation |
+| planner | page-planner | Phase 2: Planning |
+| builder | page-builder | Phase 3: Implementation |
+| verifier | visual-verifier | Phase 4: Visual verification |
 
-### 2. Criar tasks com dependencias
+### 2. Create tasks with dependencies
 
-Use o task list compartilhado para definir dependencias:
+Use the shared task list to define dependencies:
 
 ```
-Task 1: "Capturar screenshots de <URL>" (sem bloqueio)
-Task 2: "Extrair tokens CSS dos screenshots" (blocked by 1)
-Task 3: "Construir pagina de documentacao do design system" (blocked by 2)
-Task 4: "Planejar estrutura da pagina" (blocked by 2, 3)
-Task 5: "Implementar pagina em page.tsx" (blocked by 4)
-Task 6: "Verificar fidelidade visual" (blocked by 5)
+Task 1: "Capture screenshots of <URL>" (no blockers)
+Task 2: "Extract CSS tokens from screenshots" (blocked by 1)
+Task 3: "Build design system documentation page" (blocked by 2)
+Task 4: "Plan page structure" (blocked by 2, 3)
+Task 5: "Implement page in page.tsx" (blocked by 4)
+Task 6: "Verify visual fidelity" (blocked by 5)
 ```
 
-### 3. Execucao
+### 3. Execution
 
-- Teammates reclamam tasks conforme sao desbloqueadas
-- Cada teammate usa as ferramentas do seu agente base
-- O team lead monitora progresso via task list
+- Teammates claim tasks as they become unblocked
+- Each teammate uses the tools from their base agent
+- The team lead monitors progress via the task list
 
-### 4. Vantagem: loop de correcao direto
+### 4. Advantage: direct correction loop
 
-No modo teams, quando o verifier reporta problemas:
-- O verifier comunica diretamente com o builder via task list
-- Cria nova task: "Corrigir: [lista de problemas]" assigned ao builder
-- Builder corrige e cria task de re-verificacao para o verifier
-- Sem overhead do orquestrador intermediando
+In teams mode, when the verifier reports issues:
+- The verifier communicates directly with the builder via task list
+- Creates a new task: "Fix: [list of issues]" assigned to the builder
+- Builder fixes and creates a re-verification task for the verifier
+- No orchestrator overhead in between
 
 ---
 
-## Loop de Correcao (ambos os modos)
+## Correction Loop (both modes)
 
-Se a Fase 4 reportar problemas:
-1. Delegue correcoes ao **page-builder** com a lista de problemas
-2. Re-execute a Fase 4
-3. Repita ate APROVADO (maximo 3 iteracoes)
+If Phase 4 reports issues:
+1. Delegate corrections to **page-builder** with the list of issues
+2. Re-execute Phase 4
+3. Repeat until APPROVED (maximum 3 iterations)
 
-## Resultado Final
+## Final Result
 
-Ao concluir, resuma:
-- URL replicada
-- Arquivos criados/modificados
-- Tokens do design system
-- Secoes da pagina implementadas
-- Status da verificacao visual
-- Modo utilizado (subagents ou teams)
+Upon completion, summarize:
+- Replicated URL
+- Files created/modified
+- Design system tokens
+- Page sections implemented
+- Visual verification status
+- Mode used (subagents or teams)

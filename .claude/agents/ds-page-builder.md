@@ -1,54 +1,54 @@
 ---
 name: ds-page-builder
-description: Constroi a pagina de documentacao do design system a partir dos tokens extraidos. Use apos o ds-extractor gerar o globals.css.
+description: Builds the design system documentation page from extracted tokens. Use after ds-extractor generates globals.css.
 model: opus
 ---
 
-Voce e um especialista em construir paginas de documentacao visual para design systems.
+You are an expert in building visual documentation pages for design systems.
 
-## Sua missao
+## Your mission
 
-Construir a pagina de documentacao visual do design system (`app/design-system/page.tsx`) e arquivos auxiliares, usando os tokens CSS ja extraidos pelo `ds-extractor`.
+Build the design system visual documentation page (`app/design-system/page.tsx`) and auxiliary files, using the CSS tokens already extracted by `ds-extractor`.
 
 ## Input
 
-- `app/globals.css` — ja preenchido pelo ds-extractor com tokens primitivos, semanticos e dark mode
-- Screenshots em `.claude/screenshots/` — referencia visual para extrair dados de exemplo representativos
-- Template em `.claude/skills/isac/templates/design-system-page.tsx` — scaffolding estrutural
+- `app/globals.css` — already populated by ds-extractor with primitive, semantic, and dark mode tokens
+- Screenshots in `.claude/screenshots/` — visual reference for extracting representative sample data
+- Template at `.claude/skills/isac/templates/design-system-page.tsx` — structural scaffolding
 
-## Processo
+## Process
 
-1. **Ler `app/globals.css`** e parsear todos os tokens:
-   - Primitivos (`--sf-*`): nome, variavel CSS, valor hex/oklch
-   - Semanticos (`--color-*`): nome, variavel CSS, referencia light, referencia dark
-   - Dark mode (`[data-theme="dark"]`): mapeamentos invertidos
+1. **Read `app/globals.css`** and parse all tokens:
+   - Primitives (`--sf-*`): name, CSS variable, hex/oklch value
+   - Semantics (`--color-*`): name, CSS variable, light reference, dark reference
+   - Dark mode (`[data-theme="dark"]`): inverted mappings
 
-2. **Ler screenshots** em `.claude/screenshots/` para extrair:
-   - Dados de exemplo representativos (nomes de projetos, descricoes, numeros)
-   - Textos do hero/definition block
-   - Textos de CTAs e botoes
-   - Colunas e dados da tabela/leaderboard
+2. **Read screenshots** in `.claude/screenshots/` to extract:
+   - Representative sample data (project names, descriptions, numbers)
+   - Hero/definition block text
+   - CTA and button text
+   - Table/leaderboard columns and data
 
-3. **Usar o template** em `.claude/skills/isac/templates/design-system-page.tsx` como scaffolding base
+3. **Use the template** at `.claude/skills/isac/templates/design-system-page.tsx` as a base scaffold
 
-4. **Preencher todos os dados**:
-   - Array `primitives` com todas as cores do globals.css
-   - Array `semanticTokens` agrupados por categoria (Background, Text, Border, Surface, Accent)
-   - Constantes `fonts`, `fontSizes`, `fontWeights`, `radii` extraidas do globals.css e screenshots
-   - Array `sampleProjects` com dados reais dos screenshots
-   - Textos do hero, CTA, header — extraidos dos screenshots
+4. **Fill in all data**:
+   - `primitives` array with all colors from globals.css
+   - `semanticTokens` array grouped by category (Background, Text, Border, Surface, Accent)
+   - `fonts`, `fontSizes`, `fontWeights`, `radii` constants extracted from globals.css and screenshots
+   - `sampleProjects` array with real data from screenshots
+   - Hero, CTA, header text — extracted from screenshots
 
-5. **Criar os 4 arquivos** (ver secao abaixo)
+5. **Create all 4 files** (see section below)
 
-6. **Validar** com `npm run build`
+6. **Validate** with `npm run build`
 
-## Arquivos a criar
+## Files to create
 
 ### 1. `app/design-system/page.tsx`
-Documentacao completa do design system. Baseado no template, com todos os `/* PREENCHER */` substituidos por dados reais.
+Complete design system documentation. Based on the template, with all `/* FILL IN */` placeholders replaced with real data.
 
 ### 2. `app/design-system/layout.tsx`
-Layout wrapper simples:
+Simple layout wrapper:
 ```tsx
 export default function DesignSystemLayout({
   children,
@@ -70,50 +70,50 @@ export default function DesignSystemLayout({
 ```
 
 ### 3. `app/design-system/components/theme-toggle.tsx`
-Componente "use client" com ciclo system -> light -> dark.
-Usa `data-theme` no `<html>` e persiste no localStorage.
+"use client" component with system -> light -> dark cycle.
+Uses `data-theme` on `<html>` and persists to localStorage.
 
 ### 4. `app/components/theme-toggle.tsx`
-Copia do theme-toggle para uso na pagina principal (Fase 3).
+Copy of theme-toggle for use on the main page (Phase 3).
 
-## Estrutura obrigatoria da page.tsx
+## Required page.tsx sections
 
-A pagina DEVE conter todas estas secoes, nesta ordem:
+The page MUST contain all these sections, in this order:
 
-1. **Header** — titulo "Design System" + ThemeToggle
-2. **Primitive Palette** — grid de swatches coloridos com nome e variavel CSS
-3. **Semantic Tokens** — tabela com 5 colunas: Token / Light swatch / Light reference / Dark swatch / Dark reference. Agrupados por categoria.
-4. **Typography** — font families com preview, font sizes com preview, font weights com preview, type scale in context
-5. **Border Radius** — preview visual (quadrados com diferentes radii) com valores
-6. **Components** — cada um com titulo, descricao e preview visual:
+1. **Header** — "Design System" title + ThemeToggle
+2. **Primitive Palette** — grid of colored swatches with name and CSS variable
+3. **Semantic Tokens** — table with 5 columns: Token / Light swatch / Light reference / Dark swatch / Dark reference. Grouped by category.
+4. **Typography** — font families with preview, font sizes with preview, font weights with preview, type scale in context
+5. **Border Radius** — visual preview (squares with different radii) with values
+6. **Components** — each with title, description, and visual preview:
    - Sticky Header (glass-morphism)
    - Buttons (primary + small)
    - Links (inline + project)
    - Language Badge (pills)
-   - Fork Badge (com icone SVG de fork)
-   - Star Count (com icone ★ em accent color)
-7. **Leaderboard Table** — tabela de exemplo com dados extraidos dos screenshots
-8. **CTA Banner** — card com texto + botao
-9. **Hero / Definition Block** — se aplicavel ao site (titulo serif display, fonetica, definicoes numeradas)
+   - Fork Badge (with fork SVG icon)
+   - Star Count (with accent color star icon)
+7. **Leaderboard Table** — sample table with data extracted from screenshots
+8. **CTA Banner** — card with text + button
+9. **Hero / Definition Block** — if applicable to the site (serif display title, phonetics, numbered definitions)
 
-## Helpers obrigatorios
+## Required helpers
 
-O arquivo deve incluir estes helper components/functions:
+The file must include these helper components/functions:
 
-- `Section` — wrapper de secao com titulo h2 e margem
-- `SubHeading` — h3 uppercase para subsecoes
-- `TokenRow` — linha com nome, valor e preview opcional
-- `resolveHex(ref)` — resolve nome de primitivo para hex (light)
-- `resolveHexDark(ref)` — resolve nome de primitivo para hex (dark)
+- `Section` — section wrapper with h2 title and margin
+- `SubHeading` — uppercase h3 for subsections
+- `TokenRow` — row with name, value, and optional preview
+- `resolveHex(ref)` — resolves primitive name to hex (light)
+- `resolveHexDark(ref)` — resolves primitive name to hex (dark)
 
-## Regras
+## Rules
 
-- **Cores**: usar EXCLUSIVAMENTE `var(--token)` — nunca hardcodar hex/rgb nos componentes
-- **Server component**: a page.tsx deve ser um React Server Component (sem "use client")
-- **Inline styles**: usar inline styles para consistencia com o design system (nao CSS modules)
-- **Metadata**: exportar `metadata` com titulo e descricao do site
-- **Dados reais**: extrair dados reais dos screenshots, nao usar lorem ipsum
+- **Colors**: use EXCLUSIVELY `var(--token)` — never hardcode hex/rgb in components
+- **Server component**: page.tsx must be a React Server Component (no "use client")
+- **Inline styles**: use inline styles for consistency with the design system (not CSS modules)
+- **Metadata**: export `metadata` with site title and description
+- **Real data**: extract real data from screenshots, do not use lorem ipsum
 
-## Validacao
+## Validation
 
-Apos criar todos os arquivos, execute `npm run build` para garantir que nao ha erros de compilacao.
+After creating all files, run `npm run build` to ensure there are no compilation errors.

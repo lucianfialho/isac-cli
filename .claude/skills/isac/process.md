@@ -1,102 +1,102 @@
-# Processo ISAC — Replicacao de Pagina
+# ISAC Process — Page Replication
 
-Documentacao detalhada do pipeline de replicacao visual usado neste projeto.
+Detailed documentation of the visual replication pipeline used in this project.
 
-## Visao Geral
+## Overview
 
-O processo replica paginas web a partir de uma URL, usando um pipeline de 6 fases
-com subagentes especializados. A chave e **nunca hardcodar valores visuais** — tudo
-passa por um design system intermediario com CSS custom properties.
+The process replicates web pages from a URL, using a 6-phase pipeline
+with specialized subagents. The key is **never hardcoding visual values** — everything
+goes through an intermediary design system with CSS custom properties.
 
-## Por que este processo funciona
+## Why this process works
 
-1. **Captura automatica**: nao precisa tirar screenshots manualmente — a Fase 0 faz isso
-2. **Design System como contrato**: tokens CSS sao a interface entre design e codigo
-3. **Dark mode gratis**: tokens semanticos com variantes light/dark
-4. **Consistencia**: componentes consomem tokens, nao valores magicos
-5. **Manutenibilidade**: mudar uma cor no token atualiza toda a pagina
-6. **Separacao de responsabilidades**: extracao de tokens e documentacao visual sao fases independentes
+1. **Automatic capture**: no need to take screenshots manually — Phase 0 handles it
+2. **Design System as contract**: CSS tokens are the interface between design and code
+3. **Free dark mode**: semantic tokens with light/dark variants
+4. **Consistency**: components consume tokens, not magic values
+5. **Maintainability**: changing a color in a token updates the entire page
+6. **Separation of concerns**: token extraction and visual documentation are independent phases
 
-## Fluxo
+## Flow
 
 ```
-URL ──── Fase 0 ──► Screenshots (.claude/screenshots/)
+URL ──── Phase 0 ──► Screenshots (.claude/screenshots/)
                          │
-Screenshots ─── Fase 1a ──► Tokens CSS (globals.css)
+Screenshots ─── Phase 1a ──► CSS Tokens (globals.css)
     │                           │
     │                           ▼
-    └───── Fase 1b ──► Documentacao DS (design-system/page.tsx)
+    └───── Phase 1b ──► DS Documentation (design-system/page.tsx)
     │                           │
     │                           ▼
-    └───────── Fase 2 ──► Plano (estrutura + dados)
+    └───────── Phase 2 ──► Plan (structure + data)
                                 │
                                 ▼
-                   Fase 3 ──► Implementacao (page.tsx)
+                   Phase 3 ──► Implementation (page.tsx)
                                 │
                                 ▼
-                   Fase 4 ──► Verificacao Visual
+                   Phase 4 ──► Visual Verification
                                 │
                             ┌───┴───┐
                             │       │
-                         APROVADO  CORRIGIR ──► volta Fase 3
+                         APPROVED  FIX ──► back to Phase 3
 ```
 
-## Fase 0: Captura de Screenshots
+## Phase 0: Screenshot Capture
 
-### Processo
+### Process
 
-1. Navegue ate a URL fornecida via chrome-devtools MCP
-2. Aguarde carregamento completo (networkIdle)
-3. Redimensione viewport para 1440px (desktop padrao)
-4. Capture screenshot full-page em light mode
-5. Tente emular dark mode (`prefers-color-scheme: dark`) e capture
-6. Para paginas longas, capture secoes individuais
+1. Navigate to the provided URL via chrome-devtools MCP
+2. Wait for complete load (networkIdle)
+3. Resize viewport to 1440px (desktop standard)
+4. Capture full-page screenshot in light mode
+5. Try emulating dark mode (`prefers-color-scheme: dark`) and capture
+6. For long pages, capture individual sections
 
-### Saida
+### Output
 
 ```
 .claude/screenshots/
   full-page.png          # Light mode
-  full-page-dark.png     # Dark mode (se disponivel)
-  section-*.png          # Secoes individuais (opcional)
+  full-page-dark.png     # Dark mode (if available)
+  section-*.png          # Individual sections (optional)
 ```
 
-## Fase 1a: Extracao de Tokens
+## Phase 1a: Token Extraction
 
-### O que extrair dos screenshots
+### What to extract from screenshots
 
-1. **Paleta de cores primitivas**
-   - Backgrounds (primario, secundario, terciario)
-   - Textos (primario, secundario, terciario)
-   - Bordas (primaria, secundaria, sutil)
-   - Acentos (destaque, links, icones)
+1. **Primitive color palette**
+   - Backgrounds (primary, secondary, tertiary)
+   - Text (primary, secondary, tertiary)
+   - Borders (primary, secondary, subtle)
+   - Accents (highlights, links, icons)
 
-2. **Tipografia**
-   - Font families (serif para titulos, sans para body, mono para codigo)
+2. **Typography**
+   - Font families (serif for headings, sans for body, mono for code)
    - Font sizes (display, headings, body, small, xs)
    - Font weights (regular, medium, semibold, bold)
 
-3. **Espacamento e radii**
+3. **Spacing and radii**
    - Border radius (small, medium, pill)
    - Padding patterns
 
-4. **Componentes**
-   - Botoes (estilo, padding, borda)
+4. **Components**
+   - Buttons (style, padding, border)
    - Badges (pills, tags)
    - Cards/surfaces
-   - Tabelas
+   - Tables
    - Headers
 
-### Estrutura dos tokens
+### Token structure
 
 ```css
 :root {
-  /* Primitivos — nunca usados diretamente em componentes */
+  /* Primitives — never used directly in components */
   --sf-white: #ffffff;
   --sf-gray-100: #f5f5f5;
   /* ... */
 
-  /* Semanticos — usados nos componentes */
+  /* Semantics — used in components */
   --color-bg-primary: var(--sf-white);
   --color-text-primary: var(--sf-gray-900);
   /* ... */
@@ -109,169 +109,169 @@ Screenshots ─── Fase 1a ──► Tokens CSS (globals.css)
 }
 ```
 
-### Resultado esperado
-- `app/globals.css` com tokens primitivos + semanticos + dark mode
+### Expected result
+- `app/globals.css` with primitive + semantic + dark mode tokens
 
-## Fase 1b: Documentacao do Design System
+## Phase 1b: Design System Documentation
 
-### O que a pagina deve conter
+### What the page must contain
 
-A pagina `app/design-system/page.tsx` e uma documentacao visual interativa de todos os tokens e componentes extraidos. Ela serve como referencia para a Fase 3 (implementacao) e como validacao visual dos tokens.
+The `app/design-system/page.tsx` page is an interactive visual documentation of all extracted tokens and components. It serves as a reference for Phase 3 (implementation) and as visual validation of the tokens.
 
-### Estrutura esperada (secoes obrigatorias)
+### Expected structure (required sections)
 
-1. **Header** — titulo "Design System" + ThemeToggle para alternar temas
-2. **Primitive Palette** — grid de swatches coloridos com nome e variavel CSS de cada primitivo
-3. **Semantic Tokens** — tabela com 5 colunas (Token / Light swatch / Light ref / Dark swatch / Dark ref), agrupada por categoria (Background, Text, Border, Surface, Accent)
-4. **Typography** — font families com preview, font sizes com preview "Aa", font weights com preview "The quick brown fox", type scale in context
-5. **Border Radius** — quadrados com diferentes radii e valores exibidos
-6. **Components** — preview visual de cada componente do site:
-   - Sticky Header (glass-morphism com blur)
+1. **Header** — "Design System" title + ThemeToggle for switching themes
+2. **Primitive Palette** — grid of colored swatches with name and CSS variable for each primitive
+3. **Semantic Tokens** — table with 5 columns (Token / Light swatch / Light ref / Dark swatch / Dark ref), grouped by category (Background, Text, Border, Surface, Accent)
+4. **Typography** — font families with preview, font sizes with "Aa" preview, font weights with "The quick brown fox" preview, type scale in context
+5. **Border Radius** — squares with different radii and displayed values
+6. **Components** — visual preview of each site component:
+   - Sticky Header (glass-morphism with blur)
    - Buttons (primary + small)
-   - Links (inline + project com seta)
-   - Language Badge (pills com borda)
-   - Fork Badge (com icone SVG)
-   - Star Count (com estrela em accent color)
-7. **Leaderboard Table** — tabela com dados reais extraidos dos screenshots
-8. **CTA Banner** — card com texto persuasivo + botao de acao
-9. **Hero / Definition Block** — titulo serif 72px, fonetica, definicoes numeradas (se aplicavel)
+   - Links (inline + project with arrow)
+   - Language Badge (pills with border)
+   - Fork Badge (with SVG icon)
+   - Star Count (with accent color star)
+7. **Leaderboard Table** — table with real data extracted from screenshots
+8. **CTA Banner** — card with persuasive text + action button
+9. **Hero / Definition Block** — 72px serif title, phonetics, numbered definitions (if applicable)
 
-### Relacao com o template
+### Relationship with the template
 
-O agente `ds-page-builder` usa o template em `.claude/skills/isac/templates/design-system-page.tsx` como scaffolding. O template contem a estrutura JSX completa com comentarios `/* PREENCHER */` indicando onde inserir dados reais. O agente deve:
+The `ds-page-builder` agent uses the template at `.claude/skills/isac/templates/design-system-page.tsx` as scaffolding. The template contains the complete JSX structure with `/* FILL IN */` comments indicating where to insert real data. The agent must:
 
-1. Ler o template para entender a estrutura
-2. Ler `app/globals.css` para obter os tokens
-3. Ler screenshots para extrair dados de exemplo
-4. Gerar a pagina final substituindo todos os placeholders
+1. Read the template to understand the structure
+2. Read `app/globals.css` to get the tokens
+3. Read screenshots to extract sample data
+4. Generate the final page replacing all placeholders
 
-### Arquivos gerados
+### Generated files
 
-| Arquivo | Descricao |
+| File | Description |
 |---|---|
-| `app/design-system/page.tsx` | Documentacao visual completa |
+| `app/design-system/page.tsx` | Complete visual documentation |
 | `app/design-system/layout.tsx` | Layout wrapper (bg + color + min-height) |
-| `app/design-system/components/theme-toggle.tsx` | Toggle system/light/dark com localStorage |
-| `app/components/theme-toggle.tsx` | Copia para uso na pagina principal |
+| `app/design-system/components/theme-toggle.tsx` | system/light/dark toggle with localStorage |
+| `app/components/theme-toggle.tsx` | Copy for use on the main page |
 
-### Criterios de aprovacao
+### Approval criteria
 
-- `npm run build` passa sem erros
-- Pagina contem TODAS as 9 secoes listadas acima
-- Arrays `primitives` e `semanticTokens` correspondem 1:1 com o globals.css
-- Dados da tabela sao reais (extraidos dos screenshots), nao lorem ipsum
-- ThemeToggle funciona (cicla system → light → dark)
-- Cores usam exclusivamente `var()`, sem hex/rgb hardcoded nos componentes
+- `npm run build` passes without errors
+- Page contains ALL 9 sections listed above
+- `primitives` and `semanticTokens` arrays match 1:1 with globals.css
+- Table data is real (extracted from screenshots), not lorem ipsum
+- ThemeToggle works (cycles system → light → dark)
+- Colors use exclusively `var()`, no hardcoded hex/rgb in components
 
-## Fase 2: Planejamento
+## Phase 2: Planning
 
-### O que analisar
+### What to analyze
 
-1. **Secoes da pagina**: hero, header, content, tables, CTAs, footer
-2. **Dados reais**: extrair textos, numeros, nomes dos screenshots
-3. **Hierarquia**: qual componente contem qual
-4. **Links**: URLs externas visiveis
-5. **Comportamentos**: sticky headers, scroll effects
+1. **Page sections**: hero, header, content, tables, CTAs, footer
+2. **Real data**: extract text, numbers, names from screenshots
+3. **Hierarchy**: which component contains which
+4. **Links**: visible external URLs
+5. **Behaviors**: sticky headers, scroll effects
 
-### Formato do plano
+### Plan format
 
 ```markdown
-## Estrutura
-1. Sticky Header — glass-morphism, logo + botao + toggle
-2. Hero — titulo serif 72px, definicoes, creditos
-3. Leaderboard — tabela com N linhas
-4. CTA Banner — chamada + botao
+## Structure
+1. Sticky Header — glass-morphism, logo + button + toggle
+2. Hero — 72px serif title, definitions, credits
+3. Leaderboard — table with N rows
+4. CTA Banner — call-to-action + button
 
-## Dados
-| # | Nome | Descricao | ... |
+## Data
+| # | Name | Description | ... |
 
-## Tokens por secao
+## Tokens per section
 - Header: bg-glass, border-subtle, surface-elevated
-- Hero: text-primary (titulo), text-secondary (subtitulo)
+- Hero: text-primary (title), text-secondary (subtitle)
 ```
 
-## Fase 3: Implementacao
+## Phase 3: Implementation
 
-### Regras de ouro
+### Golden rules
 
-1. **Cores**: `var(--color-token)` — NUNCA `#hex` ou `rgb()`
-2. **Fontes**: definir stacks como constantes JS, usar var() para custom fonts
-3. **Componentes client**: apenas onde necessario (ThemeToggle). Pagina pode ser server component
-4. **Inline styles**: seguir padrao do design-system para consistencia com tokens
-5. **Build**: `npm run build` deve passar
+1. **Colors**: `var(--color-token)` — NEVER `#hex` or `rgb()`
+2. **Fonts**: define stacks as JS constants, use var() for custom fonts
+3. **Client components**: only where necessary (ThemeToggle). Page can be a server component
+4. **Inline styles**: follow design-system pattern for consistency with tokens
+5. **Build**: `npm run build` must pass
 
 ### Checklist
 
-- [ ] Todas as secoes do plano implementadas
-- [ ] Todos os dados reais inseridos
-- [ ] Dark mode funcional
-- [ ] ThemeToggle integrado
-- [ ] Layout responsivo basico (overflow-x em tabelas)
-- [ ] Build sem erros
+- [ ] All plan sections implemented
+- [ ] All real data inserted
+- [ ] Dark mode functional
+- [ ] ThemeToggle integrated
+- [ ] Basic responsive layout (overflow-x on tables)
+- [ ] Build without errors
 
-## Fase 4: Verificacao Visual
+## Phase 4: Visual Verification
 
-### Processo
+### Process
 
-1. Dev server rodando
-2. Screenshot em light mode (full page)
-3. Screenshot em dark mode (full page)
-4. Comparacao com referencia:
-   - Layout e proporcoes
-   - Cores e contraste
-   - Tipografia e pesos
-   - Espacamentos
-   - Dados corretos
+1. Dev server running
+2. Screenshot in light mode (full page)
+3. Screenshot in dark mode (full page)
+4. Comparison with reference:
+   - Layout and proportions
+   - Colors and contrast
+   - Typography and weights
+   - Spacing
+   - Correct data
 
-### Criterios de aprovacao
+### Approval criteria
 
-- Estrutura fiel (mesmas secoes, mesma ordem)
-- Cores compativeis (tokens corretos, dark mode funcional)
-- Tipografia correta (serif/sans/mono nos lugares certos)
-- Dados corretos (textos, numeros, nomes)
+- Faithful structure (same sections, same order)
+- Compatible colors (correct tokens, functional dark mode)
+- Correct typography (serif/sans/mono in the right places)
+- Correct data (text, numbers, names)
 
-## Subagentes
+## Subagents
 
-| Subagente | Funcao | Model | Tools |
+| Subagent | Function | Model | Tools |
 |---|---|---|---|
-| screenshot-capturer | Captura screenshots da URL | haiku | MCP chrome-devtools |
-| ds-extractor | Extrai tokens CSS de screenshots | opus | Read, Write, Edit, Glob |
-| ds-page-builder | Constroi documentacao visual do DS | opus | Read, Write, Edit, Glob, Bash |
-| page-planner | Planeja estrutura da pagina | opus | Read, Glob, Grep |
-| page-builder | Implementa o codigo | opus | Read, Write, Edit, Glob, Grep, Bash |
-| visual-verifier | Compara screenshots | sonnet | Read, Glob, Bash, MCP chrome-devtools |
+| screenshot-capturer | Captures screenshots from URL | haiku | MCP chrome-devtools |
+| ds-extractor | Extracts CSS tokens from screenshots | opus | Read, Write, Edit, Glob |
+| ds-page-builder | Builds DS visual documentation | opus | Read, Write, Edit, Glob, Bash |
+| page-planner | Plans page structure | opus | Read, Glob, Grep |
+| page-builder | Implements the code | opus | Read, Write, Edit, Glob, Grep, Bash |
+| visual-verifier | Compares screenshots | sonnet | Read, Glob, Bash, MCP chrome-devtools |
 
-## Modo Agent Teams (--teams)
+## Agent Teams Mode (--teams)
 
-Quando invocado com `--teams`, o pipeline usa agent teams em vez de subagents sequenciais.
+When invoked with `--teams`, the pipeline uses agent teams instead of sequential subagents.
 
-### Diferenca principal
+### Key difference
 
-| Aspecto | Subagents (padrao) | Agent Teams (--teams) |
+| Aspect | Subagents (default) | Agent Teams (--teams) |
 |---|---|---|
-| Orquestracao | Sessao principal delega sequencialmente | Team lead cria tasks com dependencias |
-| Comunicacao | Via orquestrador (hub-and-spoke) | Direta entre teammates (task list compartilhado) |
-| Loop de correcao | Orquestrador intermedia builder↔verifier | Verifier cria task direto para builder |
-| Overhead | Maior (contexto passa pelo orquestrador) | Menor (comunicacao peer-to-peer) |
+| Orchestration | Main session delegates sequentially | Team lead creates tasks with dependencies |
+| Communication | Via orchestrator (hub-and-spoke) | Direct between teammates (shared task list) |
+| Correction loop | Orchestrator mediates builder↔verifier | Verifier creates task directly for builder |
+| Overhead | Higher (context passes through orchestrator) | Lower (peer-to-peer communication) |
 
-### Quando usar --teams
+### When to use --teams
 
-- Paginas complexas com muitas secoes
-- Quando o loop de correcao e esperado (paginas detalhadas)
-- Para aproveitar comunicacao direta builder↔verifier
+- Complex pages with many sections
+- When the correction loop is expected (detailed pages)
+- To leverage direct builder↔verifier communication
 
-### Requisitos
+### Requirements
 
-- `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` deve estar definida na env
-- Configuravel em `.claude/settings.local.json`
+- `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` must be set in env
+- Configurable in `.claude/settings.local.json`
 
-## Exemplo Real: slopforks.com
+## Real Example: slopforks.com
 
-Este processo foi usado para replicar a home do slopforks.com neste repositorio.
+This process was used to replicate the slopforks.com homepage in this repository.
 
-### Resultado
-- **Design System**: 14 cores primitivas, 14 tokens semanticos, 3 font stacks, 3 radii
-- **Componentes**: ThemeToggle, sticky header, language badges, star counts, fork badges
-- **Pagina**: hero com definicao, leaderboard com 11 projetos, CTA banner
-- **Dark mode**: funcional via `[data-theme="dark"]`
-- **Build**: passa sem erros
+### Result
+- **Design System**: 14 primitive colors, 14 semantic tokens, 3 font stacks, 3 radii
+- **Components**: ThemeToggle, sticky header, language badges, star counts, fork badges
+- **Page**: hero with definition, leaderboard with 11 projects, CTA banner
+- **Dark mode**: functional via `[data-theme="dark"]`
+- **Build**: passes without errors

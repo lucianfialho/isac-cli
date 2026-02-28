@@ -1,14 +1,14 @@
 /* ═══════════════════════════════════════════════════════════
    TEMPLATE: CSS Design Tokens
-   Preencha com os valores extraidos dos screenshots.
+   Fill in with values extracted from screenshots.
    ═══════════════════════════════════════════════════════════ */
 
 @import "tailwindcss";
 
 :root {
   /* --- Primitive palette ---
-     Valores absolutos. Nunca use diretamente em componentes.
-     Alimente os tokens semanticos abaixo. */
+     Absolute values. Never use directly in components.
+     Feed the semantic tokens below. */
   --sf-white: #ffffff;
   --sf-black: #000000;
   /* --sf-gray-50: #...; */
@@ -25,7 +25,7 @@
   /* --sf-accent: oklch(...); */
 
   /* --- Semantic tokens (light = default) ---
-     Estes sao os tokens que componentes devem consumir. */
+     These are the tokens that components should consume. */
 
   /* Backgrounds */
   --color-bg-primary: var(--sf-white);
