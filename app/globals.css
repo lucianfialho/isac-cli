@@ -1,8 +1,45 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ─── Primitive palette ─── */
+  --sf-white: #ffffff;
+  --sf-black: #000000;
+  --sf-gray-50: #fafafa;
+  --sf-gray-100: #f5f5f5;
+  --sf-gray-200: #e5e5e5;
+  --sf-gray-300: #d4d4d4;
+  --sf-gray-400: #a3a3a3;
+  --sf-gray-500: #737373;
+  --sf-gray-600: #525252;
+  --sf-gray-700: #404040;
+  --sf-gray-800: #262626;
+  --sf-gray-900: #171717;
+  --sf-gray-950: #0a0a0a;
+  --sf-amber: oklch(0.769 0.188 70.08);
+
+  /* ─── Semantic tokens (light = default) ─── */
+  --color-bg-primary: var(--sf-white);
+  --color-bg-secondary: var(--sf-gray-50);
+  --color-bg-tertiary: var(--sf-gray-100);
+  --color-bg-glass: rgba(255, 255, 255, 0.8);
+
+  --color-text-primary: var(--sf-gray-900);
+  --color-text-secondary: var(--sf-gray-500);
+  --color-text-tertiary: var(--sf-gray-400);
+  --color-text-inverse: var(--sf-white);
+
+  --color-border-primary: var(--sf-gray-200);
+  --color-border-secondary: var(--sf-gray-300);
+  --color-border-subtle: var(--sf-gray-100);
+
+  --color-accent: var(--sf-amber);
+
+  --color-surface-elevated: var(--sf-white);
+  --color-surface-sunken: var(--sf-gray-50);
+
+  /* ─── Tailwind bridge ─── */
+  --background: var(--color-bg-primary);
+  --foreground: var(--color-text-primary);
 }
 
 @theme inline {
@@ -12,15 +49,33 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Dark theme (applied via data-theme attribute) ─── */
+[data-theme="dark"] {
+  --color-bg-primary: var(--sf-gray-950);
+  --color-bg-secondary: var(--sf-gray-900);
+  --color-bg-tertiary: var(--sf-gray-800);
+  --color-bg-glass: rgba(10, 10, 10, 0.8);
+
+  --color-text-primary: var(--sf-gray-100);
+  --color-text-secondary: var(--sf-gray-400);
+  --color-text-tertiary: var(--sf-gray-600);
+  --color-text-inverse: var(--sf-gray-950);
+
+  --color-border-primary: var(--sf-gray-800);
+  --color-border-secondary: var(--sf-gray-700);
+  --color-border-subtle: var(--sf-gray-800);
+
+  --color-accent: var(--sf-amber);
+
+  --color-surface-elevated: var(--sf-gray-900);
+  --color-surface-sunken: var(--sf-gray-950);
+
+  --background: var(--color-bg-primary);
+  --foreground: var(--color-text-primary);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
   font-family: Arial, Helvetica, sans-serif;
 }
