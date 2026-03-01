@@ -1,6 +1,6 @@
 {
   "name": "@guataiba/isac-nextjs",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Next.js (App Router) adapter for ISAC — Intelligent Site Analysis & Cloning",
   "type": "module",
   "main": "./dist/index.js",
@@ -17,7 +17,15 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
-  "keywords": ["nextjs", "design-system", "ai", "claude", "site-analysis", "web-cloning", "app-router"],
+  "keywords": [
+    "nextjs",
+    "design-system",
+    "ai",
+    "claude",
+    "site-analysis",
+    "web-cloning",
+    "app-router"
+  ],
   "author": "Lucian Fialho",
   "repository": {
     "type": "git",
