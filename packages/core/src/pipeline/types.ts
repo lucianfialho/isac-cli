@@ -24,6 +24,7 @@ export interface PhaseConfig {
   allowedTools: string[];
   model?: string;
   timeout?: number;
+  maxTurns?: number;
 }
 
 export interface PhaseOutput {

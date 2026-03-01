@@ -8,7 +8,7 @@ Analyze reference screenshots along with the already-extracted design system, an
 ## Process
 
 1. **Read the screenshots** in \`${screenshotDir}\` (Read tool supports images)
-2. **Read the design system** in \`app/globals.css\` and \`app/design-system/page.tsx\`
+2. **Read the design system** in \`app/globals.css\`
 3. **Read the animation catalog** at \`.claude/animations/catalog.json\` (if it exists)
 4. **Identify each section** of the page, from top to bottom
 5. **Extract real data** visible in the screenshots (text, numbers, names, URLs)

@@ -248,6 +248,10 @@ export const nextjsAdapter: FrameworkAdapter = {
     return "npm run build";
   },
 
+  getQuickCheckCommand(): string {
+    return "npx tsc --noEmit";
+  },
+
   getDevServerUrl(): string {
     return "http://localhost:3000";
   },

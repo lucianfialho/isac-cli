@@ -23,6 +23,7 @@ export async function runPhase3(
         prompt: ctx.adapter.getPageBuilderPrompt(plan, ctx.screenshotDir, corrections),
         allowedTools: [...PHASE_3_TOOLS],
         timeout: 600_000,
+        maxTurns: 50,
       },
       ctx.cwd,
       ctx.sessionId,
@@ -44,18 +45,19 @@ export async function runPhase3(
       };
     }
 
-    // Try build validation
+    // Fast type-check validation (uses tsc --noEmit when available, falls back to full build)
     let buildPasses = false;
     try {
-      execSync(ctx.adapter.getBuildCommand(), {
+      const checkCommand = ctx.adapter.getQuickCheckCommand?.() ?? ctx.adapter.getBuildCommand();
+      execSync(checkCommand, {
         cwd: ctx.cwd,
         stdio: "pipe",
-        timeout: 120_000,
+        timeout: 60_000,
       });
       buildPasses = true;
-      log.success(`${ctx.adapter.getMainPagePath()} + build passes`);
+      log.success(`${ctx.adapter.getMainPagePath()} + type check passes`);
     } catch {
-      log.warn("Build failed — implementation may have issues");
+      log.warn("Type check failed — implementation may have issues");
     }
 
     return {
