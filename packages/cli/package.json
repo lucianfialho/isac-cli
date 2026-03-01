@@ -1,7 +1,7 @@
 {
-  "name": "@isac/cli",
+  "name": "@guataiba/isac-cli",
   "version": "1.0.0",
-  "description": "ISAC CLI — Intelligent Site Analysis & Cloning",
+  "description": "ISAC CLI — Intelligent Site Analysis & Cloning. Captures screenshots, extracts design systems, and generates pixel-perfect Next.js replicas powered by Claude Code.",
   "type": "module",
   "bin": {
     "isac": "./dist/index.js"
@@ -11,9 +11,20 @@
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit"
   },
+  "keywords": ["cli", "design-system", "screenshot", "nextjs", "claude", "ai", "web-cloning", "site-analysis"],
+  "author": "Lucian Fialho",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guataiba/isac-cli.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/guataiba/isac-cli#readme",
+  "bugs": {
+    "url": "https://github.com/guataiba/isac-cli/issues"
+  },
   "dependencies": {
-    "@isac/core": "workspace:*",
-    "@isac/nextjs": "workspace:*",
+    "@guataiba/isac-core": "workspace:*",
+    "@guataiba/isac-nextjs": "workspace:*",
     "chalk": "^5.4.1",
     "commander": "^13.1.0"
   },
@@ -26,5 +37,7 @@
     "dist"
   ],
   "license": "MIT",
-  "private": false
+  "publishConfig": {
+    "access": "public"
+  }
 }

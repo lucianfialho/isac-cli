@@ -1,7 +1,7 @@
 {
-  "name": "@isac/core",
+  "name": "@guataiba/isac-core",
   "version": "1.0.0",
-  "description": "Framework-agnostic pipeline engine for ISAC",
+  "description": "Framework-agnostic pipeline engine for ISAC — Intelligent Site Analysis & Cloning",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -17,6 +17,17 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
+  "keywords": ["design-system", "screenshot", "ai", "claude", "site-analysis", "web-cloning"],
+  "author": "Lucian Fialho",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guataiba/isac-cli.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/guataiba/isac-cli#readme",
+  "bugs": {
+    "url": "https://github.com/guataiba/isac-cli/issues"
+  },
   "dependencies": {
     "chalk": "^5.4.1"
   },
@@ -29,5 +40,8 @@
   "files": [
     "dist"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
 }

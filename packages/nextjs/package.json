@@ -1,7 +1,7 @@
 {
-  "name": "@isac/nextjs",
+  "name": "@guataiba/isac-nextjs",
   "version": "1.0.0",
-  "description": "Next.js (App Router) adapter for ISAC",
+  "description": "Next.js (App Router) adapter for ISAC — Intelligent Site Analysis & Cloning",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -17,8 +17,19 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
+  "keywords": ["nextjs", "design-system", "ai", "claude", "site-analysis", "web-cloning", "app-router"],
+  "author": "Lucian Fialho",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guataiba/isac-cli.git",
+    "directory": "packages/nextjs"
+  },
+  "homepage": "https://github.com/guataiba/isac-cli#readme",
+  "bugs": {
+    "url": "https://github.com/guataiba/isac-cli/issues"
+  },
   "dependencies": {
-    "@isac/core": "workspace:*"
+    "@guataiba/isac-core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.13.0",
@@ -29,5 +40,8 @@
   "files": [
     "dist"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
 }

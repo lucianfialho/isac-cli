@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
-import type { FrameworkAdapter, TemplateFile, PhaseValidation } from "@isac/core";
-import { DESIGN_TOKENS_CSS_TEMPLATE } from "@isac/core";
+import type { FrameworkAdapter, TemplateFile, PhaseValidation } from "@guataiba/isac-core";
+import { DESIGN_TOKENS_CSS_TEMPLATE } from "@guataiba/isac-core";
 import { getDsExtractorPrompt } from "./prompts/ds-extractor.js";
 import { getDsPageBuilderPrompt } from "./prompts/ds-page-builder.js";
 import { getPagePlannerPrompt } from "./prompts/page-planner.js";

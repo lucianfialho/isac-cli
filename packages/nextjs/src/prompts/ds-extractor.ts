@@ -1,4 +1,4 @@
-import { DESIGN_TOKENS_CSS_TEMPLATE } from "@isac/core";
+import { DESIGN_TOKENS_CSS_TEMPLATE } from "@guataiba/isac-core";
 
 export function getDsExtractorPrompt(screenshotDir: string, _targetUrl?: string): string {
   return `You are an expert in design systems, font extraction, and CSS token generation.

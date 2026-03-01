@@ -2,7 +2,7 @@
 
 ## 1.0.0
 
-Initial release as Claude Code plugin.
+Initial public release of `@guataiba/isac-cli`.
 
 - 7 specialized agents (screenshot-capturer, ds-extractor, ds-page-builder, animation-detector, page-planner, page-builder, visual-verifier)
 - `/isac:replicate <url>` skill with full pipeline

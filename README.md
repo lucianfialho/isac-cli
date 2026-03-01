@@ -12,7 +12,7 @@ ISAC captures screenshots from a URL, extracts the design system, detects animat
 ## Installation
 
 ```bash
-npm install -g @isac/cli
+npm install -g @guataiba/isac-cli
 ```
 
 ## Usage

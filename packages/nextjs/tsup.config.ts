@@ -7,5 +7,5 @@ export default defineConfig({
   dts: true,
   clean: true,
   sourcemap: true,
-  external: ["@isac/core"],
+  external: ["@guataiba/isac-core"],
 });

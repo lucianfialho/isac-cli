@@ -11,5 +11,5 @@ export default defineConfig({
   banner: {
     js: "#!/usr/bin/env node",
   },
-  noExternal: ["@isac/core", "@isac/nextjs"],
+  noExternal: ["@guataiba/isac-core", "@guataiba/isac-nextjs"],
 });

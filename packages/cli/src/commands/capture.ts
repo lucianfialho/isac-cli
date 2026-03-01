@@ -7,8 +7,8 @@ import {
   runPipeline,
   type FrameworkAdapter,
   type PipelineStopAfter,
-} from "@isac/core";
-import { nextjsAdapter } from "@isac/nextjs";
+} from "@guataiba/isac-core";
+import { nextjsAdapter } from "@guataiba/isac-nextjs";
 
 // ── Adapter registry ────────────────────────────────────────────────
 
