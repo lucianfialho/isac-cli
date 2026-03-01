@@ -28,6 +28,6 @@
   "files": [
     "dist"
   ],
-  "license": "UNLICENSED",
-  "private": true
+  "license": "MIT",
+  "private": false
 }
