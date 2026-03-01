@@ -104,20 +104,25 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
   }
 
   // ═══════════════════════════════════════════════
-  // Phase 1B: Design System Documentation (own session, depends on 1A globals.css)
+  // Phase 1B + Phase 2: Design System Docs + Planning (parallel, independent sessions)
+  // P1B depends on P1A (globals.css). P2 depends on P1A (globals.css) + P0 (screenshots).
+  // Neither depends on the other, so they run concurrently.
+  // Exception: --stop-after design-system skips P2 entirely.
   // ═══════════════════════════════════════════════
-  ctx.sessionId = undefined;
-  setPhase("Building design system docs...");
-  const phase1b = await runPhase1b(ctx, onEvent);
-  phases.push(phase1b);
-
-  if (phase1b.success) {
-    succeedPhase(`Design system built (${log.elapsed(totalStart)})`);
-  } else {
-    failPhase("Design system build failed");
-  }
 
   if (ctx.stopAfter === "design-system") {
+    // Only P1B needed — skip P2 to save cost
+    ctx.sessionId = undefined;
+    setPhase("Building design system docs...");
+    const phase1b = await runPhase1b(ctx, onEvent);
+    phases.push(phase1b);
+
+    if (phase1b.success) {
+      succeedPhase(`Design system built (${log.elapsed(totalStart)})`);
+    } else {
+      failPhase("Design system build failed");
+    }
+
     writeDesignSystemTemplates(ctx);
     stopSpinner();
     log.divider();
@@ -126,12 +131,23 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
     return mkResult(true, false, "design-system");
   }
 
-  // ═══════════════════════════════════════════════
-  // Phase 2: Planning (new session — reads artifacts from disk)
-  // ═══════════════════════════════════════════════
-  ctx.sessionId = undefined;
-  setPhase("Planning page structure...");
-  const phase2 = await runPhase2(ctx, onEvent);
+  setPhase("Building design system & planning page...");
+
+  const ctx1b: PipelineContext = { ...ctx, sessionId: undefined };
+  const ctx2: PipelineContext = { ...ctx, sessionId: undefined };
+
+  const [phase1b, phase2] = await Promise.all([
+    runPhase1b(ctx1b, onEvent),
+    runPhase2(ctx2, onEvent),
+  ]);
+  phases.push(phase1b);
+
+  if (phase1b.success) {
+    succeedPhase(`Design system built (${log.elapsed(totalStart)})`);
+  } else {
+    failPhase("Design system build failed");
+  }
+
   phases.push(phase2);
 
   if (!phase2.success || !phase2.plan) {

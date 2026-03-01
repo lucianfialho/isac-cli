@@ -30,12 +30,14 @@ describe("Next.js prompt generation", () => {
     expect(prompt).toContain("semanticTokens");
   });
 
-  it("page-planner prompt includes screenshot dir", () => {
+  it("page-planner prompt includes screenshot dir and reads only globals.css", () => {
     const prompt = getPagePlannerPrompt(testDir);
     expect(prompt).toContain(testDir);
     expect(prompt).toContain("globals.css");
     expect(prompt).toContain("catalog.json");
     expect(prompt).toContain("Sections");
+    // P2 must NOT depend on P1B output (design-system/page.tsx) to enable parallel execution
+    expect(prompt).not.toContain("design-system/page.tsx");
   });
 
   it("page-builder prompt includes plan and screenshot dir", () => {

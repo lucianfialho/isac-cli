@@ -96,6 +96,12 @@ export interface FrameworkAdapter {
   getBuildCommand(): string;
 
   /**
+   * Returns a fast type-check command for quick validation during implementation.
+   * Falls back to getBuildCommand() if not implemented.
+   */
+  getQuickCheckCommand?(): string;
+
+  /**
    * Returns the dev server URL for visual verification.
    */
   getDevServerUrl(): string;

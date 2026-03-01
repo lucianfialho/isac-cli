@@ -16,7 +16,7 @@ export async function runClaudePhase(
     "--print",
     "--output-format", "stream-json",
     "--verbose",
-    "--max-turns", "50",
+    "--max-turns", String(config.maxTurns ?? 50),
   ];
 
   // Set model if specified

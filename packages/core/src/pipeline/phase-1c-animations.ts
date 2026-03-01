@@ -37,6 +37,7 @@ export async function runPhase1c(
         allowedTools: [...PHASE_1C_TOOLS],
         model: "claude-sonnet-4-6",
         timeout: 300_000,
+        maxTurns: 15,
       },
       ctx.cwd,
       ctx.sessionId,

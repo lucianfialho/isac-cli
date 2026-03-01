@@ -101,16 +101,18 @@ describe("Types", () => {
     expect(config.timeout).toBeUndefined();
   });
 
-  it("PhaseConfig supports optional model and timeout", () => {
+  it("PhaseConfig supports optional model, timeout, and maxTurns", () => {
     const config: PhaseConfig = {
       name: "phase-0",
       prompt: "Do something",
       allowedTools: ["Read"],
       model: "claude-haiku-4-5-20251001",
       timeout: 300_000,
+      maxTurns: 15,
     };
     expect(config.model).toBe("claude-haiku-4-5-20251001");
     expect(config.timeout).toBe(300_000);
+    expect(config.maxTurns).toBe(15);
   });
 
   it("PhaseOutput can be constructed", () => {
