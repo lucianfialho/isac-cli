@@ -53,33 +53,39 @@ The slopforks.com home page was replicated as a real-world proof of concept.
 │       ├── layout.tsx                    # Design system layout
 │       └── components/
 │           └── theme-toggle.tsx          # Toggle for DS page
+├── agents/
+│   ├── screenshot-capturer.md           # Phase 0: screenshot capture
+│   ├── ds-extractor.md                  # Phase 1a: design system extraction
+│   ├── ds-page-builder.md               # Phase 1b: design system documentation
+│   ├── animation-detector.md            # Phase 1c: animation detection
+│   ├── page-planner.md                  # Phase 2: structure planning
+│   ├── page-builder.md                  # Phase 3: implementation
+│   └── visual-verifier.md              # Phase 4: visual QA
+├── skills/
+│   └── replicate/
+│       ├── SKILL.md                     # Skill definition (orchestrator)
+│       ├── process.md                   # Detailed process documentation
+│       └── templates/
+│           ├── design-tokens.css        # CSS token template
+│           ├── design-system-page.tsx   # DS page template
+│           └── animation-detection.js   # Animation detection script
+├── .claude-plugin/
+│   └── plugin.json                      # Plugin manifest
 ├── .claude/
-│   ├── agents/
-│   │   ├── screenshot-capturer.md       # Phase 0: screenshot capture
-│   │   ├── ds-extractor.md              # Phase 1: design system extraction
-│   │   ├── page-planner.md              # Phase 2: structure planning
-│   │   ├── page-builder.md              # Phase 3: implementation
-│   │   └── visual-verifier.md           # Phase 4: visual QA
-│   ├── skills/
-│   │   └── isac/
-│   │       ├── SKILL.md                 # Skill definition (orchestrator)
-│   │       ├── process.md               # Detailed process documentation
-│   │       └── templates/
-│   │           └── design-tokens.css    # CSS token template
 │   └── screenshots/                     # Reference + verification screenshots
 ├── .mcp.json                            # MCP server configuration
 └── package.json
 ```
 
-## Skill: /isac
+## Skill: /isac:replicate
 
 Invoke the pipeline with:
 
 ```
-/isac replicate https://example.com
+/isac:replicate https://example.com
 ```
 
-The first argument is the subcommand (`replicate`), followed by the target URL.
+Provide the target URL as the argument.
 
 ### The 5 phases
 
@@ -98,7 +104,7 @@ If Phase 4 reports issues, corrections are sent back to the page-builder and ver
 Use the `--teams` flag to run with agent teams instead of sequential subagents:
 
 ```
-/isac replicate https://example.com --teams
+/isac:replicate https://example.com --teams
 ```
 
 In teams mode:
@@ -107,7 +113,7 @@ In teams mode:
 - Tasks are created with dependencies in a shared task list
 - The verifier communicates directly with the builder for corrections (no orchestrator overhead)
 
-Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in the environment (already configured in `.claude/settings.local.json`).
+Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in the environment (configured in `settings.json`).
 
 ## Subagents
 
@@ -197,7 +203,7 @@ npm run dev
 Run the skill with the target URL:
 
 ```
-/isac replicate https://example.com
+/isac:replicate https://example.com
 ```
 
 The pipeline will:
@@ -210,7 +216,7 @@ The pipeline will:
 For complex pages, use teams mode for direct builder-verifier communication:
 
 ```
-/isac replicate https://example.com --teams
+/isac:replicate https://example.com --teams
 ```
 
 ## Tech stack

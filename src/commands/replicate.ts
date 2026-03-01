@@ -1,0 +1,139 @@
+import { resolve } from "node:path";
+import chalk from "chalk";
+import { ensureClaude } from "../utils/claude.js";
+import { printBanner } from "../ui/banner.js";
+import { log } from "../ui/logger.js";
+import { runPipeline } from "../pipeline/orchestrator.js";
+import type { PipelineStopAfter } from "../pipeline/types.js";
+
+export interface ReplicateOptions {
+  dir?: string;
+  skipAnimations?: boolean;
+  maxRetries?: number;
+  onlyDesignSystem?: boolean;
+  stopAfter?: string;
+}
+
+export async function replicateCommand(
+  url: string,
+  options: ReplicateOptions,
+): Promise<void> {
+  printBanner();
+
+  // Validate URL
+  if (!url || !url.startsWith("http")) {
+    console.error(
+      chalk.red("  Error: Invalid URL. Usage: isac replicate <url>"),
+    );
+    process.exit(1);
+  }
+
+  // Ensure Claude CLI is available
+  if (!ensureClaude()) {
+    console.error(
+      chalk.red(
+        "  Error: Claude CLI not found. Install it from https://claude.ai/download",
+      ),
+    );
+    process.exit(1);
+  }
+
+  const dir = resolve(options.dir ?? process.cwd());
+  const maxRetries = options.maxRetries ?? 3;
+  const skipAnimations = options.skipAnimations ?? false;
+
+  // Resolve stopAfter: --only-design-system is a shortcut for --stop-after design-system
+  let stopAfter: PipelineStopAfter = null;
+  if (options.onlyDesignSystem) {
+    stopAfter = "design-system";
+  } else if (options.stopAfter) {
+    const valid = ["screenshots", "design-system", "planning"];
+    if (!valid.includes(options.stopAfter)) {
+      console.error(
+        chalk.red(
+          `  Error: Invalid --stop-after value. Must be one of: ${valid.join(", ")}`,
+        ),
+      );
+      process.exit(1);
+    }
+    stopAfter = options.stopAfter as PipelineStopAfter;
+  }
+
+  // Print config
+  log.summary("Target", url);
+  log.summary("Directory", dir);
+  if (stopAfter) {
+    log.summary("Stop after", stopAfter);
+  } else {
+    log.summary("Max retries", String(maxRetries));
+  }
+  if (skipAnimations) {
+    log.summary("Animations", "skipped");
+  }
+
+  console.log();
+
+  // Handle Ctrl+C gracefully
+  const cleanup = () => {
+    console.log(chalk.dim("\n\n  Interrupted. Exiting..."));
+    process.exit(130);
+  };
+  process.on("SIGINT", cleanup);
+  process.on("SIGTERM", cleanup);
+
+  try {
+    const result = await runPipeline({
+      url,
+      dir,
+      skipAnimations,
+      maxRetries,
+      stopAfter,
+    });
+
+    log.divider();
+
+    const elapsed = log.elapsed(totalStartFromDuration(result.totalDuration));
+    const costStr = `$${result.totalCostUsd.toFixed(2)}`;
+
+    if (result.stoppedAt) {
+      console.log(
+        chalk.cyan(`  Stopped after: ${result.stoppedAt} (${elapsed}) — Total cost: ${costStr}\n`),
+      );
+    } else if (result.approved) {
+      console.log(chalk.green(`  Done in ${elapsed} — Total cost: ${costStr}\n`));
+    } else if (result.success) {
+      console.log(
+        chalk.yellow(`  Completed with corrections pending (${elapsed}) — Total cost: ${costStr}\n`),
+      );
+    } else {
+      console.log(chalk.red(`  Pipeline failed (${elapsed}) — Total cost: ${costStr}\n`));
+    }
+
+    if (result.filesCreated.length > 0) {
+      console.log("  Files created:");
+      for (const file of result.filesCreated) {
+        console.log(`    ${file}`);
+      }
+      console.log();
+    }
+
+    if (result.stoppedAt === "design-system") {
+      console.log(
+        chalk.dim("  Run: npm run dev → http://localhost:3000/design-system\n"),
+      );
+    } else {
+      console.log(chalk.dim("  Run: npm run dev → http://localhost:3000\n"));
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(chalk.red(`\n  Pipeline error: ${msg}`));
+    process.exit(1);
+  } finally {
+    process.removeListener("SIGINT", cleanup);
+    process.removeListener("SIGTERM", cleanup);
+  }
+}
+
+function totalStartFromDuration(durationMs: number): number {
+  return Date.now() - durationMs;
+}

@@ -1,0 +1,9 @@
+{
+  "name": "isac",
+  "version": "1.0.0",
+  "description": "Automated web page replication pipeline. Captures screenshots, extracts design system, detects animations, and builds a pixel-perfect Next.js replica.",
+  "author": { "name": "Lucian Fialho" },
+  "repository": "https://github.com/lucianfialho/isac",
+  "license": "Commercial",
+  "keywords": ["web-replication", "design-system", "screenshot-to-code", "nextjs"]
+}

@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'ISAC Plugin loaded. Run /isac:replicate <url> to replicate a page.'"
+          }
+        ]
+      }
+    ]
+  }
+}
