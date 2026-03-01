@@ -1,12 +1,18 @@
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { resolve, dirname } from "node:path";
 import { Command } from "commander";
 import { captureCommand } from "./commands/capture.js";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const pkg = JSON.parse(readFileSync(resolve(__dirname, "../package.json"), "utf-8"));
 
 const program = new Command();
 
 program
   .name("isac")
   .description("ISAC — Intelligent Site Analysis & Cloning CLI")
-  .version("1.0.0");
+  .version(pkg.version);
 
 program
   .command("capture")
