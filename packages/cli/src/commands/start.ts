@@ -43,7 +43,7 @@ export async function startCommand(options: StartOptions): Promise<void> {
     message: "Project name",
     placeholder: basename(dir),
     defaultValue: basename(dir),
-    validate(value: string) {
+    validate(value: string | undefined) {
       if (!value || !value.trim()) return "Project name is required.";
       if (!/^[a-z0-9@._/-]+$/i.test(value)) return "Use only alphanumeric, @, ., -, / characters.";
     },
