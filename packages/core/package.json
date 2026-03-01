@@ -1,6 +1,6 @@
 {
   "name": "@guataiba/isac-core",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Framework-agnostic pipeline engine for ISAC — Intelligent Site Analysis & Cloning",
   "type": "module",
   "main": "./dist/index.js",
@@ -17,7 +17,14 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
-  "keywords": ["design-system", "screenshot", "ai", "claude", "site-analysis", "web-cloning"],
+  "keywords": [
+    "design-system",
+    "screenshot",
+    "ai",
+    "claude",
+    "site-analysis",
+    "web-cloning"
+  ],
   "author": "Lucian Fialho",
   "repository": {
     "type": "git",
