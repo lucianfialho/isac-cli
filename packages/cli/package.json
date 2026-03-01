@@ -1,0 +1,30 @@
+{
+  "name": "@isac/cli",
+  "version": "1.0.0",
+  "description": "ISAC CLI — Intelligent Site Analysis & Cloning",
+  "type": "module",
+  "bin": {
+    "isac": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@isac/core": "workspace:*",
+    "@isac/nextjs": "workspace:*",
+    "chalk": "^5.4.1",
+    "commander": "^13.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "private": false
+}

@@ -1,20 +1,11 @@
 {
-  "name": "@isac/cli",
-  "version": "1.0.0",
-  "description": "ISAC — Intelligent Site Analysis & Cloning CLI",
-  "type": "module",
-  "bin": {
-    "isac": "./dist/index.js"
-  },
+  "name": "isac",
+  "private": true,
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run"
-  },
-  "dependencies": {
-    "chalk": "^5.4.1",
-    "commander": "^13.1.0"
+    "build": "pnpm -r build",
+    "dev": "pnpm -r --parallel dev",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test"
   },
   "devDependencies": {
     "@types/node": "^22.13.0",
@@ -23,11 +14,7 @@
     "vitest": "^4.0.18"
   },
   "engines": {
-    "node": ">=18"
-  },
-  "files": [
-    "dist"
-  ],
-  "license": "MIT",
-  "private": false
+    "node": ">=18",
+    "pnpm": ">=9"
+  }
 }

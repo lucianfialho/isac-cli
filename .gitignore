@@ -1,5 +1,6 @@
 node_modules/
 dist/
+packages/*/dist/
 .next/
 next-env.d.ts
 .env*

@@ -1,0 +1,33 @@
+{
+  "name": "@isac/nextjs",
+  "version": "1.0.0",
+  "description": "Next.js (App Router) adapter for ISAC",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@isac/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.0",
+    "vitest": "^4.0.18"
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT"
+}
