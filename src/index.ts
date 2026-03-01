@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { replicateCommand } from "./commands/replicate.js";
+import { captureCommand } from "./commands/capture.js";
 
 const program = new Command();
 
@@ -9,9 +9,10 @@ program
   .version("1.0.0");
 
 program
-  .command("replicate")
-  .description("Replicate a web page as a pixel-perfect Next.js app")
-  .argument("<url>", "URL of the page to replicate")
+  .command("capture")
+  .alias("replicate")
+  .description("Capture and extract design system from a URL")
+  .argument("<url>", "URL of the page to capture")
   .option("-d, --dir <path>", "Target directory (defaults to cwd)")
   .option("--skip-animations", "Skip animation detection phase", false)
   .option("--max-retries <n>", "Max verification retries", "3")
@@ -25,7 +26,7 @@ program
     "Stop after a specific phase: screenshots, design-system, planning",
   )
   .action(async (url: string, opts: Record<string, string | boolean>) => {
-    await replicateCommand(url, {
+    await captureCommand(url, {
       dir: opts.dir as string | undefined,
       skipAnimations: opts.skipAnimations as boolean,
       maxRetries: opts.maxRetries ? parseInt(opts.maxRetries as string, 10) : 3,

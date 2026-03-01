@@ -1,10 +1,10 @@
-# ISAC — Automated Page Replication Plugin for Claude Code
+# ISAC — Intelligent Site Analysis & Cloning CLI
 
-ISAC captures screenshots from a URL, extracts the design system, detects animations, plans the page structure, implements a pixel-perfect Next.js replica, and visually verifies the result.
+ISAC captures screenshots from a URL, extracts the design system, detects animations, plans the page structure, implements a pixel-perfect Next.js replica, and visually verifies the result — all powered by Claude Code.
 
 ## Prerequisites
 
-- **Claude Code** 1.0.33+
+- **Claude Code** 1.0.33+ ([download](https://claude.ai/download))
 - **Google Chrome** running with remote debugging (for chrome-devtools MCP)
 - A **Next.js** project with `app/globals.css`
 - Node.js 18+
@@ -12,22 +12,26 @@ ISAC captures screenshots from a URL, extracts the design system, detects animat
 ## Installation
 
 ```bash
-claude plugin install lucianfialho/isac
+npm install -g @isac/cli
 ```
 
 ## Usage
 
 Inside a Next.js project, run:
 
-```
-/isac:replicate <url>
+```bash
+isac capture <url>
 ```
 
-With agent teams (parallel execution, direct builder-verifier communication):
+### Options
 
-```
-/isac:replicate <url> --teams
-```
+| Flag | Description |
+|---|---|
+| `-d, --dir <path>` | Target directory (defaults to cwd) |
+| `--skip-animations` | Skip animation detection phase |
+| `--max-retries <n>` | Max verification retries (default: 3) |
+| `--only-design-system` | Stop after building the design system |
+| `--stop-after <phase>` | Stop after: `screenshots`, `design-system`, or `planning` |
 
 ## What it produces
 
@@ -55,8 +59,15 @@ With agent teams (parallel execution, direct builder-verifier communication):
 
 ## Example output
 
-See `examples/claude-on-mars/` for a complete replication example.
+See `examples/claude-on-mars/` for a complete capture example.
+
+## Roadmap
+
+- **Multipackage architecture** — Modular rendering engine based on `json-render`, enabling support for multiple frameworks beyond Next.js
+- **Copy HEX on design system page** — Add a click-to-copy button for hex color codes on the generated design system page
+- **Brand logo extraction** — Automatically detect and download the brand's logo from the target URL
+- **CLI command evolution** — Evolve CLI commands (e.g. `brand-detector`, framework-specific generators) as the tool matures
 
 ## License
 
-Commercial — see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).

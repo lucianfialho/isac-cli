@@ -6,7 +6,7 @@ import { log } from "../ui/logger.js";
 import { runPipeline } from "../pipeline/orchestrator.js";
 import type { PipelineStopAfter } from "../pipeline/types.js";
 
-export interface ReplicateOptions {
+export interface CaptureOptions {
   dir?: string;
   skipAnimations?: boolean;
   maxRetries?: number;
@@ -14,16 +14,16 @@ export interface ReplicateOptions {
   stopAfter?: string;
 }
 
-export async function replicateCommand(
+export async function captureCommand(
   url: string,
-  options: ReplicateOptions,
+  options: CaptureOptions,
 ): Promise<void> {
   printBanner();
 
   // Validate URL
   if (!url || !url.startsWith("http")) {
     console.error(
-      chalk.red("  Error: Invalid URL. Usage: isac replicate <url>"),
+      chalk.red("  Error: Invalid URL. Usage: isac capture <url>"),
     );
     process.exit(1);
   }
