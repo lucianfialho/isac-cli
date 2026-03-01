@@ -1,6 +1,10 @@
 node_modules/
+dist/
 .next/
 next-env.d.ts
+.env*
+!.env.example
 mcp-server.log
 mcp-server-error.log
 *.tsbuildinfo
+tmp-*.png
