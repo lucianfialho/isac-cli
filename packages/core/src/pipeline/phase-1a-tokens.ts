@@ -1,33 +1,23 @@
-import { runClaudePhase } from "./claude-runner.js";
-import { PHASE_1A_TOOLS } from "./tools.js";
+import { writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { generateGlobalsCss } from "./css-generator.js";
 import { log } from "../ui/logger.js";
 import type { PipelineContext, PhaseResult } from "./types.js";
 
 export async function runPhase1a(
   ctx: PipelineContext,
-  onEvent?: (event: Record<string, unknown>) => void,
+  _onEvent?: (event: Record<string, unknown>) => void,
 ): Promise<PhaseResult> {
   const start = Date.now();
 
   try {
-    const result = await runClaudePhase(
-      {
-        name: "phase-1a-tokens",
-        prompt: ctx.adapter.getTokenExtractionPrompt(ctx.screenshotDir, ctx.url),
-        allowedTools: [...PHASE_1A_TOOLS],
-        model: "claude-sonnet-4-6",
-        timeout: 180_000,
-        maxTurns: 25,
-        activityTimeout: 180_000, // visual analysis of screenshots requires long thinking pauses
-      },
-      ctx.cwd,
-      ctx.sessionId,
-      onEvent,
-    );
+    // Generate globals.css directly — no Claude CLI needed.
+    // This replaces a ~3 min Claude call with a <1s deterministic TS function.
+    const css = generateGlobalsCss(ctx.cwd, ctx.mode);
+    const globalsPath = join(ctx.cwd, ctx.adapter.getGlobalCssPath());
+    writeFileSync(globalsPath, css, "utf-8");
 
-    ctx.sessionId = result.sessionId;
-
-    // Validate via adapter
+    // Validate via adapter (same as before)
     const validation = ctx.adapter.validateTokenExtraction(ctx.cwd);
     if (validation.valid) {
       log.success(validation.message ?? "Tokens extracted");
@@ -41,7 +31,6 @@ export async function runPhase1a(
       phase: "phase-1a-tokens",
       success: validation.valid,
       duration: Date.now() - start,
-      costUsd: result.costUsd,
       error: validation.valid ? undefined : "Token extraction incomplete",
     };
   } catch (err) {
