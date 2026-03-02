@@ -1,6 +1,6 @@
-# ISAC — Intelligent Site Analysis & Cloning
+# ISAC — Intelligent Site Analysis & Capture
 
-ISAC captures a live website, extracts its complete design system (fonts, colors, tokens, branding), and optionally generates a pixel-perfect Next.js replica — all powered by Claude Code.
+ISAC extracts the Brand DNA from any live website — fonts, colors, design tokens, branding, and icons — and generates a production-ready design system for your Next.js project. Powered by Claude Code.
 
 ## Packages
 
@@ -35,13 +35,13 @@ isac capture <url>
 
 This extracts fonts, colors, branding, and icons from the target URL, generates `globals.css` with design tokens, and builds a visual design system documentation page.
 
-### Full page replication
+### Full page build
 
 ```bash
 isac capture <url> --replicate
 ```
 
-Goes further: captures full-page screenshots, plans the page structure, implements a pixel-perfect replica, and visually verifies the result.
+Goes further: captures full-page screenshots, plans the page structure, builds the page using the extracted Brand DNA, and visually verifies the result.
 
 ### Interactive setup
 
@@ -54,7 +54,7 @@ isac start
 | Flag | Description |
 |---|---|
 | `-d, --dir <path>` | Target directory (defaults to cwd) |
-| `--replicate` | Full page replication mode (screenshots + implementation) |
+| `--replicate` | Full page build mode (screenshots + implementation) |
 | `--framework <name>` | Framework adapter (default: `nextjs`) |
 | `--max-retries <n>` | Max verification retries (default: 3) |
 | `--stop-after <phase>` | Stop after: `screenshots`, `design-system`, or `planning` |
@@ -83,7 +83,7 @@ isac start
 | `app/design-system/components/theme-toggle.tsx` | Theme toggle component |
 | `app/components/theme-toggle.tsx` | Theme toggle for main page |
 | `public/fonts/*.woff2` | Downloaded web fonts |
-| `app/page.tsx` | Replicated page (replicate mode only) |
+| `app/page.tsx` | Generated page (replicate mode only) |
 
 ## Pipeline phases
 
@@ -112,7 +112,7 @@ examples/
 
 ## Example output
 
-See [`examples/claude-on-mars/`](examples/claude-on-mars/) for a complete capture example.
+See [`examples/claude-on-mars/`](examples/claude-on-mars/) for a complete Brand DNA extraction example.
 
 ## Roadmap
 
