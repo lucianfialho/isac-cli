@@ -402,6 +402,43 @@ function closestGrayStep(hex: string, scale: Map<number, string>): number | null
   return closest;
 }
 
+/**
+ * Check if the dark palette's neutral tint diverges from the light gray scale.
+ * Returns true when average hue differs by >30deg or saturation differs by >0.15.
+ */
+function isDarkPaletteDivergent(
+  lightGrays: Map<number, string>,
+  darkGrays: Map<number, string>,
+): boolean {
+  function avgHueSat(grays: Map<number, string>): { hue: number; sat: number } {
+    let hueSum = 0;
+    let satSum = 0;
+    let count = 0;
+    for (const hex of grays.values()) {
+      const [r, g, b] = hexToRgb(hex);
+      const [h, s] = rgbToHsl(r, g, b);
+      // Skip achromatic grays (s ≈ 0) — they have no meaningful hue
+      if (s < 0.01) continue;
+      hueSum += h;
+      satSum += s;
+      count++;
+    }
+    if (count === 0) return { hue: 0, sat: 0 };
+    return { hue: hueSum / count, sat: satSum / count };
+  }
+
+  const light = avgHueSat(lightGrays);
+  const dark = avgHueSat(darkGrays);
+
+  // Hue difference on the circular 0-360 scale
+  let hueDiff = Math.abs(light.hue - dark.hue);
+  if (hueDiff > 180) hueDiff = 360 - hueDiff;
+
+  const satDiff = Math.abs(light.sat - dark.sat);
+
+  return hueDiff > 30 || satDiff > 0.15;
+}
+
 /** Find the gray step whose luminance is closest to the given hex */
 function matchToGrayVar(hex: string | null, scale: Map<number, string>, fallbackStep: number): string {
   if (!isValidHex(hex)) return `var(--sf-gray-${fallbackStep})`;
@@ -459,9 +496,23 @@ function buildSemanticTokens(colorData: ColorData, primitives: PrimitiveScale): 
   return lines.join("\n");
 }
 
-function buildDarkOverrides(darkData: ColorData | null, primitives: PrimitiveScale): string {
-  const { grays } = primitives;
+function buildDarkOverrides(
+  darkData: ColorData | null,
+  primitives: PrimitiveScale,
+  darkGrays?: Map<number, string>,
+): string {
+  const grays = darkGrays ?? primitives.grays;
   const lines: string[] = [];
+
+  // When dark palette diverges, override --sf-gray-* in the dark block
+  if (darkGrays) {
+    lines.push("  /* ─── Dark gray overrides ─── */");
+    for (const step of GRAY_STEPS) {
+      const hex = darkGrays.get(step) ?? "#888888";
+      lines.push(`  --sf-gray-${step}: ${hex};`);
+    }
+    lines.push("");
+  }
 
   if (darkData && hasAnyColor(darkData)) {
     // Use real dark mode data
@@ -680,8 +731,15 @@ export function generateGlobalsCss(cwd: string, _mode: PipelineMode): string {
   // 7. Semantic tokens (light)
   const semantics = buildSemanticTokens(mergedColors, primitives);
 
-  // 8. Dark mode overrides
-  const darkOverrides = buildDarkOverrides(colorDataDark, primitives);
+  // 8. Dark mode overrides — build separate dark gray scale if palettes diverge
+  let darkGrays: Map<number, string> | undefined;
+  if (colorDataDark && hasAnyColor(colorDataDark)) {
+    const darkPrimitives = buildPrimitiveScale(colorDataDark);
+    if (isDarkPaletteDivergent(primitives.grays, darkPrimitives.grays)) {
+      darkGrays = darkPrimitives.grays;
+    }
+  }
+  const darkOverrides = buildDarkOverrides(colorDataDark, primitives, darkGrays);
 
   // 9. Tailwind theme bridge
   const themeBridge = buildThemeBridge(fontVars);
