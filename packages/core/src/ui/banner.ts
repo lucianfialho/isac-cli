@@ -1,11 +1,11 @@
 import chalk from "chalk";
 
-const VERSION = "1.0.0";
+declare const __PACKAGE_VERSION__: string;
 
 export function printBanner() {
   console.log(chalk.bold(`
   ╦╔═╗╔═╗╔═╗
   ║╚═╗╠═╣║
-  ╩╚═╝╩ ╩╚═╝  v${VERSION}
+  ╩╚═╝╩ ╩╚═╝  v${__PACKAGE_VERSION__}
 `));
 }
