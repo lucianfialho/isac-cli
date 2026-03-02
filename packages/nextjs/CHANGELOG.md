@@ -1,5 +1,18 @@
 # @guataiba/isac-nextjs
 
+## 2.1.0
+
+### Minor Changes
+
+- Replace Claude CLI with pure TypeScript css-generator in Phase 1A
+
+  Phase 1A token extraction no longer spawns Claude CLI. A deterministic `generateGlobalsCss()` function reads the Phase 0 JSON artifacts and generates `globals.css` directly, reducing execution time from ~3 min to <1s with zero LLM cost.
+
+### Patch Changes
+
+- Updated dependencies
+  - @guataiba/isac-core@2.1.0
+
 ## 2.0.1
 
 ### Patch Changes
