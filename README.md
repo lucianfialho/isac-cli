@@ -2,6 +2,8 @@
 
 ISAC extracts the Brand DNA from any live website — fonts, colors, design tokens, branding, and icons — and generates a production-ready design system for your Next.js project. Powered by Claude Code.
 
+[![Watch the demo](https://img.youtube.com/vi/uMwzfATF7IE/maxresdefault.jpg)](https://youtu.be/uMwzfATF7IE)
+
 ## Packages
 
 | Package | Version | Description |
