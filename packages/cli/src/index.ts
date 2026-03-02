@@ -20,8 +20,7 @@ program
   .description("Capture and extract design system from a URL")
   .argument("<url>", "URL of the page to capture")
   .option("-d, --dir <path>", "Target directory (defaults to cwd)")
-  .option("--skip-animations", "Skip animation detection phase", false)
-  .option("--max-retries <n>", "Max verification retries", "3")
+.option("--max-retries <n>", "Max verification retries", "3")
   .option(
     "--framework <name>",
     "Framework adapter to use (default: nextjs)",
@@ -39,7 +38,6 @@ program
   .action(async (url: string, opts: Record<string, string | boolean>) => {
     await captureCommand(url, {
       dir: opts.dir as string | undefined,
-      skipAnimations: opts.skipAnimations as boolean,
       maxRetries: opts.maxRetries ? parseInt(opts.maxRetries as string, 10) : 3,
       framework: (opts.framework as string) ?? "nextjs",
       onlyDesignSystem: opts.onlyDesignSystem as boolean,

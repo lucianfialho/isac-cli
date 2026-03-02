@@ -14,7 +14,6 @@ import { resolveAdapter } from "../adapters.js";
 
 export interface CaptureOptions {
   dir?: string;
-  skipAnimations?: boolean;
   maxRetries?: number;
   framework?: string;
   onlyDesignSystem?: boolean;
@@ -53,8 +52,6 @@ export async function captureCommand(
   // Resolve adapter (CLI flag > config > default)
   const adapter = resolveAdapter(options.framework ?? config?.framework ?? "nextjs");
   const maxRetries = options.maxRetries ?? 3;
-  const skipAnimations = options.skipAnimations ?? false;
-
   // Resolve stopAfter
   let stopAfter: PipelineStopAfter = null;
   if (options.onlyDesignSystem) {
@@ -81,10 +78,6 @@ export async function captureCommand(
   } else {
     log.summary("Max retries", String(maxRetries));
   }
-  if (skipAnimations) {
-    log.summary("Animations", "skipped");
-  }
-
   console.log();
 
   // Handle Ctrl+C gracefully
@@ -99,7 +92,6 @@ export async function captureCommand(
     const result = await runPipeline({
       url,
       dir,
-      skipAnimations,
       maxRetries,
       stopAfter,
       adapter,

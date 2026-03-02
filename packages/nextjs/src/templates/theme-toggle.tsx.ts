@@ -1,18 +1,18 @@
 export const THEME_TOGGLE_TEMPLATE = `"use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 type Theme = "system" | "light" | "dark";
 
 const STORAGE_KEY = "ds-theme";
 
 function getSnapshot(): Theme {
-  if (typeof window === "undefined") return "system";
-  return (localStorage.getItem(STORAGE_KEY) as Theme) ?? "system";
+  if (typeof window === "undefined") return "light";
+  return (localStorage.getItem(STORAGE_KEY) as Theme) ?? "light";
 }
 
 function getServerSnapshot(): Theme {
-  return "system";
+  return "light";
 }
 
 function subscribe(cb: () => void): () => void {
@@ -26,18 +26,28 @@ function subscribe(cb: () => void): () => void {
 function applyTheme(theme: Theme) {
   const html = document.documentElement;
   if (theme === "system") {
-    html.removeAttribute("data-theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    html.setAttribute("data-theme", prefersDark ? "dark" : "light");
   } else {
     html.setAttribute("data-theme", theme);
   }
 }
 
-const CYCLE: Theme[] = ["system", "light", "dark"];
+const CYCLE: Theme[] = ["light", "dark", "system"];
 const LABELS: Record<Theme, string> = { system: "Auto", light: "Light", dark: "Dark" };
 const ICONS: Record<Theme, string> = { system: "◑", light: "☀", dark: "☾" };
 
 export function ThemeToggle() {
   const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+
+  // Apply saved theme on mount and listen for system theme changes
+  useEffect(() => {
+    applyTheme(getSnapshot());
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = () => { if (getSnapshot() === "system") applyTheme("system"); };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   function toggle() {
     const idx = CYCLE.indexOf(theme);

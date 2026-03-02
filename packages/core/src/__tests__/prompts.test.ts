@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import { getScreenshotPrompt } from "../prompts/screenshot-capturer.js";
-import { getAnimationDetectorPrompt } from "../prompts/animation-detector.js";
 
 describe("Core prompt generation", () => {
   const testUrl = "https://example.com";
@@ -17,13 +16,5 @@ describe("Core prompt generation", () => {
     expect(prompt).toContain("@font-face");
     expect(prompt).toContain("evaluate_script");
     expect(prompt).toContain("public/fonts");
-  });
-
-  it("animation-detector prompt includes URL and detection script", () => {
-    const prompt = getAnimationDetectorPrompt(testUrl);
-    expect(prompt).toContain(testUrl);
-    expect(prompt).toContain("detectAnimations");
-    expect(prompt).toContain("catalog.json");
-    expect(prompt).toContain("motionEquivalent");
   });
 });

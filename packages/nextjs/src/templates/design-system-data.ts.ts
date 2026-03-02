@@ -2,6 +2,16 @@ export const DESIGN_SYSTEM_DATA_TEMPLATE = `// ─── Site Info ────�
 export const siteInfo = {
   name: "Example Site",
   domain: "example.com",
+  tagline: "",
+  description: "",
+};
+
+// ─── Branding ───────────────────────────────────────────────────
+export const branding = {
+  logoUrl: "",
+  faviconUrl: "",
+  ogImageUrl: "",
+  aboutText: "",
 };
 
 // ─── Typography ─────────────────────────────────────────────────
@@ -81,6 +91,13 @@ export const primitives: { name: string; var: string; hex: string }[] = [
   { name: "accent", var: "--sf-accent", hex: "#6366f1" },
 ];
 
+// ─── Icons ─────────────────────────────────────────────────────
+export const icons: { library: string; names: string[]; count: number } = {
+  library: "none",
+  names: [],
+  count: 0,
+};
+
 // ─── Semantic Tokens ────────────────────────────────────────────
 export const semanticTokens: {
   category: string;
@@ -112,8 +129,8 @@ export const semanticTokens: {
   {
     category: "Surface",
     tokens: [
-      { name: "surface-primary", var: "--color-surface-primary", lightRef: "white", darkRef: "gray-900" },
-      { name: "surface-hover", var: "--color-surface-hover", lightRef: "gray-50", darkRef: "gray-800" },
+      { name: "surface-elevated", var: "--color-surface-elevated", lightRef: "white", darkRef: "gray-900" },
+      { name: "surface-sunken", var: "--color-surface-sunken", lightRef: "gray-50", darkRef: "gray-800" },
     ],
   },
   {

@@ -20,7 +20,6 @@ export {
   PHASE_0_TOOLS,
   PHASE_1A_TOOLS,
   PHASE_1B_TOOLS,
-  PHASE_1C_TOOLS,
   PHASE_2_TOOLS,
   PHASE_3_TOOLS,
   PHASE_4_TOOLS,
@@ -46,4 +45,3 @@ export { readConfig, writeConfig, type IsacConfig } from "./config.js";
 
 // ── Templates (framework-agnostic) ─────────────────────────
 export { DESIGN_TOKENS_CSS_TEMPLATE } from "./templates/design-tokens.css.js";
-export { ANIMATION_DETECTION_SCRIPT } from "./templates/animation-detection.js.js";

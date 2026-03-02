@@ -2,6 +2,7 @@ export const DESIGN_SYSTEM_PAGE_TEMPLATE = `import type { Metadata } from "next"
 import { ThemeToggle } from "./components/theme-toggle";
 import {
   siteInfo,
+  branding,
   fonts as fontStacks,
   fontSizes,
   fontWeights,
@@ -10,6 +11,7 @@ import {
   semanticTokens,
   spacing,
   shadows,
+  icons,
 } from "./data";
 
 export const metadata: Metadata = {
@@ -114,6 +116,92 @@ export default function DesignSystemPage() {
           — with dark mode support
         </p>
       </header>
+
+      {/* ──── BRAND IDENTITY ──── */}
+      {(branding.logoUrl || siteInfo.tagline || siteInfo.description) && (
+        <Section title="Brand Identity">
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 20,
+              padding: 32,
+              background: "var(--color-bg-secondary)",
+              borderRadius: 12,
+              border: "1px solid var(--color-border-primary)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+              {branding.logoUrl && (
+                <img
+                  src={branding.logoUrl}
+                  alt={\`\${siteInfo.name} logo\`}
+                  style={{
+                    height: 48,
+                    maxWidth: 200,
+                    objectFit: "contain",
+                  }}
+                />
+              )}
+              <div>
+                <h3
+                  style={{
+                    fontFamily: fonts.display,
+                    fontSize: 28,
+                    fontWeight: 700,
+                    margin: 0,
+                    color: "var(--color-text-primary)",
+                  }}
+                >
+                  {siteInfo.name}
+                </h3>
+                {siteInfo.tagline && (
+                  <p
+                    style={{
+                      fontSize: 16,
+                      color: "var(--color-text-secondary)",
+                      margin: "4px 0 0",
+                    }}
+                  >
+                    {siteInfo.tagline}
+                  </p>
+                )}
+              </div>
+            </div>
+            {siteInfo.description && (
+              <p
+                style={{
+                  fontSize: 14,
+                  color: "var(--color-text-secondary)",
+                  lineHeight: 1.6,
+                  margin: 0,
+                  maxWidth: 640,
+                }}
+              >
+                {siteInfo.description}
+              </p>
+            )}
+            {branding.faviconUrl && (
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <img
+                  src={branding.faviconUrl}
+                  alt="Favicon"
+                  style={{ width: 24, height: 24 }}
+                />
+                <code
+                  style={{
+                    fontFamily: fonts.mono,
+                    fontSize: 11,
+                    color: "var(--color-text-tertiary)",
+                  }}
+                >
+                  {branding.faviconUrl}
+                </code>
+              </div>
+            )}
+          </div>
+        </Section>
+      )}
 
       {/* ──── PRIMITIVE PALETTE ──── */}
       <Section title="Primitive Palette">
@@ -689,7 +777,7 @@ export default function DesignSystemPage() {
           <div
             style={{
               padding: 24,
-              background: "var(--color-surface-primary)",
+              background: "var(--color-bg-primary)",
               border: "1px solid var(--color-border-primary)",
               borderRadius: 12,
             }}
@@ -874,6 +962,61 @@ export default function DesignSystemPage() {
           </div>
         </div>
       </Section>
+
+      {/* ──── ICONS ──── */}
+      {icons.count > 0 && (
+        <Section title="Icons">
+          <div style={{ marginBottom: 16, display: "flex", alignItems: "center", gap: 12 }}>
+            <span
+              style={{
+                display: "inline-block",
+                padding: "4px 12px",
+                fontSize: 12,
+                fontWeight: 600,
+                fontFamily: fonts.mono,
+                background: "var(--color-bg-tertiary)",
+                color: "var(--color-text-secondary)",
+                borderRadius: 6,
+                border: "1px solid var(--color-border-subtle)",
+              }}
+            >
+              {icons.library}
+            </span>
+            <span style={{ fontSize: 13, color: "var(--color-text-tertiary)" }}>
+              {icons.count} icon elements detected
+            </span>
+          </div>
+          {icons.names.length > 0 && (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+                gap: 8,
+              }}
+            >
+              {icons.names.map((name) => (
+                <div
+                  key={name}
+                  style={{
+                    padding: "8px 12px",
+                    fontSize: 12,
+                    fontFamily: fonts.mono,
+                    color: "var(--color-text-primary)",
+                    background: "var(--color-bg-secondary)",
+                    border: "1px solid var(--color-border-subtle)",
+                    borderRadius: 6,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {name}
+                </div>
+              ))}
+            </div>
+          )}
+        </Section>
+      )}
 
       {/* ──── FOOTER ──── */}
       <footer

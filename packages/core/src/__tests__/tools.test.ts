@@ -4,7 +4,6 @@ import {
   PHASE_0_TOOLS,
   PHASE_1A_TOOLS,
   PHASE_1B_TOOLS,
-  PHASE_1C_TOOLS,
   PHASE_2_TOOLS,
   PHASE_3_TOOLS,
   PHASE_4_TOOLS,
@@ -42,11 +41,6 @@ describe("Tool sets", () => {
 
   it("Phase 1b has only file tools (no chrome-devtools)", () => {
     expect(PHASE_1B_TOOLS).toEqual(["Read", "Write", "Edit", "Glob", "Bash"]);
-  });
-
-  it("Phase 1c includes chrome-devtools tools", () => {
-    expect(PHASE_1C_TOOLS).toContain("mcp__chrome-devtools__evaluate_script");
-    expect(PHASE_1C_TOOLS).toContain("Read");
   });
 
   it("Phase 2 is read-only", () => {

@@ -10,8 +10,6 @@ export interface PipelineContext {
   url: string;
   cwd: string;
   screenshotDir: string;
-  animationCatalogPath: string;
-  skipAnimations: boolean;
   maxRetries: number;
   stopAfter: PipelineStopAfter;
   sessionId?: string;
@@ -25,6 +23,8 @@ export interface PhaseConfig {
   model?: string;
   timeout?: number;
   maxTurns?: number;
+  /** Rolling silence timeout (ms). Resets on each stdout chunk. Default: 120s */
+  activityTimeout?: number;
 }
 
 export interface PhaseOutput {
@@ -55,7 +55,6 @@ export interface VerificationResult {
 export interface PipelineOptions {
   url: string;
   dir: string;
-  skipAnimations: boolean;
   maxRetries: number;
   stopAfter: PipelineStopAfter;
   adapter: FrameworkAdapter;
