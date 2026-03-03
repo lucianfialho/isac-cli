@@ -22,7 +22,6 @@ export const CHROME_DEVTOOLS_TOOLS = [
 
 // Per-phase tool sets
 export const PHASE_0_TOOLS = ["Read", "Write", "Bash", ...CHROME_DEVTOOLS_TOOLS];
-export const PHASE_1A_TOOLS = ["Read", "Write", "Edit", "Glob", "Bash"];
 export const PHASE_1B_TOOLS = ["Read", "Write", "Edit", "Glob", "Bash"];
 export const PHASE_2_TOOLS = ["Read", "Glob", "Grep"];
 export const PHASE_3_TOOLS = ["Read", "Write", "Edit", "Glob", "Grep", "Bash"];

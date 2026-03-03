@@ -14,7 +14,6 @@ import type { FrameworkAdapter } from "../adapter.js";
 const mockAdapter: FrameworkAdapter = {
   name: "mock",
   displayName: "Mock Framework",
-  getTokenExtractionPrompt: () => "",
   getDesignSystemPrompt: () => "",
   getPagePlannerPrompt: () => "",
   getPageBuilderPrompt: () => "",
