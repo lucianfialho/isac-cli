@@ -19,6 +19,7 @@ export interface CaptureOptions {
   framework?: string;
   replicate?: boolean;
   stopAfter?: string;
+  animations?: boolean;
 }
 
 export async function captureCommand(
@@ -55,11 +56,12 @@ export async function captureCommand(
   const maxRetries = options.maxRetries ?? 3;
   // Resolve mode
   const mode: PipelineMode = options.replicate ? "replicate" : "design-system";
+  const animations = options.animations ?? false;
 
   // Resolve stopAfter
   let stopAfter: PipelineStopAfter = null;
   if (options.stopAfter) {
-    const valid = ["screenshots", "design-system", "planning"];
+    const valid = ["screenshots", "design-system", "planning", "implementation"];
     if (!valid.includes(options.stopAfter)) {
       console.error(
         chalk.red(
@@ -99,6 +101,7 @@ export async function captureCommand(
       mode,
       stopAfter,
       adapter,
+      animations,
     });
 
     log.divider();

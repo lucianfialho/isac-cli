@@ -45,6 +45,7 @@ describe("Types", () => {
       maxRetries: 3,
       mode: "design-system",
       stopAfter: null,
+      animations: false,
       adapter: mockAdapter,
     };
     expect(ctx.url).toBe("https://example.com");
@@ -62,6 +63,7 @@ describe("Types", () => {
       maxRetries: 3,
       mode: "design-system",
       stopAfter: null,
+      animations: false,
       sessionId: "session-123",
       adapter: mockAdapter,
     };
@@ -78,6 +80,7 @@ describe("Types", () => {
         maxRetries: 3,
         mode,
         stopAfter: null,
+        animations: false,
         adapter: mockAdapter,
       };
       expect(ctx.mode).toBe(mode);
@@ -89,6 +92,7 @@ describe("Types", () => {
       "screenshots",
       "design-system",
       "planning",
+      "implementation",
       null,
     ];
     for (const stopAfter of values) {
@@ -99,6 +103,7 @@ describe("Types", () => {
         maxRetries: 3,
         mode: "design-system",
         stopAfter,
+        animations: false,
         adapter: mockAdapter,
       };
       expect(ctx.stopAfter).toBe(stopAfter);

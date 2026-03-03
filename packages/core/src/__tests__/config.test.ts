@@ -10,8 +10,6 @@ const SAMPLE_CONFIG: IsacConfig = {
   css: "tailwind",
   componentLibrary: "shadcn",
   iconLibrary: "lucide",
-  fonts: "google",
-  colorScheme: "both",
 };
 
 describe("config", () => {
@@ -52,11 +50,10 @@ describe("config", () => {
 
     it("overwrites existing config", () => {
       writeConfig(tempDir, SAMPLE_CONFIG);
-      const updated: IsacConfig = { ...SAMPLE_CONFIG, css: "vanilla", iconLibrary: "none" };
+      const updated: IsacConfig = { ...SAMPLE_CONFIG, css: "vanilla" };
       writeConfig(tempDir, updated);
       const config = readConfig(tempDir);
       expect(config?.css).toBe("vanilla");
-      expect(config?.iconLibrary).toBe("none");
     });
   });
 
@@ -87,18 +84,10 @@ describe("config", () => {
       }
     });
 
-    it("supports all fonts values", () => {
-      for (const fonts of ["google", "system", "custom"] as const) {
-        const config: IsacConfig = { ...SAMPLE_CONFIG, fonts };
-        expect(config.fonts).toBe(fonts);
-      }
-    });
-
-    it("supports all colorScheme values", () => {
-      for (const scheme of ["both", "light", "dark"] as const) {
-        const config: IsacConfig = { ...SAMPLE_CONFIG, colorScheme: scheme };
-        expect(config.colorScheme).toBe(scheme);
-      }
+    it("does not include unused fields (fonts, colorScheme)", () => {
+      const config: IsacConfig = { ...SAMPLE_CONFIG };
+      expect("fonts" in config).toBe(false);
+      expect("colorScheme" in config).toBe(false);
     });
   });
 });

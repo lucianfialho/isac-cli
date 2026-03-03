@@ -6,11 +6,12 @@ const CONFIG_FILENAME = "isac.config.json";
 export interface IsacConfig {
   projectName: string;
   framework: "nextjs";
+  /** Used during scaffolding (isac start) to configure create-next-app flags */
   css: "tailwind" | "css-modules" | "vanilla";
+  /** Used during scaffolding to init component library (e.g. shadcn) */
   componentLibrary: "shadcn" | "radix" | "headless" | "none";
+  /** Used during scaffolding to install icon packages */
   iconLibrary: "lucide" | "heroicons" | "phosphor" | "radix-icons" | "none";
-  fonts: "google" | "system" | "custom";
-  colorScheme: "both" | "light" | "dark";
 }
 
 export function readConfig(dir: string): IsacConfig | null {

@@ -114,30 +114,6 @@ export async function startCommand(options: StartOptions): Promise<void> {
   });
   if (clack.isCancel(iconLibrary)) cancel();
 
-  // ── Step 6: Fonts ─────────────────────────────────────────
-
-  const fonts = await clack.select({
-    message: "Font strategy",
-    options: [
-      { value: "google" as const, label: "Google Fonts (via next/font)", hint: "recommended" },
-      { value: "system" as const, label: "System fonts only" },
-      { value: "custom" as const, label: "Custom (I'll provide my own)" },
-    ],
-  });
-  if (clack.isCancel(fonts)) cancel();
-
-  // ── Step 7: Color scheme ──────────────────────────────────
-
-  const colorScheme = await clack.select({
-    message: "Color scheme support",
-    options: [
-      { value: "both" as const, label: "Light + Dark mode", hint: "recommended" },
-      { value: "light" as const, label: "Light only" },
-      { value: "dark" as const, label: "Dark only" },
-    ],
-  });
-  if (clack.isCancel(colorScheme)) cancel();
-
   // ── Summary ───────────────────────────────────────────────
 
   const config: IsacConfig = {
@@ -146,8 +122,6 @@ export async function startCommand(options: StartOptions): Promise<void> {
     css: css as IsacConfig["css"],
     componentLibrary: componentLibrary as IsacConfig["componentLibrary"],
     iconLibrary: iconLibrary as IsacConfig["iconLibrary"],
-    fonts: fonts as IsacConfig["fonts"],
-    colorScheme: colorScheme as IsacConfig["colorScheme"],
   };
 
   const adapterDisplay = ADAPTERS[config.framework]?.displayName ?? config.framework;
@@ -159,8 +133,6 @@ export async function startCommand(options: StartOptions): Promise<void> {
       `${chalk.dim("CSS")}           ${config.css}`,
       `${chalk.dim("Components")}    ${config.componentLibrary}`,
       `${chalk.dim("Icons")}         ${config.iconLibrary}`,
-      `${chalk.dim("Fonts")}         ${config.fonts}`,
-      `${chalk.dim("Color scheme")}  ${config.colorScheme}`,
     ].join("\n"),
     "Configuration summary",
   );

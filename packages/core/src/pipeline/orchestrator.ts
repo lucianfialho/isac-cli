@@ -1,6 +1,7 @@
 import { join, dirname } from "node:path";
 import { mkdirSync, writeFileSync, existsSync, readFileSync, unlinkSync } from "node:fs";
 import { runPhase0, createPhase0EventHandler } from "./phase-0-screenshot.js";
+import { runPhase0Animation } from "./phase-0-animation.js";
 import { runPhase1a } from "./phase-1a-tokens.js";
 import { runPhase1b } from "./phase-1b-design-system.js";
 import { runPhase2 } from "./phase-2-planning.js";
@@ -80,6 +81,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
     maxRetries: options.maxRetries,
     mode: options.mode,
     stopAfter: options.stopAfter,
+    animations: options.animations,
     adapter: options.adapter,
   };
 
@@ -158,6 +160,19 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
   if (ctx.stopAfter === "screenshots") {
     stopSpinner();
     return mkResult(true, false, "screenshots");
+  }
+
+  // ═══════════════════════════════════════════════
+  // Phase 0.5: Animation Detection (optional, replicate mode only)
+  // ═══════════════════════════════════════════════
+  if (ctx.animations && ctx.mode === "replicate") {
+    enableMcp(ctx.cwd);
+    setPhase("Detecting animations...");
+    mkdirSync(join(ctx.cwd, ".claude/animations"), { recursive: true });
+    const phaseAnim = await runPhase0Animation(ctx, onEvent);
+    disableMcp(ctx.cwd);
+    phases.push(phaseAnim);
+    succeedPhase(`Animation detection done (${log.elapsed(totalStart)})`);
   }
 
   // ═══════════════════════════════════════════════
@@ -260,6 +275,12 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
       break;
     }
     succeedPhase(`Implementation done (${log.elapsed(totalStart)})`);
+
+    if (ctx.stopAfter === "implementation") {
+      writeDesignSystemTemplates(ctx);
+      stopSpinner();
+      return mkResult(true, false, "implementation");
+    }
 
     // --- Phase 4: Visual Verification (needs chrome-devtools) ---
     enableMcp(ctx.cwd);
