@@ -15,7 +15,7 @@ ISAC extracts the Brand DNA from any live website — fonts, colors, design toke
 ## Prerequisites
 
 - **Claude Code** 1.0.33+ ([download](https://claude.ai/download))
-- **Google Chrome** running with remote debugging (for chrome-devtools MCP)
+- **Google Chrome** installed (used for color extraction via Playwright and Chrome DevTools MCP)
 - A **Next.js** project with `app/globals.css`
 - Node.js 18+
 
@@ -91,7 +91,7 @@ isac start
 
 | Phase | What it does | Powered by |
 |---|---|---|
-| **Phase 0** | Navigate to URL, extract fonts/colors/branding/icons, download woff2 files | Claude + Chrome DevTools MCP |
+| **Phase 0** | Navigate to URL, extract fonts/branding/icons via Claude, extract colors deterministically via Playwright | Claude + Chrome DevTools MCP + Playwright |
 | **Phase 1A** | Generate `globals.css` from extracted JSON data | Pure TypeScript (no LLM) |
 | **Phase 1B** | Build design system documentation (`data.ts`) | Claude |
 | **Phase 2** | Plan page structure from screenshots | Claude |
@@ -105,7 +105,7 @@ In **replicate** mode, it runs all phases (0 → 1A → 1B+2 → 3 → 4).
 
 ```
 packages/
-  core/     → Pipeline engine, css-generator, prompts, templates (framework-agnostic)
+  core/     → Pipeline engine, css-generator, color-extractor (Playwright), prompts, templates
   nextjs/   → Next.js App Router adapter (prompts, templates, file structure)
   cli/      → CLI entry point, bundles core + nextjs
 examples/
