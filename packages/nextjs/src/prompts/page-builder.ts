@@ -1,3 +1,5 @@
+import { THEME_INIT_SCRIPT } from "../templates/root-layout-snippet.js";
+
 export function getPageBuilderPrompt(
   plan: string,
   screenshotDir: string,
@@ -25,8 +27,14 @@ ${plan}
 4. **Implement** \`app/page.tsx\` following the provided plan
 5. **Implement animations** using \`motion\` package based on the catalog
 6. **Configure** \`app/layout.tsx\` (metadata, fonts)
-7. **Copy** ThemeToggle to \`app/components/theme-toggle.tsx\` if it doesn't exist
-8. **Validate** with \`npm run build\`
+7. **Theme support in app/layout.tsx**:
+   - Add this inline script inside <body> BEFORE {children}:
+     \`<script dangerouslySetInnerHTML={{ __html: '${THEME_INIT_SCRIPT}' }} />\`
+   - This prevents FOUC (flash of unstyled content) on page load
+8. **Copy** ThemeToggle to \`app/components/theme-toggle.tsx\` if it doesn't exist
+   - DO NOT rewrite the component — copy it exactly as-is from \`app/design-system/components/theme-toggle.tsx\`
+   - The storage key MUST remain "ds-theme" — do NOT change it
+9. **Validate** with \`npm run build\`
 
 ## Code patterns
 
@@ -61,6 +69,7 @@ Extract SVGs and repeated elements into functions.
 6. **Load** custom fonts via \`next/font/google\` in layout.tsx
 7. **Responsiveness**: \`overflow-x: auto\` on table containers
 8. **Accessibility**: links with \`target="_blank"\` must have \`rel="noopener noreferrer"\`
+9. **Theme storage key**: The theme toggle uses localStorage key "ds-theme". Do NOT rename it. The design-system layout depends on this exact key.
 
 ## Animation rules
 

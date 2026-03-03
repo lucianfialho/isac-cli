@@ -44,7 +44,7 @@ Return the plan in this format:
 ...
 
 ## Reusable components
-- ThemeToggle (already exists in design-system)
+- ThemeToggle (already exists — DO NOT rewrite, copy from app/design-system/components/)
 - ForkIcon (inline SVG)
 - ...
 
