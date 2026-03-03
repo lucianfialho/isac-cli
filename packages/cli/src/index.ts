@@ -36,11 +36,12 @@ program
     "Stop after a specific phase: screenshots, design-system, planning",
   )
   .action(async (url: string, opts: Record<string, string | boolean>) => {
+    const invokedAsReplicate = process.argv[2] === "replicate";
     await captureCommand(url, {
       dir: opts.dir as string | undefined,
       maxRetries: opts.maxRetries ? parseInt(opts.maxRetries as string, 10) : 3,
       framework: (opts.framework as string) ?? "nextjs",
-      replicate: opts.replicate as boolean,
+      replicate: invokedAsReplicate || (opts.replicate as boolean),
       stopAfter: opts.stopAfter as string | undefined,
     });
   });
