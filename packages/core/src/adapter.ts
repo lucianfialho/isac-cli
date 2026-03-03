@@ -34,12 +34,6 @@ export interface FrameworkAdapter {
   // ─── Prompts ─────────────────────────────────────────────
 
   /**
-   * Phase 1A: Returns the prompt for design token extraction.
-   * Framework-specific because it references CSS file paths and styling patterns.
-   */
-  getTokenExtractionPrompt(screenshotDir: string, targetUrl?: string, mode?: PipelineMode): string;
-
-  /**
    * Phase 1B: Returns the prompt for design system page/data generation.
    * Framework-specific because it references component paths.
    */

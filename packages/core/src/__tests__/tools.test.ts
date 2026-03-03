@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import {
   CHROME_DEVTOOLS_TOOLS,
   PHASE_0_TOOLS,
-  PHASE_1A_TOOLS,
   PHASE_1B_TOOLS,
   PHASE_2_TOOLS,
   PHASE_3_TOOLS,
@@ -27,16 +26,6 @@ describe("Tool sets", () => {
     expect(PHASE_0_TOOLS).toContain("Read");
     expect(PHASE_0_TOOLS).toContain("Write");
     expect(PHASE_0_TOOLS).toContain("Bash");
-  });
-
-  it("Phase 1a has file tools only (no chrome-devtools — reads font-data.json from disk)", () => {
-    expect(PHASE_1A_TOOLS).toContain("Read");
-    expect(PHASE_1A_TOOLS).toContain("Write");
-    expect(PHASE_1A_TOOLS).toContain("Bash");
-    expect(PHASE_1A_TOOLS).toEqual(["Read", "Write", "Edit", "Glob", "Bash"]);
-    for (const tool of PHASE_1A_TOOLS) {
-      expect(tool).not.toMatch(/^mcp__/);
-    }
   });
 
   it("Phase 1b has only file tools (no chrome-devtools)", () => {

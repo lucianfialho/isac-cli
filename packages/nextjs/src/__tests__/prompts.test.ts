@@ -1,5 +1,4 @@
 import { describe, it, expect } from "vitest";
-import { getDsExtractorPrompt } from "../prompts/ds-extractor.js";
 import { getDsPageBuilderPrompt } from "../prompts/ds-page-builder.js";
 import { getPagePlannerPrompt } from "../prompts/page-planner.js";
 import { getPageBuilderPrompt } from "../prompts/page-builder.js";
@@ -7,26 +6,6 @@ import { getVisualVerifierPrompt } from "../prompts/visual-verifier.js";
 
 describe("Next.js prompt generation", () => {
   const testDir = ".claude/screenshots";
-
-  it("ds-extractor prompt (design-system mode) reads color JSON from disk", () => {
-    const prompt = getDsExtractorPrompt(testDir, undefined, "design-system");
-    expect(prompt).toContain("--sf-");
-    expect(prompt).toContain("--color-");
-    expect(prompt).toContain("globals.css");
-    expect(prompt).toContain("font-data.json");
-    expect(prompt).toContain(".claude/fonts/font-data.json");
-    // Design-system mode reads colors from JSON
-    expect(prompt).toContain("color-data.json");
-    expect(prompt).not.toContain("mcp__chrome-devtools__");
-  });
-
-  it("ds-extractor prompt (replicate mode) reads screenshots for colors", () => {
-    const prompt = getDsExtractorPrompt(testDir, undefined, "replicate");
-    expect(prompt).toContain(testDir);
-    expect(prompt).toContain("Read each image");
-    expect(prompt).toContain("globals.css");
-    expect(prompt).toContain("font-data.json");
-  });
 
   it("ds-page-builder prompt (design-system mode) omits screenshot reference", () => {
     const prompt = getDsPageBuilderPrompt(testDir, "design-system");
