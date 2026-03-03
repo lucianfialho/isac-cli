@@ -53,15 +53,15 @@ export async function runPhase3(
       buildPasses = true;
       log.success(`${ctx.adapter.getMainPagePath()} + type check passes`);
     } catch {
-      log.warn("Type check failed — implementation may have issues");
+      log.error("Type check failed — build does not compile");
     }
 
     return {
       phase: "phase-3-implementation",
-      success: true,
+      success: buildPasses,
       duration: Date.now() - start,
       costUsd: result.costUsd,
-      error: buildPasses ? undefined : "Build failed",
+      error: buildPasses ? undefined : "Type check failed",
     };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
