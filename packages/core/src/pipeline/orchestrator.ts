@@ -69,6 +69,8 @@ function writeDesignSystemTemplates(ctx: PipelineContext): void {
   }
 }
 
+export { disableMcp };
+
 export async function runPipeline(options: PipelineOptions): Promise<PipelineResult> {
   const totalStart = Date.now();
   const phases: PhaseResult[] = [];

@@ -18,6 +18,7 @@ export async function runPhase3(
         name: "phase-3-implementation",
         prompt: ctx.adapter.getPageBuilderPrompt(plan, ctx.screenshotDir, corrections),
         allowedTools: [...PHASE_3_TOOLS],
+        model: "claude-sonnet-4-6",
         timeout: 600_000,
         maxTurns: 50,
       },

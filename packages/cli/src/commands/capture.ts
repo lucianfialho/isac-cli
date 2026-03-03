@@ -6,6 +6,7 @@ import {
   log,
   readConfig,
   runPipeline,
+  disableMcp,
   type PipelineStopAfter,
   type PipelineMode,
 } from "@guataiba/isac-core";
@@ -83,9 +84,10 @@ export async function captureCommand(
   }
   console.log();
 
-  // Handle Ctrl+C gracefully
+  // Handle Ctrl+C gracefully — ensure .mcp.json is cleaned up
   const cleanup = () => {
     console.log(chalk.dim("\n\n  Interrupted. Exiting..."));
+    disableMcp(dir);
     process.exit(130);
   };
   process.on("SIGINT", cleanup);

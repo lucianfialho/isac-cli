@@ -2,7 +2,7 @@
 export type { FrameworkAdapter, TemplateFile, PhaseValidation } from "./adapter.js";
 
 // ── Pipeline ────────────────────────────────────────────────
-export { runPipeline } from "./pipeline/orchestrator.js";
+export { runPipeline, disableMcp } from "./pipeline/orchestrator.js";
 export type {
   PipelineContext,
   PipelineMode,
