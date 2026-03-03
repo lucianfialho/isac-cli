@@ -28,9 +28,14 @@ export async function captureCommand(
   printBanner();
 
   // Validate URL
-  if (!url || !url.startsWith("http")) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      throw new Error("unsupported protocol");
+    }
+  } catch {
     console.error(
-      chalk.red("  Error: Invalid URL. Usage: isac capture <url>"),
+      chalk.red("  Error: Invalid URL. Provide a valid http:// or https:// URL."),
     );
     process.exit(1);
   }

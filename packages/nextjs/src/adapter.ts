@@ -228,6 +228,10 @@ export const semanticTokens: {
 
 // ── File collection helper ──────────────────────────────────────────
 
+const COLLECTED_EXTENSIONS = new Set([
+  ".tsx", ".ts", ".css", ".json", ".woff2", ".woff", ".png", ".jpg", ".svg",
+]);
+
 function collectFilesRecursive(currentDir: string, baseDir: string, files: string[]) {
   try {
     const entries = readdirSync(currentDir, { withFileTypes: true });
@@ -237,12 +241,11 @@ function collectFilesRecursive(currentDir: string, baseDir: string, files: strin
         if (entry.name !== "node_modules" && entry.name !== ".next") {
           collectFilesRecursive(fullPath, baseDir, files);
         }
-      } else if (
-        entry.name.endsWith(".tsx") ||
-        entry.name.endsWith(".ts") ||
-        entry.name.endsWith(".css")
-      ) {
-        files.push(fullPath.replace(baseDir + "/", ""));
+      } else {
+        const ext = entry.name.slice(entry.name.lastIndexOf("."));
+        if (COLLECTED_EXTENSIONS.has(ext)) {
+          files.push(fullPath.replace(baseDir + "/", ""));
+        }
       }
     }
   } catch {
@@ -427,11 +430,12 @@ export const nextjsAdapter: FrameworkAdapter = {
 
   collectCreatedFiles(cwd: string): string[] {
     const files: string[] = [];
-    const appDir = join(cwd, "app");
-    try {
-      collectFilesRecursive(appDir, cwd, files);
-    } catch {
-      // app dir may not exist
+    for (const dir of ["app", "public/fonts", ".claude"]) {
+      try {
+        collectFilesRecursive(join(cwd, dir), cwd, files);
+      } catch {
+        // directory may not exist
+      }
     }
     return files;
   },

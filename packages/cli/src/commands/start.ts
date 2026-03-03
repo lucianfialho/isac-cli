@@ -64,15 +64,21 @@ export async function startCommand(options: StartOptions): Promise<void> {
     { value: "_astro", label: "Astro", hint: "coming soon" },
   );
 
-  const framework = await clack.select({
-    message: "Framework",
-    options: frameworkOptions,
-  });
-  if (clack.isCancel(framework)) cancel();
+  let framework: string | symbol;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    framework = await clack.select({
+      message: "Framework",
+      options: frameworkOptions,
+    });
+    if (clack.isCancel(framework)) cancel();
 
-  if (typeof framework === "string" && framework.startsWith("_")) {
-    clack.log.warn(`${framework.slice(1)} is not yet available. Please choose another.`);
-    process.exit(1);
+    if (typeof framework === "string" && framework.startsWith("_")) {
+      const name = framework.slice(1);
+      clack.log.warn(`${name} is not yet available. For now, use Next.js. Track progress at https://github.com/guataiba/isac-cli/issues`);
+      continue;
+    }
+    break;
   }
 
   // ── Step 3: CSS approach ──────────────────────────────────
