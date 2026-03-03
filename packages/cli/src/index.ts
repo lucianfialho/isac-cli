@@ -33,7 +33,12 @@ program
   )
   .option(
     "--stop-after <phase>",
-    "Stop after a specific phase: screenshots, design-system, planning",
+    "Stop after a specific phase: screenshots, design-system, planning, implementation",
+  )
+  .option(
+    "--animations",
+    "Detect and catalog page animations (replicate mode only)",
+    false,
   )
   .action(async (url: string, opts: Record<string, string | boolean>) => {
     const invokedAsReplicate = process.argv[2] === "replicate";
@@ -43,6 +48,7 @@ program
       framework: (opts.framework as string) ?? "nextjs",
       replicate: invokedAsReplicate || (opts.replicate as boolean),
       stopAfter: opts.stopAfter as string | undefined,
+      animations: (opts.animations as boolean) ?? false,
     });
   });
 

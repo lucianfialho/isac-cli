@@ -6,6 +6,7 @@ export type PipelineStopAfter =
   | "screenshots"
   | "design-system"
   | "planning"
+  | "implementation"
   | null;
 
 export interface PipelineContext {
@@ -15,6 +16,7 @@ export interface PipelineContext {
   maxRetries: number;
   mode: PipelineMode;
   stopAfter: PipelineStopAfter;
+  animations: boolean;
   sessionId?: string;
   adapter: FrameworkAdapter;
 }
@@ -62,6 +64,7 @@ export interface PipelineOptions {
   mode: PipelineMode;
   stopAfter: PipelineStopAfter;
   adapter: FrameworkAdapter;
+  animations: boolean;
 }
 
 export interface PipelineResult {
