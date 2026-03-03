@@ -335,88 +335,12 @@ Write the file \`.claude/icons/icon-data.json\` with:
 **CRITICAL**: You MUST write \`.claude/icons/icon-data.json\` no matter what. If no icons are detected, write it with \`{ "library": "none", "icons": [], "count": 0 }\`. The downstream pipeline DEPENDS on this file existing.`;
 }
 
-function getColorExtractionSection(partNumber: number): string {
-  return `## PART ${partNumber} — COLOR EXTRACTION VIA JS (while the page is still open)
+function getColorExtractionNote(): string {
+  return `## NOTE — COLOR DATA
 
-Extract colors directly from the live DOM using \`getComputedStyle()\`. This is more reliable than guessing from screenshots.
-
-### Step ${partNumber}.1: Extract light mode colors
-
-Make sure the page is in light mode first. If you previously set dark mode, reset it:
-\`emulate\` with \`colorScheme: "light"\`
-
-Call \`mcp__chrome-devtools__evaluate_script\` with:
-
-\`\`\`
-() => {
-  const rgbToHex = (rgb) => {
-    const m = rgb.match(/rgba?\\(\\s*(\\d+),\\s*(\\d+),\\s*(\\d+)/);
-    if (!m) return rgb;
-    return '#' + [m[1],m[2],m[3]].map(x => (+x).toString(16).padStart(2,'0')).join('');
-  };
-
-  const getColor = (el, prop) => {
-    if (!el) return null;
-    const val = getComputedStyle(el)[prop];
-    return val ? rgbToHex(val) : null;
-  };
-
-  const body = document.body;
-  const header = document.querySelector('header, [class*="header"], nav');
-  const card = document.querySelector('[class*="card"], [class*="Card"], article, section > div');
-  const h1 = document.querySelector('h1, [class*="heading"], [class*="title"]');
-  const h2 = document.querySelector('h2');
-  const p = document.querySelector('p, [class*="description"], [class*="subtitle"]');
-  const a = document.querySelector('a:not([class*="logo"])');
-  const btn = document.querySelector('button, [class*="btn"], [class*="Button"], [role="button"]');
-  const input = document.querySelector('input, textarea');
-  const divider = document.querySelector('hr, [class*="divider"], [class*="border"]');
-  const footer = document.querySelector('footer, [class*="footer"]');
-
-  return JSON.stringify({
-    backgrounds: {
-      page: getColor(body, 'backgroundColor'),
-      header: getColor(header, 'backgroundColor'),
-      card: getColor(card, 'backgroundColor'),
-      footer: getColor(footer, 'backgroundColor'),
-    },
-    text: {
-      heading: getColor(h1, 'color') || getColor(h2, 'color'),
-      body: getColor(p, 'color') || getColor(body, 'color'),
-      muted: getColor(document.querySelector('[class*="muted"], [class*="secondary"], small, .text-gray'), 'color'),
-      link: getColor(a, 'color'),
-    },
-    accents: {
-      primary: getColor(btn, 'backgroundColor') || getColor(a, 'color'),
-      primaryText: getColor(btn, 'color'),
-    },
-    borders: {
-      default: getColor(input, 'borderColor') || getColor(card, 'borderColor') || getColor(divider, 'borderColor'),
-    },
-    surfaces: {
-      input: getColor(input, 'backgroundColor'),
-    },
-  }, null, 2);
-}
-\`\`\`
-
-### Step ${partNumber}.2: Write light mode color data
-
-Write the result to \`.claude/colors/color-data.json\`.
-
-### Step ${partNumber}.3: Extract dark mode colors
-
-Emulate dark mode: \`emulate\` with \`colorScheme: "dark"\`
-
-Wait briefly for the page to update, then run the **exact same script** from Step ${partNumber}.1.
-
-### Step ${partNumber}.4: Write dark mode color data
-
-Write the result to \`.claude/colors/color-data-dark.json\`.
-
-Reset back to light mode: \`emulate\` with \`colorScheme: "light"\`
-
-**CRITICAL**: You MUST write \`.claude/colors/color-data.json\` no matter what. If color extraction fails, write it with null values. The downstream pipeline DEPENDS on this file existing.`;
+Color extraction is handled automatically before this agent runs.
+The files \`.claude/colors/color-data.json\` and \`.claude/colors/color-data-dark.json\` already exist.
+Do NOT attempt to extract colors — they are already done. Focus on fonts, brand, and icons only.`;
 }
 
 // ── Main export ─────────────────────────────────────────────────────
@@ -425,8 +349,8 @@ export function getScreenshotPrompt(url: string, mode: PipelineMode = "design-sy
   const isReplicate = mode === "replicate";
 
   const mission = isReplicate
-    ? "Navigate to the provided URL, wait for full page load, capture full-page screenshots, and extract design data from the live page."
-    : "Navigate to the provided URL, wait for full page load, and extract design data (fonts, brand, icons, colors) from the live page.";
+    ? "Navigate to the provided URL, wait for full page load, capture full-page screenshots, and extract design data (fonts, brand, icons) from the live page. Color data has already been extracted."
+    : "Navigate to the provided URL, wait for full page load, and extract design data (fonts, brand, icons) from the live page. Color data has already been extracted.";
 
   const writeDirs = isReplicate
     ? "- ONLY write files to \\`.claude/screenshots/\\`, \\`.claude/fonts/\\`, \\`.claude/branding/\\`, \\`.claude/icons/\\`, \\`.claude/colors/\\`, and \\`public/fonts/\\`"
@@ -438,14 +362,14 @@ export function getScreenshotPrompt(url: string, mode: PipelineMode = "design-sy
   let nextPart: number;
 
   if (isReplicate) {
-    // Replicate: screenshots + fonts + brand + icons + colors
+    // Replicate: screenshots + fonts + brand + icons (colors already extracted)
     nextPart = 2;
     parts = [
       getScreenshotSection(url),
       getFontExtractionSection(url, nextPart),
       getBrandSection(nextPart + 1),
       getIconSection(nextPart + 2),
-      getColorExtractionSection(nextPart + 3),
+      getColorExtractionNote(),
     ].join("\n\n");
     expectedOutput = `## Expected output
 
@@ -465,21 +389,21 @@ export function getScreenshotPrompt(url: string, mode: PipelineMode = "design-sy
   icon-data.json         # Icon library detection (MUST exist)
 
 .claude/colors/
-  color-data.json        # Light mode colors (MUST exist)
-  color-data-dark.json   # Dark mode colors (optional)
+  color-data.json        # Already extracted (do NOT overwrite)
+  color-data-dark.json   # Already extracted (do NOT overwrite)
 
 public/fonts/
   *.woff2                # Downloaded font files (if any)
 \`\`\``;
   } else {
-    // Design system: navigate + fonts + brand + icons + colors (NO screenshots)
+    // Design system: navigate + fonts + brand + icons (colors already extracted)
     nextPart = 2;
     parts = [
       getNavigationSection(url),
       getFontExtractionSection(url, nextPart),
       getBrandSection(nextPart + 1),
       getIconSection(nextPart + 2),
-      getColorExtractionSection(nextPart + 3),
+      getColorExtractionNote(),
     ].join("\n\n");
     expectedOutput = `## Expected output
 
@@ -494,8 +418,8 @@ public/fonts/
   icon-data.json         # Icon library detection (MUST exist)
 
 .claude/colors/
-  color-data.json        # Light mode colors (MUST exist)
-  color-data-dark.json   # Dark mode colors (optional)
+  color-data.json        # Already extracted (do NOT overwrite)
+  color-data-dark.json   # Already extracted (do NOT overwrite)
 
 public/fonts/
   *.woff2                # Downloaded font files (if any)
@@ -521,7 +445,7 @@ ${writeDirs}
 - The output directories already exist — do not try to create them
 - Font extraction is best-effort. If any font step fails, write what you have and continue.
 - Brand extraction is best-effort. If any brand step fails, write what you have and continue.
-- Color extraction is best-effort. If any color step fails, write what you have and continue.
+- Color data is already extracted — do NOT overwrite color-data.json or color-data-dark.json.
 
 ${parts}
 
@@ -535,5 +459,6 @@ ${expectedOutput}
 - Do not modify any project source files
 - If \`emulate\` for dark mode fails, continue without the dark data — it's not blocking
 - If font extraction fails at any step, write partial results and continue — it's not blocking
-- You MUST write \`font-data.json\`, \`brand-data.json\`, \`icon-data.json\`, and \`color-data.json\` even with partial/empty data`;
+- You MUST write \`font-data.json\`, \`brand-data.json\`, and \`icon-data.json\` even with partial/empty data
+- Do NOT write or overwrite \`color-data.json\` or \`color-data-dark.json\` — they are already extracted`;
 }

@@ -43,6 +43,7 @@ interface ColorData {
   surfaces: {
     input: string | null;
   };
+  _cssVars?: Record<string, string>;
 }
 
 // ── Gray scale steps ────────────────────────────────────────────────
@@ -200,8 +201,14 @@ function isColorDataSane(colorData: ColorData): boolean {
 function interpolateHsl(hex1: string, hex2: string, t: number): string {
   const [r1, g1, b1] = hexToRgb(hex1);
   const [r2, g2, b2] = hexToRgb(hex2);
-  const [h1, s1, l1] = rgbToHsl(r1, g1, b1);
-  const [h2, s2, l2] = rgbToHsl(r2, g2, b2);
+  let [h1, s1, l1] = rgbToHsl(r1, g1, b1);
+  let [h2, s2, l2] = rgbToHsl(r2, g2, b2);
+
+  // When an endpoint is achromatic (gray/white/black), its hue is arbitrary (0°).
+  // Adopt the other color's hue to prevent tinted grays (e.g. purple-tinted neutrals).
+  if (s1 < 0.04 && s2 >= 0.04) h1 = h2;
+  else if (s2 < 0.04 && s1 >= 0.04) h2 = h1;
+  else if (s1 < 0.04 && s2 < 0.04) { h1 = 0; h2 = 0; }
 
   // Use the shorter arc for hue interpolation
   let hDiff = h2 - h1;
@@ -306,6 +313,25 @@ interface PrimitiveScale {
   link: string | null;
 }
 
+/** CSS var names that commonly hold a site's primary/accent color */
+const CSS_VAR_ACCENT_NAMES = [
+  "--primary-color", "--accent-color", "--brand-color",
+  "--primary", "--accent", "--color-primary",
+  "--theme-primary", "--color-accent", "--brand-primary",
+];
+
+/** Extract a valid accent color from CSS custom properties, if any */
+function resolveCssVarAccent(cssVars?: Record<string, string>): string | null {
+  if (!cssVars) return null;
+  for (const name of CSS_VAR_ACCENT_NAMES) {
+    const val = cssVars[name];
+    if (isValidHex(val) && val.toLowerCase() !== "#ffffff" && val.toLowerCase() !== "#000000") {
+      return val;
+    }
+  }
+  return null;
+}
+
 function buildPrimitiveScale(colorData: ColorData): PrimitiveScale {
   // Determine lightest and darkest colors from the palette
   const lightest = isValidHex(colorData.backgrounds.page)
@@ -365,6 +391,7 @@ function buildPrimitiveScale(colorData: ColorData): PrimitiveScale {
     }
   }
 
+  // Use the accent already resolved by mergeColorDefaults (CSS vars are fallback there)
   const accent = isValidHex(colorData.accents.primary)
     ? colorData.accents.primary
     : "#2563eb";
@@ -711,12 +738,7 @@ export function generateGlobalsCss(cwd: string, _mode: PipelineMode): string {
     null,
   );
 
-  // 2. Sanity check: if extracted colors are unusable, fall back entirely to defaults
-  if (!isColorDataSane(colorData)) {
-    colorData = DEFAULT_COLORS;
-  }
-
-  // 3. Fill nulls with defaults for the light color data
+  // 2. Fill nulls with defaults for the light color data (with per-field validation)
   const mergedColors = mergeColorDefaults(colorData);
 
   // 4. Font faces
@@ -748,6 +770,19 @@ export function generateGlobalsCss(cwd: string, _mode: PipelineMode): string {
   return assembleCss(fontFaceRules, fontVars, primitives, semantics, darkOverrides, themeBridge);
 }
 
+/** Resolve accent primary: use extracted value, fall back to CSS vars, then default */
+function resolveAccentPrimary(data: ColorData): string {
+  const raw = data.accents.primary;
+  // Accept extracted accent if it's a real color (not null, white, or black)
+  if (isValidHex(raw) && raw.toLowerCase() !== "#ffffff" && raw.toLowerCase() !== "#000000") {
+    return raw;
+  }
+  // Try CSS custom properties as fallback
+  const fromVars = resolveCssVarAccent(data._cssVars);
+  if (fromVars) return fromVars;
+  return DEFAULT_COLORS.accents.primary!;
+}
+
 /** Merge null fields in color data with sensible defaults, with per-field contrast checks */
 function mergeColorDefaults(data: ColorData): ColorData {
   const pageBg = data.backgrounds.page ?? DEFAULT_COLORS.backgrounds.page!;
@@ -773,12 +808,27 @@ function mergeColorDefaults(data: ColorData): ColorData {
   // Muted: if null, derive from midpoint of gray scale (will be resolved by buildPrimitiveScale)
   const muted = data.text.muted ?? DEFAULT_COLORS.text.muted;
 
+  // --- Background fields with luminance divergence checks ---
+  // If card or footer bg luminance diverges >0.7 from page bg, reset to default
+  // (catches e.g. #000000 card on #ffffff page)
+  const pageLum = luminance(pageBg);
+
+  let card = data.backgrounds.card ?? DEFAULT_COLORS.backgrounds.card;
+  if (isValidHex(card) && Math.abs(luminance(card) - pageLum) > 0.7) {
+    card = DEFAULT_COLORS.backgrounds.card;
+  }
+
+  let footer = data.backgrounds.footer ?? DEFAULT_COLORS.backgrounds.footer;
+  if (isValidHex(footer) && Math.abs(luminance(footer) - pageLum) > 0.7) {
+    footer = DEFAULT_COLORS.backgrounds.footer;
+  }
+
   return {
     backgrounds: {
       page: pageBg,
       header: data.backgrounds.header ?? DEFAULT_COLORS.backgrounds.header,
-      card: data.backgrounds.card ?? DEFAULT_COLORS.backgrounds.card,
-      footer: data.backgrounds.footer ?? DEFAULT_COLORS.backgrounds.footer,
+      card,
+      footer,
     },
     text: {
       heading,
@@ -787,7 +837,7 @@ function mergeColorDefaults(data: ColorData): ColorData {
       link,
     },
     accents: {
-      primary: data.accents.primary ?? DEFAULT_COLORS.accents.primary,
+      primary: resolveAccentPrimary(data),
       primaryText: data.accents.primaryText ?? DEFAULT_COLORS.accents.primaryText,
     },
     borders: {
@@ -796,5 +846,6 @@ function mergeColorDefaults(data: ColorData): ColorData {
     surfaces: {
       input: data.surfaces.input ?? DEFAULT_COLORS.surfaces.input,
     },
+    _cssVars: data._cssVars,
   };
 }

@@ -4,6 +4,7 @@ import chalk from "chalk";
 import { runClaudePhase } from "./claude-runner.js";
 import { PHASE_0_TOOLS } from "./tools.js";
 import { getScreenshotPrompt } from "../prompts/screenshot-capturer.js";
+import { extractColors } from "./color-extractor.js";
 import { log } from "../ui/logger.js";
 import { logLine, updateStatus } from "../ui/tui.js";
 import type { PipelineContext, PhaseResult } from "./types.js";
@@ -110,6 +111,10 @@ export async function runPhase0(
   const fontsDir = join(ctx.cwd, ".claude/fonts");
 
   try {
+    // Step 0: Deterministic color extraction via Playwright (before Claude agent)
+    updateStatus("Extracting colors (Playwright)...");
+    await extractColors(ctx.url, ctx.cwd);
+
     // File poller: check for created artifacts every 3s and log them
     const seen = new Set<string>();
     const poller = setInterval(() => {

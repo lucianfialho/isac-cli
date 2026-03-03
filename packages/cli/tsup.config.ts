@@ -12,4 +12,5 @@ export default defineConfig({
     js: "#!/usr/bin/env node",
   },
   noExternal: ["@guataiba/isac-core", "@guataiba/isac-nextjs"],
+  external: ["playwright-core"],
 });

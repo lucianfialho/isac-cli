@@ -36,7 +36,8 @@
     "@guataiba/isac-core": "workspace:*",
     "@guataiba/isac-nextjs": "workspace:*",
     "chalk": "^5.4.1",
-    "commander": "^13.1.0"
+    "commander": "^13.1.0",
+    "playwright-core": "^1.50.0"
   },
   "devDependencies": {
     "@types/node": "^22.13.0",
