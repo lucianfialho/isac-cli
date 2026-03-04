@@ -1,5 +1,14 @@
 # @guataiba/isac-core
 
+## 2.2.1
+
+### Patch Changes
+
+- ee14526: fix: Windows compatibility for Claude CLI spawning
+
+  - Resolve the actual `cli.js` entry point on Windows instead of relying on POSIX shell shims that `child_process.spawn` cannot execute
+  - Strip the `CLAUDECODE` environment variable from child processes to allow running ISAC from within a Claude Code session
+
 ## 2.2.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@guataiba/isac-core",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Framework-agnostic pipeline engine for ISAC — Intelligent Site Analysis & Cloning",
   "type": "module",
   "main": "./dist/index.js",

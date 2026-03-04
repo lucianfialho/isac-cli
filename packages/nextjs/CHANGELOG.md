@@ -1,5 +1,12 @@
 # @guataiba/isac-nextjs
 
+## 2.2.1
+
+### Patch Changes
+
+- Updated dependencies [ee14526]
+  - @guataiba/isac-core@2.2.1
+
 ## 2.2.0
 
 ### Minor Changes
