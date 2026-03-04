@@ -1,6 +1,8 @@
+import { join } from "node:path";
 import { runClaudePhase } from "./claude-runner.js";
 import { PHASE_4_TOOLS } from "./tools.js";
 import { log } from "../ui/logger.js";
+import { runPixelDiff } from "./pixel-diff.js";
 import type { PipelineContext, PhaseResult, VerificationResult } from "./types.js";
 
 export interface Phase4Result extends PhaseResult {
@@ -13,6 +15,56 @@ export async function runPhase4(
 ): Promise<Phase4Result> {
   const start = Date.now();
 
+  // ── Try pixel-diff first (deterministic, no Claude needed) ──
+  try {
+    log.info("Attempting pixel-diff verification...");
+    const pixelResult = await runPixelDiff({
+      referenceDir: join(ctx.cwd, ctx.screenshotDir),
+      implementationUrl: ctx.adapter.getDevServerUrl(),
+      outputDir: join(ctx.cwd, ctx.screenshotDir, "verification"),
+    });
+
+    // If pixel-diff produced a definitive result (approved or clear failure with diff data), use it
+    if (pixelResult.approved) {
+      log.success("APPROVED (pixel-diff)");
+      return {
+        phase: "phase-4-verification",
+        success: true,
+        duration: Date.now() - start,
+        costUsd: 0,
+        verification: pixelResult,
+      };
+    }
+
+    // If pixel-diff failed due to missing chrome/reference, fall through to Claude
+    const isInfraFailure = pixelResult.issues.some(i =>
+      i.includes("No reference screenshot") ||
+      i.includes("Chrome not found") ||
+      i.includes("Pixel-diff error"),
+    );
+
+    if (!isInfraFailure) {
+      // Pixel-diff ran but found differences — report them
+      log.warn(`CORRECTIONS NEEDED (pixel-diff) — ${pixelResult.issues.length} issue(s)`);
+      for (const issue of pixelResult.issues) {
+        log.info(`  - ${issue}`);
+      }
+      return {
+        phase: "phase-4-verification",
+        success: true,
+        duration: Date.now() - start,
+        costUsd: 0,
+        verification: pixelResult,
+      };
+    }
+
+    log.info("Pixel-diff unavailable — falling back to Claude verification");
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    log.warn(`Pixel-diff failed: ${msg} — falling back to Claude verification`);
+  }
+
+  // ── Fallback: Claude-based visual verification ──
   try {
     const result = await runClaudePhase(
       {
@@ -30,7 +82,6 @@ export async function runPhase4(
 
     ctx.sessionId = result.sessionId;
 
-    // Parse verification result from the response
     const verification = parseVerificationResult(result.result);
 
     if (verification.approved) {
@@ -100,7 +151,6 @@ export function parseVerificationResult(text: string): VerificationResult {
   const issues: string[] = [];
 
   if (!approved) {
-    // Extract numbered issues
     const issueMatches = text.match(/^\d+\.\s+.+$/gm);
     if (issueMatches) {
       issues.push(...issueMatches.map((m) => m.replace(/^\d+\.\s+/, "")));

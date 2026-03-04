@@ -1,6 +1,6 @@
 {
   "name": "@guataiba/isac-nextjs",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Next.js (App Router) adapter for ISAC — Intelligent Site Analysis & Cloning",
   "type": "module",
   "main": "./dist/index.js",

@@ -161,19 +161,28 @@ function isValidHex(value: string | null | undefined): value is string {
 // ── Sanity checks ───────────────────────────────────────────────────
 
 /**
- * Check if extracted color data is minimally usable.
- * Returns false when Phase 0 produced garbage (e.g. white text on white bg).
+ * Check if extracted color data is minimally usable for a light theme.
+ * Returns false when Phase 0 produced garbage (e.g. consent screen, dark-only site).
+ *
+ * Note: individual field issues (white-on-white heading, bad card color) are handled
+ * by mergeColorDefaults(). This function detects *structural* problems where the
+ * entire extraction is unusable.
  */
 function isColorDataSane(colorData: ColorData): boolean {
   const bg = colorData.backgrounds.page;
-  const heading = colorData.text.heading;
 
-  // 1. Background and heading must have minimum contrast (ratio >= 2.0)
-  if (isValidHex(bg) && isValidHex(heading)) {
-    if (contrastRatio(bg, heading) < 2.0) return false;
-  }
+  // 1. Page background must exist and be "light" (luminance > 0.3).
+  //    A dark page bg in the "light" extraction means the site loaded in dark mode
+  //    or hit a consent/login wall (e.g. YouTube → #000000).
+  if (isValidHex(bg) && luminance(bg) < 0.3) return false;
 
-  // 2. At least 3 distinct colors in the dataset
+  // 2. Must have at least 2 non-null text colors.
+  //    If most text values are null, the extractor hit a wall or empty page.
+  const textValues = Object.values(colorData.text);
+  const nonNullText = textValues.filter(v => isValidHex(v)).length;
+  if (nonNullText < 2) return false;
+
+  // 3. At least 3 distinct colors total — a real site has visual variety.
   const allColors = new Set<string>();
   for (const val of Object.values(colorData.backgrounds)) {
     if (isValidHex(val)) allColors.add(val.toLowerCase());
@@ -185,12 +194,6 @@ function isColorDataSane(colorData: ColorData): boolean {
     if (isValidHex(val)) allColors.add(val.toLowerCase());
   }
   if (allColors.size < 3) return false;
-
-  // 3. Lightest and darkest must have meaningful luminance spread
-  const lightest = isValidHex(bg) ? bg : "#ffffff";
-  const darkest = isValidHex(heading) ? heading : "#111827";
-  const lumDiff = Math.abs(luminance(lightest) - luminance(darkest));
-  if (lumDiff < 0.1) return false;
 
   return true;
 }
@@ -227,7 +230,14 @@ function interpolateHsl(hex1: string, hex2: string, t: number): string {
 function readJsonSafe<T>(path: string, fallback: T): T {
   if (!existsSync(path)) return fallback;
   try {
-    return JSON.parse(readFileSync(path, "utf-8")) as T;
+    let parsed = JSON.parse(readFileSync(path, "utf-8"));
+    // Handle double-stringified JSON (agent-browser eval wraps return values)
+    if (typeof parsed === "string") {
+      try { parsed = JSON.parse(parsed); } catch { return fallback; }
+    }
+    // If it's still not an object, use fallback
+    if (typeof parsed !== "object" || parsed === null) return fallback;
+    return parsed as T;
   } catch {
     return fallback;
   }
@@ -738,7 +748,21 @@ export function generateGlobalsCss(cwd: string, _mode: PipelineMode): string {
     null,
   );
 
-  // 2. Fill nulls with defaults for the light color data (with per-field validation)
+  // 2. Sanity check: if the light extraction looks like garbage (dark bg, few colors,
+  //    consent wall), fall back to safe defaults but preserve salvageable data
+  //    (CSS custom properties, accent colors from buttons).
+  if (!isColorDataSane(colorData)) {
+    const savedCssVars = colorData._cssVars;
+    const savedAccent = colorData.accents;
+    colorData = { ...DEFAULT_COLORS, _cssVars: savedCssVars };
+    // Restore accent if it was a real color (not white/black)
+    const rawAccent = savedAccent?.primary;
+    if (isValidHex(rawAccent) && rawAccent.toLowerCase() !== "#ffffff" && rawAccent.toLowerCase() !== "#000000") {
+      colorData.accents = { ...colorData.accents, primary: rawAccent };
+    }
+  }
+
+  // 3. Fill nulls with defaults for the light color data (with per-field validation)
   const mergedColors = mergeColorDefaults(colorData);
 
   // 4. Font faces

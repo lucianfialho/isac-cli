@@ -2,7 +2,9 @@
 
 ISAC extracts the Brand DNA from any live website — fonts, colors, design tokens, branding, and icons — and generates a production-ready design system for your Next.js project. Powered by Claude Code.
 
-[![Watch the demo](https://img.youtube.com/vi/uMwzfATF7IE/maxresdefault.jpg)](https://youtu.be/uMwzfATF7IE)
+<p align="center">
+  <img src="https://s3.sa-east-1.amazonaws.com/download.metricasboss.com.br/export-1772621841033.gif" alt="ISAC benchmark — design system extraction in ~6s, $0.00 API cost" width="100%">
+</p>
 
 ## Packages
 
@@ -17,7 +19,7 @@ ISAC extracts the Brand DNA from any live website — fonts, colors, design toke
 ### Prerequisites
 
 - **Claude Code** 1.0.33+ ([download](https://claude.ai/download))
-- **Google Chrome** installed (used for color extraction via Playwright and Chrome DevTools MCP)
+- **Google Chrome** installed (used by agent-browser for color/font/icon extraction)
 - **Node.js** 18+
 
 ### Install the CLI globally
@@ -136,8 +138,8 @@ pnpm typecheck
 ```
 isac-cli/
 ├── packages/
-│   ├── core/       # Pipeline engine, CSS generator, color extractor (Playwright), prompts
-│   ├── nextjs/     # Next.js App Router adapter (templates, prompts, file paths)
+│   ├── core/       # Pipeline engine, CSS generator, color extractor, section catalog, prompts
+│   ├── nextjs/     # Next.js App Router adapter (templates, prompts, renderers)
 │   └── cli/        # CLI entry point — bundles core + nextjs into a single executable
 ├── examples/
 │   ├── capture/anthropic-com/    # Design system extraction example
@@ -176,12 +178,12 @@ isac-cli/
 
 | Phase | What it does | Powered by |
 |---|---|---|
-| **Phase 0** | Navigate to URL, extract fonts/branding/icons via Claude, extract colors deterministically via Playwright | Claude + Chrome DevTools MCP + Playwright |
+| **Phase 0** | Navigate to URL, extract fonts/colors/branding/icons and capture screenshots | agent-browser (deterministic, $0.00) |
 | **Phase 1A** | Generate `globals.css` from extracted JSON data | Pure TypeScript (no LLM) |
-| **Phase 1B** | Build design system documentation (`data.ts`) | Claude |
+| **Phase 1B** | Build design system documentation (`data.ts`) | Pure TypeScript (no LLM) |
 | **Phase 2** | Plan page structure from screenshots | Claude |
 | **Phase 3** | Implement the page | Claude |
-| **Phase 4** | Visual verification with correction loop | Claude + Chrome DevTools MCP |
+| **Phase 4** | Visual verification with correction loop | Claude + agent-browser |
 
 In **design-system** mode (default), the pipeline runs Phase 0 → 1A → 1B and stops.
 In **replicate** mode, it runs all phases (0 → 1A → 1B+2 → 3 → 4).

@@ -6,7 +6,10 @@
     },
     "reactbits": {
       "command": "npx",
-      "args": ["-y", "reactbits-mcp-server"]
+      "args": [
+        "-y",
+        "reactbits-mcp-server"
+      ]
     },
     "shadcn": {
       "type": "http",
@@ -18,11 +21,17 @@
     },
     "hugeicons": {
       "command": "npx",
-      "args": ["-y", "@hugeicons/mcp-server"]
+      "args": [
+        "-y",
+        "@hugeicons/mcp-server"
+      ]
     },
     "motion-dev": {
       "command": "npx",
-      "args": ["-y", "motion-mcp"]
+      "args": [
+        "-y",
+        "motion-mcp"
+      ]
     }
   }
 }

@@ -7,6 +7,7 @@ import { runPhase1b } from "./phase-1b-design-system.js";
 import { runPhase2 } from "./phase-2-planning.js";
 import { runPhase3 } from "./phase-3-implementation.js";
 import { runPhase4 } from "./phase-4-verification.js";
+import { findChromePath } from "./color-extractor.js";
 import { log } from "../ui/logger.js";
 import { setPhase, succeedPhase, failPhase, renderEvent, stopSpinner, getTotalCost } from "../ui/tui.js";
 import type { PipelineContext, PipelineOptions, PipelineResult, PhaseResult } from "./types.js";
@@ -137,15 +138,37 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
   succeedPhase("Project scaffolding ready");
 
   // ═══════════════════════════════════════════════
-  // Phase 0: Screenshots + Font Extraction (own session, needs chrome-devtools)
+  // Pre-flight: Set up agent-browser env (uses system Chrome, no download)
   // ═══════════════════════════════════════════════
-  enableMcp(ctx.cwd);
+  const chromePath = findChromePath();
+  if (chromePath) {
+    process.env.AGENT_BROWSER_EXECUTABLE_PATH = chromePath;
+  }
+
+  // Add agent-browser binary to PATH so Claude subprocess can find it.
+  // tsup bundles core into CLI, so import.meta.url → packages/cli/dist/*.js
+  // pnpm creates the symlink at packages/cli/node_modules/.bin/agent-browser
+  {
+    const distDir = dirname(new URL(import.meta.url).pathname);
+    const pkgRoot = dirname(distDir); // dist/ → package root
+    const localBin = join(pkgRoot, "node_modules", ".bin");
+
+    if (existsSync(join(localBin, "agent-browser"))) {
+      process.env.PATH = `${localBin}:${process.env.PATH}`;
+      log.info(`agent-browser: ${localBin}`);
+    } else {
+      log.warn("agent-browser not found in node_modules — install with: npm i -g agent-browser");
+    }
+  }
+
+  // ═══════════════════════════════════════════════
+  // Phase 0: Screenshots + Font Extraction (agent-browser via Bash)
+  // ═══════════════════════════════════════════════
   setPhase(ctx.mode === "replicate"
     ? "Capturing screenshots + fonts..."
     : "Extracting design data...");
   const phase0OnEvent = createPhase0EventHandler(ctx, onEvent);
   const phase0 = await runPhase0(ctx, phase0OnEvent);
-  disableMcp(ctx.cwd);
   phases.push(phase0);
   if (!phase0.success) {
     failPhase(ctx.mode === "replicate"
@@ -178,7 +201,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
   }
 
   // ═══════════════════════════════════════════════
-  // Phase 1A: Token Extraction (no chrome-devtools needed)
+  // Phase 1A: Token Extraction (no browser needed)
   // ═══════════════════════════════════════════════
   setPhase("Extracting tokens...");
   const ctx1a: PipelineContext = { ...ctx, sessionId: undefined };
@@ -217,6 +240,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
     }
 
     writeDesignSystemTemplates(ctx);
+    ctx.adapter.finalizeProject?.(ctx.cwd);
     stopSpinner();
     log.divider();
     log.success("Design system complete.");
@@ -248,7 +272,12 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
     stopSpinner();
     return mkResult(false, false);
   }
-  succeedPhase(`Plan ready (${log.elapsed(totalStart)})`);
+
+  if (phase2.pagePlan) {
+    succeedPhase(`Structured plan ready — ${phase2.pagePlan.sections.length} sections (${log.elapsed(totalStart)})`);
+  } else {
+    succeedPhase(`Plan ready (${log.elapsed(totalStart)})`);
+  }
 
   if (ctx.stopAfter === "planning") {
     stopSpinner();
@@ -269,7 +298,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
         ? "Implementing page..."
         : `Applying corrections (attempt ${attempt + 1})...`,
     );
-    const phase3 = await runPhase3(ctx, phase2.plan, corrections, onEvent);
+    const phase3 = await runPhase3(ctx, phase2.plan, corrections, onEvent, phase2.pagePlan);
     phases.push(phase3);
 
     if (!phase3.success) {
@@ -280,15 +309,14 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
 
     if (ctx.stopAfter === "implementation") {
       writeDesignSystemTemplates(ctx);
+      ctx.adapter.finalizeProject?.(ctx.cwd);
       stopSpinner();
       return mkResult(true, false, "implementation");
     }
 
-    // --- Phase 4: Visual Verification (needs chrome-devtools) ---
-    enableMcp(ctx.cwd);
+    // --- Phase 4: Visual Verification (agent-browser via Bash) ---
     setPhase("Verifying visual fidelity...");
     const phase4 = await runPhase4(ctx, onEvent);
-    disableMcp(ctx.cwd);
     phases.push(phase4);
 
     if (phase4.verification.approved) {
@@ -310,6 +338,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
 
   // Final step: write design system templates — prevents any phase from having overwritten them
   writeDesignSystemTemplates(ctx);
+  ctx.adapter.finalizeProject?.(ctx.cwd);
 
   stopSpinner();
   return mkResult(true, approved);

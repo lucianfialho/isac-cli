@@ -1,6 +1,6 @@
 {
   "name": "@guataiba/isac-cli",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "ISAC CLI — Intelligent Site Analysis & Cloning. Captures screenshots, extracts design systems, and generates pixel-perfect Next.js replicas powered by Claude Code.",
   "type": "module",
   "bin": {
@@ -35,9 +35,9 @@
     "@clack/prompts": "^1.0.1",
     "@guataiba/isac-core": "workspace:*",
     "@guataiba/isac-nextjs": "workspace:*",
+    "agent-browser": "^0.16.1",
     "chalk": "^5.4.1",
-    "commander": "^13.1.0",
-    "playwright-core": "^1.50.0"
+    "commander": "^13.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.13.0",

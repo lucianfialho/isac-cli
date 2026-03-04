@@ -1,5 +1,17 @@
 # @guataiba/isac-cli
 
+## 2.2.0
+
+### Minor Changes
+
+- b60997f: Replace Playwright with agent-browser for fully deterministic Phase 0 pipeline (zero Claude API cost). Add section catalog, page renderers, and pixel-diff for visual verification. Fix theme toggle and hydration issues via finalizeProject() adapter hook.
+
+### Patch Changes
+
+- Updated dependencies [b60997f]
+  - @guataiba/isac-core@2.2.0
+  - @guataiba/isac-nextjs@2.2.0
+
 ## 2.1.0
 
 ### Minor Changes

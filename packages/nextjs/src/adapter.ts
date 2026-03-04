@@ -1,9 +1,11 @@
-import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, rmSync } from "node:fs";
+import { execSync, spawn } from "node:child_process";
 import { join, dirname } from "node:path";
-import type { FrameworkAdapter, TemplateFile, PhaseValidation, PipelineMode } from "@guataiba/isac-core";
+import type { FrameworkAdapter, TemplateFile, PhaseValidation, PipelineMode, PagePlan } from "@guataiba/isac-core";
 import { DESIGN_TOKENS_CSS_TEMPLATE } from "@guataiba/isac-core";
+import { renderPageFromPlan as renderPage } from "./renderers/page-renderer.js";
 import { getDsPageBuilderPrompt } from "./prompts/ds-page-builder.js";
-import { getPagePlannerPrompt } from "./prompts/page-planner.js";
+import { getPagePlannerPrompt, getPagePlannerPromptV2 } from "./prompts/page-planner.js";
 import { getPageBuilderPrompt } from "./prompts/page-builder.js";
 import { getVisualVerifierPrompt } from "./prompts/visual-verifier.js";
 import { DESIGN_SYSTEM_PAGE_TEMPLATE } from "./templates/design-system-page.tsx.js";
@@ -269,6 +271,14 @@ export const nextjsAdapter: FrameworkAdapter = {
     return getPagePlannerPrompt(screenshotDir);
   },
 
+  getPagePlannerPromptV2(screenshotDir: string, catalogTypes: string[]): string {
+    return getPagePlannerPromptV2(screenshotDir, catalogTypes);
+  },
+
+  renderPageFromPlan(_cwd: string, plan: PagePlan): string {
+    return renderPage(plan);
+  },
+
   getPageBuilderPrompt(plan: string, screenshotDir: string, corrections?: string): string {
     return getPageBuilderPrompt(plan, screenshotDir, corrections);
   },
@@ -398,6 +408,7 @@ export const nextjsAdapter: FrameworkAdapter = {
       );
       writeFileSync(globalsPath, content, "utf-8");
     }
+
   },
 
   validateDesignSystem(cwd: string): PhaseValidation {
@@ -408,16 +419,21 @@ export const nextjsAdapter: FrameworkAdapter = {
     return { valid: false, message: "app/design-system/data.ts not found" };
   },
 
-  generateDesignSystemFallback(cwd: string, url: string): void {
+  generateDesignSystemData(cwd: string, url: string): void {
     const globalsPath = join(cwd, "app/globals.css");
     const dsDataPath = join(cwd, "app/design-system/data.ts");
 
     if (!existsSync(globalsPath)) return;
 
     const css = readFileSync(globalsPath, "utf-8");
-    const fallback = generateFallbackDataTs(css, url, cwd);
+    const data = generateFallbackDataTs(css, url, cwd);
     mkdirSync(dirname(dsDataPath), { recursive: true });
-    writeFileSync(dsDataPath, fallback, "utf-8");
+    writeFileSync(dsDataPath, data, "utf-8");
+  },
+
+  /** @deprecated Alias for generateDesignSystemData */
+  generateDesignSystemFallback(cwd: string, url: string): void {
+    this.generateDesignSystemData(cwd, url);
   },
 
   validateImplementation(cwd: string): PhaseValidation {
@@ -438,5 +454,51 @@ export const nextjsAdapter: FrameworkAdapter = {
       }
     }
     return files;
+  },
+
+  finalizeProject(cwd: string): void {
+    // Patch layout.tsx: add suppressHydrationWarning to <html> for theme toggle
+    const layoutPath = join(cwd, "app/layout.tsx");
+    if (existsSync(layoutPath)) {
+      let layoutContent = readFileSync(layoutPath, "utf-8");
+      if (!layoutContent.includes("suppressHydrationWarning") && layoutContent.includes("<html")) {
+        layoutContent = layoutContent.replace(/<html\b/, "<html suppressHydrationWarning");
+        writeFileSync(layoutPath, layoutContent, "utf-8");
+      }
+    }
+
+    // Kill any running Next.js dev server, clear Turbopack cache, and restart.
+    // Turbopack keeps an in-memory + on-disk cache (.next/) that becomes corrupted
+    // when ISAC rewrites template files externally. The only reliable fix is a
+    // full restart with a clean cache.
+    const nextDir = join(cwd, ".next");
+
+    // Find and kill Next.js dev server process on port 3000
+    try {
+      const pid = execSync("lsof -ti :3000", { stdio: "pipe", timeout: 3_000 })
+        .toString().trim();
+      if (pid) {
+        for (const p of pid.split("\n")) {
+          try { execSync(`kill ${p.trim()}`, { stdio: "pipe", timeout: 2_000 }); } catch { /* already dead */ }
+        }
+        // Give it a moment to release the port
+        execSync("sleep 1", { stdio: "pipe" });
+      }
+    } catch { /* no process on port 3000 */ }
+
+    // Remove stale Turbopack cache
+    if (existsSync(nextDir)) {
+      rmSync(nextDir, { recursive: true, force: true });
+    }
+
+    // Restart dev server in background (detached, won't block the pipeline)
+    try {
+      const child = spawn("npm", ["run", "dev"], {
+        cwd,
+        stdio: "ignore",
+        detached: true,
+      });
+      child.unref();
+    } catch { /* non-fatal — user can start manually */ }
   },
 };
