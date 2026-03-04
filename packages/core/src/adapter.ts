@@ -1,4 +1,5 @@
 import type { PipelineMode } from "./pipeline/types.js";
+import type { PagePlan } from "./catalog/index.js";
 
 /**
  * Describes a template file that the adapter wants written to disk.
@@ -145,14 +146,38 @@ export interface FrameworkAdapter {
   validateDesignSystem(cwd: string): PhaseValidation;
 
   /**
-   * Phase 1B fallback: Generate design system data from globals.css if Claude failed.
+   * Phase 1B: Generate design system data deterministically from globals.css.
+   * This is now the primary path (no Claude needed).
    */
-  generateDesignSystemFallback(cwd: string, url: string): void;
+  generateDesignSystemData(cwd: string, url: string): void;
+
+  /**
+   * @deprecated Use generateDesignSystemData instead. Kept for backward compatibility.
+   */
+  generateDesignSystemFallback?(cwd: string, url: string): void;
+
+  /**
+   * Phase 2 (v2): Returns the prompt for structured JSON page planning.
+   * If not implemented, falls back to getPagePlannerPrompt() with Markdown output.
+   */
+  getPagePlannerPromptV2?(screenshotDir: string, catalogTypes: string[]): string;
+
+  /**
+   * Phase 3 (deterministic): Render page.tsx from a validated PagePlan.
+   * If not implemented, falls back to Claude-based Phase 3.
+   */
+  renderPageFromPlan?(cwd: string, plan: PagePlan): string;
 
   /**
    * Phase 3 validation: Check that implementation files exist.
    */
   validateImplementation(cwd: string): PhaseValidation;
+
+  /**
+   * Final cleanup after all files are written: clear build cache, patch layout, etc.
+   * Called as the very last step before the pipeline exits.
+   */
+  finalizeProject?(cwd: string): void;
 
   /**
    * Collect created files for the pipeline result summary.

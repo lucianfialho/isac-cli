@@ -4,36 +4,39 @@ import { getScreenshotPrompt } from "../prompts/screenshot-capturer.js";
 describe("Core prompt generation", () => {
   const testUrl = "https://example.com";
 
-  it("design-system mode prompt does NOT contain take_screenshot", () => {
+  it("design-system mode prompt uses agent-browser (no screenshots)", () => {
     const prompt = getScreenshotPrompt(testUrl, "design-system");
     expect(prompt).toContain(testUrl);
-    expect(prompt).toContain("navigate_page");
-    expect(prompt).toContain("1440px");
+    expect(prompt).toContain("agent-browser open");
+    expect(prompt).toContain("1440");
     // Font extraction steps
     expect(prompt).toContain("font-data.json");
-    expect(prompt).toContain("evaluate_script");
+    expect(prompt).toContain("agent-browser eval");
     expect(prompt).toContain("public/fonts");
-    // Should NOT contain screenshot instructions
-    expect(prompt).not.toContain("take_screenshot");
+    // Should NOT contain actual screenshot capture instructions (full-page.png)
     expect(prompt).not.toContain("full-page.png");
+    // Should NOT reference chrome-devtools MCP
+    expect(prompt).not.toContain("mcp__chrome-devtools");
   });
 
   it("default mode is design-system (no screenshots)", () => {
     const prompt = getScreenshotPrompt(testUrl);
-    expect(prompt).not.toContain("take_screenshot");
+    expect(prompt).not.toContain("full-page.png");
   });
 
-  it("replicate mode prompt CONTAINS take_screenshot", () => {
+  it("replicate mode prompt CONTAINS screenshot commands", () => {
     const prompt = getScreenshotPrompt(testUrl, "replicate");
     expect(prompt).toContain(testUrl);
-    expect(prompt).toContain("navigate_page");
-    expect(prompt).toContain("take_screenshot");
+    expect(prompt).toContain("agent-browser open");
+    expect(prompt).toContain("agent-browser screenshot --full");
     expect(prompt).toContain("full-page.png");
-    expect(prompt).toContain("1440px");
+    expect(prompt).toContain("1440");
     // Font extraction steps
     expect(prompt).toContain("font-data.json");
-    expect(prompt).toContain("evaluate_script");
+    expect(prompt).toContain("agent-browser eval");
     expect(prompt).toContain("public/fonts");
+    // Should NOT reference chrome-devtools MCP
+    expect(prompt).not.toContain("mcp__chrome-devtools");
   });
 
   it("color extraction is NOT in the prompt (handled by Playwright)", () => {

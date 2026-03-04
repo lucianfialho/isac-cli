@@ -5,26 +5,54 @@ import type { PipelineMode } from "../pipeline/types.js";
 function getNavigationSection(url: string): string {
   return `## PART 1 — NAVIGATE & WAIT
 
-1. **Navigate** to ${url} using \`navigate_page\`
-2. **Wait** for complete load using \`wait_for\` (networkIdle or load event)
-3. **Resize** the viewport to 1440px width using \`resize_page\` (desktop standard)`;
+1. **Open** the URL via Bash:
+   \`\`\`bash
+   agent-browser open ${url}
+   \`\`\`
+2. **Wait** for complete load:
+   \`\`\`bash
+   agent-browser wait --load networkidle
+   \`\`\`
+3. **Set viewport** to 1440px width (desktop standard):
+   \`\`\`bash
+   agent-browser set viewport 1440 900
+   \`\`\``;
 }
 
 function getScreenshotSection(url: string): string {
   return `## PART 1 — SCREENSHOTS
 
-1. **Navigate** to ${url} using \`navigate_page\`
-2. **Wait** for complete load using \`wait_for\` (networkIdle or load event)
-3. **Resize** the viewport to 1440px width using \`resize_page\` (desktop standard)
+1. **Open** the URL via Bash:
+   \`\`\`bash
+   agent-browser open ${url}
+   \`\`\`
+2. **Wait** for complete load:
+   \`\`\`bash
+   agent-browser wait --load networkidle
+   \`\`\`
+3. **Set viewport** to 1440px width (desktop standard):
+   \`\`\`bash
+   agent-browser set viewport 1440 900
+   \`\`\`
 4. **Capture full-page screenshot** in light mode:
-   - \`take_screenshot\` with \`fullPage: true\`
-   - Save as \`.claude/screenshots/full-page.png\`
-5. **Try dark mode** via \`emulate\` with \`colorScheme: "dark"\`:
-   - If the page supports \`prefers-color-scheme\`, capture another screenshot
-   - Save as \`.claude/screenshots/full-page-dark.png\`
+   \`\`\`bash
+   agent-browser screenshot --full .claude/screenshots/full-page.png
+   \`\`\`
+5. **Try dark mode** — switch color scheme and capture:
+   \`\`\`bash
+   agent-browser set media dark
+   \`\`\`
+   - If the page supports \`prefers-color-scheme\`, capture another screenshot:
+   \`\`\`bash
+   agent-browser screenshot --full .claude/screenshots/full-page-dark.png
+   \`\`\`
    - If there's no visual change, skip this step
+   - **Switch back to light mode** after:
+   \`\`\`bash
+   agent-browser set media light
+   \`\`\`
 6. **Capture individual sections** if the page is long:
-   - Identify main sections via \`take_snapshot\` (DOM inspection)
+   - Use \`agent-browser snapshot -i\` to identify main sections
    - Capture each section as an individual screenshot if needed
    - Name them \`section-1.png\`, \`section-2.png\`, etc.`;
 }
@@ -36,10 +64,11 @@ You MUST try ALL strategies below in order. Many sites block CSSFontFaceRule enu
 
 ### Step ${partNumber}.1: Strategy A — Extract @font-face declarations via CSSFontFaceRule
 
-Call \`mcp__chrome-devtools__evaluate_script\` with this exact script:
+Run via Bash:
 
-\`\`\`
-() => {
+\`\`\`bash
+agent-browser eval --stdin <<'JS'
+(() => {
   const fonts = [];
   for (const sheet of document.styleSheets) {
     try {
@@ -49,7 +78,7 @@ Call \`mcp__chrome-devtools__evaluate_script\` with this exact script:
           const src = rule.style.getPropertyValue('src');
           const weight = rule.style.getPropertyValue('font-weight') || '400';
           const style = rule.style.getPropertyValue('font-style') || 'normal';
-          const urlMatch = src.match(/url\\\\("([^"]+)"\\\\)/);
+          const urlMatch = src.match(/url\\("([^"]+)"\\)/);
           if (urlMatch && !family.includes('Fallback')) {
             fonts.push({ family, url: new URL(urlMatch[1], location.href).href, weight, style });
           }
@@ -58,15 +87,17 @@ Call \`mcp__chrome-devtools__evaluate_script\` with this exact script:
     } catch(e) {}
   }
   return JSON.stringify(fonts, null, 2);
-}
+})()
+JS
 \`\`\`
 
 ### Step ${partNumber}.2: Strategy B — Font Loading API (fallback if Strategy A returns empty)
 
 If step ${partNumber}.1 returned an empty array, try the Font Loading API:
 
-\`\`\`
-() => {
+\`\`\`bash
+agent-browser eval --stdin <<'JS'
+(() => {
   const fonts = [];
   const seen = new Set();
   for (const face of document.fonts) {
@@ -78,13 +109,15 @@ If step ${partNumber}.1 returned an empty array, try the Font Loading API:
     }
   }
   return JSON.stringify(fonts, null, 2);
-}
+})()
+JS
 \`\`\`
 
 ### Step ${partNumber}.3: Strategy C — Google Fonts link tag detection
 
-\`\`\`
-() => {
+\`\`\`bash
+agent-browser eval --stdin <<'JS'
+(() => {
   const fonts = [];
   const links = document.querySelectorAll('link[href*="fonts.googleapis.com"], link[href*="fonts.gstatic.com"]');
   links.forEach(link => {
@@ -93,28 +126,29 @@ If step ${partNumber}.1 returned an empty array, try the Font Loading API:
     if (familyMatch) {
       const families = familyMatch[1].split('|');
       families.forEach(f => {
-        const name = decodeURIComponent(f.split(':')[0].replace(/\\\\+/g, ' '));
+        const name = decodeURIComponent(f.split(':')[0].replace(/\\+/g, ' '));
         fonts.push({ family: name, source: 'GoogleFonts', url: href });
       });
     }
   });
   return JSON.stringify(fonts, null, 2);
-}
+})()
+JS
 \`\`\`
 
 ### Step ${partNumber}.4: Detect which font is used for each role (always run this)
 
-Call \`mcp__chrome-devtools__evaluate_script\` with:
-
-\`\`\`
-() => {
+\`\`\`bash
+agent-browser eval --stdin <<'JS'
+(() => {
   const body = getComputedStyle(document.body).fontFamily;
   const h1 = document.querySelector('h1, h2, [class*="heading"], [class*="title"]');
   const heading = h1 ? getComputedStyle(h1).fontFamily : body;
   const code = document.querySelector('code, pre, [class*="mono"]');
   const mono = code ? getComputedStyle(code).fontFamily : '"SF Mono", monospace';
   return JSON.stringify({ body, heading, mono });
-}
+})()
+JS
 \`\`\`
 
 ### Step ${partNumber}.5: Download font files
@@ -167,10 +201,11 @@ Extract branding and identity information for the design system.
 
 ### Step ${partNumber}.1: Extract meta tags from current page
 
-Call \`mcp__chrome-devtools__evaluate_script\` with:
+Run via Bash:
 
-\`\`\`
-() => {
+\`\`\`bash
+agent-browser eval --stdin <<'JS'
+(() => {
   const getMeta = (name) => {
     const el = document.querySelector('meta[property="' + name + '"], meta[name="' + name + '"]');
     return el ? el.getAttribute('content') : null;
@@ -193,7 +228,8 @@ Call \`mcp__chrome-devtools__evaluate_script\` with:
     appleTouchIcon: getLink('apple-touch-icon'),
     logoUrl,
   }, null, 2);
-}
+})()
+JS
 \`\`\`
 
 ### Step ${partNumber}.2: About page
@@ -235,12 +271,13 @@ function getIconSection(partNumber: number): string {
 
 Detect which icon library the site uses and extract icon names.
 
-### Step ${partNumber}.1: Detect icons via evaluate_script
+### Step ${partNumber}.1: Detect icons via agent-browser eval
 
-Call \`mcp__chrome-devtools__evaluate_script\` with this single script:
+Run via Bash:
 
-\`\`\`
-() => {
+\`\`\`bash
+agent-browser eval --stdin <<'JS'
+(() => {
   const result = { library: "none", icons: [], count: 0 };
 
   // Strategy A: Lucide
@@ -311,7 +348,8 @@ Call \`mcp__chrome-devtools__evaluate_script\` with this single script:
   }
 
   return JSON.stringify(result);
-}
+})()
+JS
 \`\`\`
 
 ### Step ${partNumber}.2: Write icon-data.json — THIS IS MANDATORY
@@ -438,7 +476,9 @@ ${url}
 
 ## CRITICAL RULES
 
-- You have access to Read, Write, Bash, and chrome-devtools MCP tools
+- You have access to Read, Write, and Bash tools
+- Use \`agent-browser\` CLI commands via Bash for ALL browser interactions (navigation, JS evaluation, screenshots)
+- Do NOT use any MCP tools — agent-browser replaces chrome-devtools MCP
 - Do NOT modify any project source files (package.json, test files, tsconfig, etc.)
 - Do NOT install any packages or commit to git
 ${writeDirs}
@@ -447,9 +487,29 @@ ${writeDirs}
 - Brand extraction is best-effort. If any brand step fails, write what you have and continue.
 - Color data is already extracted — do NOT overwrite color-data.json or color-data-dark.json.
 
+## agent-browser quick reference
+
+All commands run via Bash:
+- \`agent-browser open <url>\` — navigate to URL
+- \`agent-browser wait --load networkidle\` — wait for page load
+- \`agent-browser set viewport <width> <height>\` — set viewport size
+- \`agent-browser set media dark\` / \`agent-browser set media light\` — emulate color scheme
+- \`agent-browser eval '<expression>'\` — evaluate simple JS expression
+- \`agent-browser eval --stdin <<'JS' ... JS\` — evaluate complex JS via heredoc
+- \`agent-browser screenshot --full <path>\` — full-page screenshot
+- \`agent-browser snapshot -i\` — accessibility tree (interactive elements)
+- \`agent-browser close\` — close browser when done
+
 ${parts}
 
 ${expectedOutput}
+
+## Cleanup
+
+When all extraction is complete, close the browser:
+\`\`\`bash
+agent-browser close
+\`\`\`
 
 ## Rules
 
@@ -457,7 +517,7 @@ ${expectedOutput}
 - Wait for complete load before capturing (avoid partial screenshots)
 - If the URL returns an error (404, 500), report immediately without attempting capture
 - Do not modify any project source files
-- If \`emulate\` for dark mode fails, continue without the dark data — it's not blocking
+- If dark mode emulation fails, continue without the dark data — it's not blocking
 - If font extraction fails at any step, write partial results and continue — it's not blocking
 - You MUST write \`font-data.json\`, \`brand-data.json\`, and \`icon-data.json\` even with partial/empty data
 - Do NOT write or overwrite \`color-data.json\` or \`color-data-dark.json\` — they are already extracted`;

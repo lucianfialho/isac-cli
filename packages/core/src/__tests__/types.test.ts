@@ -31,7 +31,7 @@ const mockAdapter: FrameworkAdapter = {
   validateTokenExtraction: () => ({ valid: true }),
   postProcessTokenExtraction: () => {},
   validateDesignSystem: () => ({ valid: true }),
-  generateDesignSystemFallback: () => {},
+  generateDesignSystemData: () => {},
   validateImplementation: () => ({ valid: true }),
   collectCreatedFiles: () => [],
 };

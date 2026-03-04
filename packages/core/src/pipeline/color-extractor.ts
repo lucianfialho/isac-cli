@@ -1,4 +1,5 @@
-import { existsSync, writeFileSync } from "node:fs";
+import { execSync } from "node:child_process";
+import { existsSync, writeFileSync, unlinkSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { log } from "../ui/logger.js";
 
@@ -35,9 +36,12 @@ export function findChromePath(): string | null {
 // ── Color extraction script (runs inside the browser) ───────────────
 
 /**
- * This script is evaluated via page.evaluate() in Playwright.
+ * This script is evaluated via agent-browser eval in the browser context.
  * It extracts all color data from the live DOM using getComputedStyle.
  * It's a constant — same script, every time, deterministic.
+ *
+ * Note: TypeScript annotations are stripped at compile time by tsup.
+ * At runtime, .toString() returns valid JavaScript for agent-browser eval.
  */
 export const COLOR_EXTRACTION_SCRIPT = () => {
   const rgbToHex = (rgb: string): string => {
@@ -189,63 +193,548 @@ export const COLOR_EXTRACTION_SCRIPT = () => {
   return result;
 };
 
+// ── Brand extraction script (runs inside the browser) ───────────────
+
+/**
+ * Extracts brand data: logo, favicon, OG image, company name, description.
+ * Deterministic — same script, every time.
+ */
+export const BRAND_EXTRACTION_SCRIPT = () => {
+  const meta = (name: string): string | null => {
+    const el = document.querySelector(`meta[property="${name}"], meta[name="${name}"]`);
+    return el?.getAttribute("content") || null;
+  };
+
+  // Company name: og:site_name → og:title → <title> (cleaned)
+  let companyName = meta("og:site_name") || meta("og:title") || document.title || null;
+  if (companyName) {
+    // Clean common suffixes: "YouTube - Broadcast Yourself" → "YouTube"
+    companyName = companyName.split(/\s*[-–|]\s*/)[0].trim();
+  }
+
+  // Description
+  const description = meta("og:description") || meta("description") || "";
+
+  // Tagline: og:description or meta description, truncated
+  const tagline = description.length > 200 ? description.slice(0, 197) + "..." : description;
+
+  // OG image
+  const ogImageUrl = meta("og:image") || null;
+
+  // Favicon: prefer 32x32, then apple-touch-icon, then any link[rel*="icon"]
+  let faviconUrl: string | null = null;
+  const faviconCandidates = document.querySelectorAll(
+    'link[rel="icon"][sizes="32x32"], link[rel="apple-touch-icon"], link[rel*="icon"]'
+  );
+  for (const el of faviconCandidates) {
+    const href = el.getAttribute("href");
+    if (href) {
+      try {
+        faviconUrl = new URL(href, document.location.href).href;
+        break;
+      } catch { /* skip bad URLs */ }
+    }
+  }
+
+  // Logo: find logo in header/nav
+  let logoUrl: string | null = null;
+  let logoSvg: string | null = null;
+  let logoTextFill: string | null = null;
+
+  const headerEl = document.querySelector("header, nav, [role=banner]");
+  const searchRoot = headerEl || document.body;
+
+  /** Check if an element or its ancestors have "logo" in class/id/aria-label */
+  const hasLogoContext = (el: Element): boolean => {
+    let cur: Element | null = el;
+    for (let i = 0; i < 4 && cur; i++) {
+      const cls = (cur.className?.toString?.() || "").toLowerCase();
+      const id = (cur.id || "").toLowerCase();
+      const label = (cur.getAttribute("aria-label") || "").toLowerCase();
+      if (cls.includes("logo") || id.includes("logo") || label.includes("logo")) return true;
+      cur = cur.parentElement;
+    }
+    return false;
+  };
+
+  /** Check if SVG looks like a common icon (hamburger, close, search, etc.) */
+  const isIconSvg = (svg: SVGElement): boolean => {
+    const rect = svg.getBoundingClientRect();
+    // Icons are typically square and small (< 32px)
+    const isSmallSquare = rect.width < 36 && rect.height < 36 && Math.abs(rect.width - rect.height) < 8;
+    // Check for icon-related attributes
+    const cls = (svg.className?.baseVal || "").toLowerCase();
+    const label = (svg.getAttribute("aria-label") || "").toLowerCase();
+    const iconKeywords = ["menu", "hamburger", "close", "search", "bell", "notification", "arrow", "chevron", "caret"];
+    const hasIconClass = iconKeywords.some(k => cls.includes(k) || label.includes(k));
+    return isSmallSquare || hasIconClass;
+  };
+
+  // 1. Try <img> with logo in alt/class/src/id
+  const imgs = searchRoot.querySelectorAll("img");
+  for (const img of imgs) {
+    const alt = (img.getAttribute("alt") || "").toLowerCase();
+    const cls = (img.className || "").toLowerCase();
+    const src = (img.getAttribute("src") || "").toLowerCase();
+    const id = (img.id || "").toLowerCase();
+    if (alt.includes("logo") || cls.includes("logo") || src.includes("logo") || id.includes("logo")) {
+      try {
+        logoUrl = new URL(img.getAttribute("src") || "", document.location.href).href;
+        break;
+      } catch { /* skip */ }
+    }
+  }
+
+  // 2. Try <a> or <div> with "logo" in class — check for img or SVG inside
+  if (!logoUrl && !logoSvg) {
+    const logoContainers = searchRoot.querySelectorAll(
+      '[class*="logo"], [id*="logo"], [aria-label*="logo"], [aria-label*="Logo"], a[href="/"]'
+    );
+    for (const container of logoContainers) {
+      const img = container.querySelector("img");
+      if (img?.getAttribute("src")) {
+        try {
+          logoUrl = new URL(img.getAttribute("src") || "", document.location.href).href;
+          break;
+        } catch { /* skip */ }
+      }
+      const svg = container.querySelector("svg");
+      if (svg) {
+        const rect = svg.getBoundingClientRect();
+        if (rect.width >= 20 && rect.height >= 10) {
+          logoSvg = svg.outerHTML;
+          const svgColor = getComputedStyle(svg).color;
+          if (svgColor) {
+            const rgbMatch = svgColor.match(/rgba?\(\s*(\d+),\s*(\d+),\s*(\d+)/);
+            if (rgbMatch) {
+              logoTextFill = "#" + [rgbMatch[1], rgbMatch[2], rgbMatch[3]]
+                .map(x => (+x).toString(16).padStart(2, "0")).join("");
+            }
+          }
+          break;
+        }
+      }
+    }
+  }
+
+  // 3. Fallback: find the widest non-icon SVG in header (logos are usually wider than icons)
+  if (!logoUrl && !logoSvg && headerEl) {
+    let bestSvg: SVGElement | null = null;
+    let bestWidth = 0;
+    const svgs = headerEl.querySelectorAll("svg");
+    for (const svg of svgs) {
+      if (isIconSvg(svg)) continue;
+      // Prefer SVGs with logo context
+      if (hasLogoContext(svg)) {
+        bestSvg = svg;
+        break;
+      }
+      const rect = svg.getBoundingClientRect();
+      // Must be wider than tall (logos are horizontal) and visible
+      if (rect.width > 40 && rect.width > rect.height * 1.2 && rect.width > bestWidth) {
+        bestSvg = svg;
+        bestWidth = rect.width;
+      }
+    }
+    if (bestSvg) {
+      logoSvg = bestSvg.outerHTML;
+      // Capture computed color so we can inject fill for paths without one
+      const svgColor = getComputedStyle(bestSvg).color;
+      if (svgColor) {
+        const rgbMatch = svgColor.match(/rgba?\(\s*(\d+),\s*(\d+),\s*(\d+)/);
+        if (rgbMatch) {
+          logoTextFill = "#" + [rgbMatch[1], rgbMatch[2], rgbMatch[3]]
+            .map(x => (+x).toString(16).padStart(2, "0")).join("");
+        }
+      }
+    }
+  }
+
+  return {
+    companyName,
+    tagline,
+    description,
+    logoUrl,
+    logoSvg,
+    logoTextFill,
+    faviconUrl,
+    ogImageUrl,
+    aboutText: "",
+  };
+};
+
+/** Parse agent-browser eval output (may be double-stringified) and re-format with indentation */
+function formatJson(raw: string): string {
+  try {
+    let parsed = JSON.parse(raw);
+    // Handle double-stringified JSON
+    if (typeof parsed === "string") parsed = JSON.parse(parsed);
+    return JSON.stringify(parsed, null, 2);
+  } catch {
+    return raw; // Return as-is if unparseable
+  }
+}
+
 // ── Main extraction function ────────────────────────────────────────
 
 export async function extractColors(url: string, cwd: string): Promise<void> {
-  const chromePath = findChromePath();
-  if (!chromePath) {
-    log.warn("Chrome not found — skipping Playwright color extraction (will use defaults)");
-    return;
-  }
+  // Build the JS expression: IIFE that returns an object.
+  // agent-browser eval serializes the return value as JSON automatically,
+  // so we must NOT wrap in JSON.stringify (that causes double-stringification).
+  // TypeScript annotations are stripped by tsup at build time, so .toString() is valid JS.
+  const scriptExpr = `(${COLOR_EXTRACTION_SCRIPT.toString()})()`;
 
-  // Dynamic import to avoid breaking if playwright-core isn't installed
-  const { chromium } = await import("playwright-core");
-
-  let browser;
   try {
-    browser = await chromium.launch({
-      executablePath: chromePath,
-      headless: true,
-      args: [
-        "--no-first-run",
-        "--no-default-browser-check",
-        "--disable-gpu",
-        "--disable-extensions",
-      ],
-    });
-
-    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-
-    // Navigate and wait for network idle
-    await page.goto(url, { waitUntil: "networkidle", timeout: 30_000 });
+    // Navigate and wait for load
+    execSync(`agent-browser open "${url}"`, { stdio: "pipe", timeout: 30_000 });
+    execSync("agent-browser wait --load networkidle", { stdio: "pipe", timeout: 30_000 });
+    execSync("agent-browser set viewport 1440 900", { stdio: "pipe" });
 
     // Light mode extraction
-    const lightData = await page.evaluate(COLOR_EXTRACTION_SCRIPT);
+    const lightRaw = execSync("agent-browser eval --stdin", {
+      input: scriptExpr,
+      encoding: "utf-8",
+      timeout: 15_000,
+    }).trim();
+
+    // agent-browser serializes return values as JSON — re-format with indentation
     const colorsDir = join(cwd, ".claude/colors");
-    writeFileSync(
-      join(colorsDir, "color-data.json"),
-      JSON.stringify(lightData, null, 2),
-      "utf-8",
-    );
-    log.success("color-data.json (light mode — Playwright)");
+    writeFileSync(join(colorsDir, "color-data.json"), formatJson(lightRaw), "utf-8");
+    log.success("color-data.json (light mode — agent-browser)");
 
     // Dark mode extraction
-    await page.emulateMedia({ colorScheme: "dark" });
-    // Brief wait for CSS transitions
-    await page.waitForTimeout(500);
+    execSync("agent-browser set media dark", { stdio: "pipe" });
+    execSync("agent-browser wait 500", { stdio: "pipe" });
 
-    const darkData = await page.evaluate(COLOR_EXTRACTION_SCRIPT);
-    writeFileSync(
-      join(colorsDir, "color-data-dark.json"),
-      JSON.stringify(darkData, null, 2),
-      "utf-8",
-    );
-    log.success("color-data-dark.json (dark mode — Playwright)");
+    const darkRaw = execSync("agent-browser eval --stdin", {
+      input: scriptExpr,
+      encoding: "utf-8",
+      timeout: 15_000,
+    }).trim();
+
+    writeFileSync(join(colorsDir, "color-data-dark.json"), formatJson(darkRaw), "utf-8");
+    log.success("color-data-dark.json (dark mode — agent-browser)");
+
+    // Reset to light mode — Claude agent will reuse this browser session
+    execSync("agent-browser set media light", { stdio: "pipe" });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    log.warn(`Playwright color extraction failed: ${msg}`);
+    log.warn(`agent-browser color extraction failed: ${msg}`);
     // Not fatal — Phase 0 safety net will create defaults if needed
-  } finally {
-    if (browser) await browser.close();
+  }
+}
+
+// ── Deterministic brand extraction ──────────────────────────────────
+
+export async function extractBrand(url: string, cwd: string): Promise<void> {
+  const scriptExpr = `(${BRAND_EXTRACTION_SCRIPT.toString()})()`;
+
+  try {
+    const rawOutput = execSync("agent-browser eval --stdin", {
+      input: scriptExpr,
+      encoding: "utf-8",
+      timeout: 15_000,
+    }).trim();
+
+    let brand: Record<string, unknown>;
+    try {
+      let parsed = JSON.parse(rawOutput);
+      if (typeof parsed === "string") parsed = JSON.parse(parsed);
+      brand = parsed;
+    } catch {
+      log.warn("brand extraction: failed to parse eval output");
+      return;
+    }
+
+    // If we got an inline SVG logo, save it to public/logo.svg and set logoUrl
+    if (!brand.logoUrl && brand.logoSvg) {
+      let svgContent = brand.logoSvg as string;
+
+      // Clean up inline styles meant for the original page's inline rendering.
+      // These cause sizing/display issues when loaded as <img>.
+      svgContent = svgContent.replace(/\s*style="[^"]*"/g, "");
+      svgContent = svgContent.replace(/\s*focusable="[^"]*"/g, "");
+      svgContent = svgContent.replace(/\s*aria-hidden="[^"]*"/g, "");
+
+      // SVG paths without explicit fill inherit currentColor, which works inline
+      // but defaults to black in <img> (invisible on dark bg).
+      // Add fill= on the root <svg> as a default — paths with explicit fill override it.
+      const textFill = (brand.logoTextFill as string) || "#ffffff";
+      svgContent = svgContent.replace(/^<svg /, `<svg fill="${textFill}" `);
+
+      const svgPath = join(cwd, "public/logo.svg");
+      writeFileSync(svgPath, svgContent, "utf-8");
+      brand.logoUrl = "/logo.svg";
+      log.success("logo.svg extracted (inline SVG)");
+    }
+
+    // Remove internal fields from the JSON output
+    delete brand.logoSvg;
+    delete brand.logoTextFill;
+
+    const brandDir = join(cwd, ".claude/branding");
+    writeFileSync(join(brandDir, "brand-data.json"), JSON.stringify(brand, null, 2), "utf-8");
+    log.success(`brand-data.json (deterministic — ${brand.companyName || "unknown"})`);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    log.warn(`agent-browser brand extraction failed: ${msg}`);
+  }
+}
+
+// ── Font extraction script ──────────────────────────────────────────
+
+export const FONT_EXTRACTION_SCRIPT = () => {
+  const fonts: Array<{ family: string; url?: string; weight: string; style: string; source: string }> = [];
+  const seen = new Set<string>();
+
+  // Strategy A: CSSFontFaceRule
+  for (const sheet of document.styleSheets) {
+    try {
+      for (const rule of sheet.cssRules) {
+        if (rule instanceof CSSFontFaceRule) {
+          const family = rule.style.getPropertyValue("font-family").replace(/['"]/g, "");
+          const src = rule.style.getPropertyValue("src");
+          const weight = rule.style.getPropertyValue("font-weight") || "400";
+          const style = rule.style.getPropertyValue("font-style") || "normal";
+          const urlMatch = src.match(/url\("([^"]+)"\)/);
+          const key = family + "|" + weight;
+          if (!seen.has(key) && urlMatch && !family.includes("Fallback")) {
+            seen.add(key);
+            fonts.push({ family, url: new URL(urlMatch[1], location.href).href, weight, style, source: "CSSFontFaceRule" });
+          }
+        }
+      }
+    } catch (_e) { /* CORS blocked */ }
+  }
+
+  // Strategy B: Font Loading API (fallback)
+  if (fonts.length === 0) {
+    for (const face of document.fonts) {
+      const family = face.family.replace(/['"]/g, "");
+      const key = family + "|" + (face.weight || "400");
+      if (!seen.has(key) && !family.includes("Fallback") && face.status === "loaded") {
+        seen.add(key);
+        fonts.push({ family, weight: face.weight || "400", style: face.style || "normal", source: "FontLoadingAPI" });
+      }
+    }
+  }
+
+  // Strategy C: Google Fonts link detection
+  const gfLinks = document.querySelectorAll('link[href*="fonts.googleapis.com"], link[href*="fonts.gstatic.com"]');
+  for (const link of gfLinks) {
+    const href = link.getAttribute("href") || "";
+    const familyMatch = href.match(/family=([^&:]+)/);
+    if (familyMatch) {
+      const families = familyMatch[1].split("|");
+      for (const f of families) {
+        const name = decodeURIComponent(f.split(":")[0].replace(/\+/g, " "));
+        const key = name + "|400";
+        if (!seen.has(key)) {
+          seen.add(key);
+          fonts.push({ family: name, source: "GoogleFonts", weight: "400", style: "normal" });
+        }
+      }
+    }
+  }
+
+  // Role detection
+  const bodyFont = getComputedStyle(document.body).fontFamily;
+  const h1El = document.querySelector('h1, h2, [class*="heading"], [class*="title"]');
+  const headingFont = h1El ? getComputedStyle(h1El).fontFamily : bodyFont;
+  const codeEl = document.querySelector('code, pre, [class*="mono"]');
+  const monoFont = codeEl ? getComputedStyle(codeEl).fontFamily : '"SF Mono", monospace';
+
+  return {
+    fontFaces: fonts,
+    roles: { body: bodyFont, heading: headingFont, mono: monoFont },
+  };
+};
+
+// ── Icon extraction script ──────────────────────────────────────────
+
+export const ICON_EXTRACTION_SCRIPT = () => {
+  const result = { library: "none" as string, icons: [] as string[], count: 0 };
+
+  // Lucide
+  const lucide = document.querySelectorAll('[data-lucide], svg.lucide, [class*="lucide-"]');
+  if (lucide.length > 0) {
+    const names = new Set<string>();
+    lucide.forEach(el => {
+      const dl = el.getAttribute("data-lucide");
+      if (dl) names.add(dl);
+      el.classList.forEach(c => { if (c.startsWith("lucide-") && c !== "lucide-icon") names.add(c.replace("lucide-", "")); });
+    });
+    return { library: "lucide", icons: [...names], count: lucide.length };
+  }
+
+  // Heroicons
+  const heroicons = document.querySelectorAll('[class*="heroicon-"], svg[data-slot]');
+  if (heroicons.length > 0) {
+    const names = new Set<string>();
+    heroicons.forEach(el => {
+      el.classList.forEach(c => { if (c.startsWith("heroicon-")) names.add(c); });
+      const slot = el.getAttribute("data-slot");
+      if (slot) names.add(slot);
+    });
+    return { library: "heroicons", icons: [...names], count: heroicons.length };
+  }
+
+  // Font Awesome
+  const fa = document.querySelectorAll('[class*="fa-"]');
+  if (fa.length > 0) {
+    const skip = new Set(["fa-solid", "fa-regular", "fa-light", "fa-thin", "fa-duotone", "fa-brands", "fa-sharp", "fa-fw", "fa-lg", "fa-xl", "fa-2x", "fa-3x", "fa-4x", "fa-5x"]);
+    const names = new Set<string>();
+    fa.forEach(el => {
+      el.classList.forEach(c => { if (c.startsWith("fa-") && !skip.has(c)) names.add(c.replace("fa-", "")); });
+    });
+    return { library: "font-awesome", icons: [...names], count: fa.length };
+  }
+
+  // Material Icons
+  const material = document.querySelectorAll(".material-icons, .material-icons-outlined, .material-icons-round, .material-icons-sharp, .material-symbols-outlined, .material-symbols-rounded, .material-symbols-sharp");
+  if (material.length > 0) {
+    const names = new Set<string>();
+    material.forEach(el => { const t = (el.textContent || "").trim(); if (t) names.add(t); });
+    return { library: "material-icons", icons: [...names], count: material.length };
+  }
+
+  // Generic SVGs
+  const svgs = document.querySelectorAll("svg");
+  if (svgs.length > 3) {
+    const names = new Set<string>();
+    svgs.forEach(el => {
+      const label = el.getAttribute("aria-label");
+      if (label) names.add(label);
+    });
+    result.library = "svg";
+    result.icons = [...names];
+    result.count = svgs.length;
+  }
+
+  return result;
+};
+
+// ── Deterministic font extraction ───────────────────────────────────
+
+export async function extractFonts(url: string, cwd: string): Promise<void> {
+  const scriptExpr = `(${FONT_EXTRACTION_SCRIPT.toString()})()`;
+
+  try {
+    const rawOutput = execSync("agent-browser eval --stdin", {
+      input: scriptExpr,
+      encoding: "utf-8",
+      timeout: 15_000,
+    }).trim();
+
+    let fontData: { fontFaces: Array<{ family: string; url?: string; weight: string; style: string }>; roles: Record<string, string> };
+    try {
+      let parsed = JSON.parse(rawOutput);
+      if (typeof parsed === "string") parsed = JSON.parse(parsed);
+      fontData = parsed;
+    } catch {
+      log.warn("font extraction: failed to parse eval output");
+      return;
+    }
+
+    // Download woff2 files
+    const fontsDir = join(cwd, "public/fonts");
+    let downloaded = 0;
+    for (const face of fontData.fontFaces) {
+      if (!face.url) continue;
+      const fileName = face.family.replace(/\s+/g, "-").replace(/[^a-zA-Z0-9_-]/g, "");
+      const weight = face.weight || "400";
+      const outFile = join(fontsDir, `${fileName}-${weight}.woff2`);
+      try {
+        execSync(`curl -sL -H "Referer: ${url}" -o "${outFile}" "${face.url}"`, {
+          stdio: "pipe",
+          timeout: 15_000,
+        });
+        // Validate: delete if it's HTML (CORS redirect) or too small
+        if (existsSync(outFile)) {
+          const size = statSync(outFile).size;
+          if (size < 100) {
+            unlinkSync(outFile);
+          } else {
+            downloaded++;
+          }
+        }
+      } catch { /* download failed — not fatal */ }
+    }
+
+    // Write font-data.json
+    const fontDataJson = {
+      fontFaces: fontData.fontFaces.map(f => ({
+        family: f.family,
+        url: f.url,
+        weight: f.weight,
+        style: f.style,
+      })),
+      roles: fontData.roles,
+    };
+    writeFileSync(join(cwd, ".claude/fonts/font-data.json"), JSON.stringify(fontDataJson, null, 2), "utf-8");
+    log.success(`font-data.json (${fontData.fontFaces.length} faces, ${downloaded} downloaded)`);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    log.warn(`agent-browser font extraction failed: ${msg}`);
+  }
+}
+
+// ── Deterministic icon extraction ───────────────────────────────────
+
+export async function extractIcons(cwd: string): Promise<void> {
+  const scriptExpr = `(${ICON_EXTRACTION_SCRIPT.toString()})()`;
+
+  try {
+    const rawOutput = execSync("agent-browser eval --stdin", {
+      input: scriptExpr,
+      encoding: "utf-8",
+      timeout: 15_000,
+    }).trim();
+
+    let iconData: { library: string; icons: string[]; count: number };
+    try {
+      let parsed = JSON.parse(rawOutput);
+      if (typeof parsed === "string") parsed = JSON.parse(parsed);
+      iconData = parsed;
+    } catch {
+      log.warn("icon extraction: failed to parse eval output");
+      return;
+    }
+
+    writeFileSync(join(cwd, ".claude/icons/icon-data.json"), JSON.stringify(iconData, null, 2), "utf-8");
+    log.success(`icon-data.json (${iconData.library}, ${iconData.count} icons)`);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    log.warn(`agent-browser icon extraction failed: ${msg}`);
+  }
+}
+
+// ── Deterministic screenshot capture (replicate mode) ───────────────
+
+export async function captureScreenshots(cwd: string): Promise<void> {
+  const screenshotDir = join(cwd, ".claude/screenshots");
+
+  try {
+    // Light mode full-page
+    execSync(`agent-browser screenshot --full "${join(screenshotDir, "full-page.png")}"`, {
+      stdio: "pipe",
+      timeout: 30_000,
+    });
+    log.success("full-page.png (light)");
+
+    // Dark mode
+    execSync("agent-browser set media dark", { stdio: "pipe" });
+    execSync("agent-browser wait 500", { stdio: "pipe" });
+    execSync(`agent-browser screenshot --full "${join(screenshotDir, "full-page-dark.png")}"`, {
+      stdio: "pipe",
+      timeout: 30_000,
+    });
+    log.success("full-page-dark.png (dark)");
+
+    // Reset to light mode
+    execSync("agent-browser set media light", { stdio: "pipe" });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    log.warn(`screenshot capture failed: ${msg}`);
   }
 }
