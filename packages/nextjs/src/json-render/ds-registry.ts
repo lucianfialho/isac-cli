@@ -271,6 +271,161 @@ export const { registry: dsRegistry } = defineRegistry(dsCatalog, {
       );
     },
 
+    DSExamplesHeader: ({ props }) => {
+      return React.createElement("div", { style: { marginTop: 80, marginBottom: 48, textAlign: "center" as const } },
+        React.createElement("div", { style: { width: 48, height: 2, background: "var(--color-accent)", margin: "0 auto 24px", borderRadius: 1 } }),
+        React.createElement("h2", { style: { fontFamily: fonts.display, fontSize: 36, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 12, color: "var(--color-text-primary)" } }, props.title),
+        React.createElement("p", { style: { fontSize: 16, color: "var(--color-text-secondary)", maxWidth: 560, margin: "0 auto" } }, props.subtitle),
+      );
+    },
+
+    DSHeroExample: ({ props }) => {
+      return React.createElement("section", {
+        style: { padding: "80px 40px", background: "var(--color-bg-secondary)", borderRadius: 16, border: "1px solid var(--color-border-primary)", marginBottom: 32, textAlign: "center" as const, position: "relative" as const, overflow: "hidden" },
+      },
+        React.createElement("div", { style: { position: "absolute" as const, top: -80, right: -80, width: 200, height: 200, borderRadius: "50%", background: "var(--color-accent)", opacity: 0.06 } }),
+        React.createElement("div", { style: { position: "absolute" as const, bottom: -60, left: -60, width: 160, height: 160, borderRadius: "50%", background: "var(--color-accent)", opacity: 0.04 } }),
+        React.createElement("div", { style: { position: "relative" as const, zIndex: 1 } },
+          React.createElement("span", { style: { display: "inline-block", padding: "6px 16px", fontSize: 12, fontWeight: 600, fontFamily: fonts.mono, background: "var(--color-bg-tertiary)", color: "var(--color-accent)", borderRadius: 9999, border: "1px solid var(--color-border-subtle)", marginBottom: 24 } }, "Hero Section"),
+          React.createElement("h1", { style: { fontFamily: fonts.display, fontSize: 48, fontWeight: 700, letterSpacing: "-0.025em", lineHeight: 1.1, marginBottom: 16, color: "var(--color-text-primary)", maxWidth: 640, margin: "0 auto 16px" } },
+            `Build something amazing with ${props.siteName}`,
+          ),
+          React.createElement("p", { style: { fontSize: 18, color: "var(--color-text-secondary)", lineHeight: 1.6, maxWidth: 480, margin: "0 auto 32px" } },
+            props.tagline || "The modern platform for teams who ship fast. Start building today with our design system.",
+          ),
+          React.createElement("div", { style: { display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" as const } },
+            React.createElement("button", { style: { padding: "12px 32px", fontSize: 15, fontWeight: 600, fontFamily: fonts.sans, background: "var(--color-accent)", color: "var(--sf-white)", border: "none", borderRadius: 8, cursor: "pointer" } }, "Get Started"),
+            React.createElement("button", { style: { padding: "12px 32px", fontSize: 15, fontWeight: 600, fontFamily: fonts.sans, background: "transparent", color: "var(--color-text-primary)", border: "1px solid var(--color-border-primary)", borderRadius: 8, cursor: "pointer" } }, "Learn More"),
+          ),
+        ),
+      );
+    },
+
+    DSFeatureGridExample: ({ props }) => {
+      const features = [
+        { title: "Lightning Fast", desc: "Optimized for speed with instant page loads and smooth transitions." },
+        { title: "Fully Responsive", desc: "Looks great on every device, from mobile to ultra-wide displays." },
+        { title: "Dark Mode Ready", desc: "Built-in dark mode support with semantic token switching." },
+        { title: "Type Safe", desc: "End-to-end type safety with TypeScript and validated schemas." },
+        { title: "Accessible", desc: "WCAG 2.1 compliant with keyboard navigation and screen reader support." },
+        { title: "Customizable", desc: "Extend and override any token to match your brand identity." },
+      ];
+      return React.createElement("section", { style: { marginBottom: 32 } },
+        React.createElement("div", { style: { textAlign: "center" as const, marginBottom: 40 } },
+          React.createElement("span", { style: { display: "inline-block", padding: "6px 16px", fontSize: 12, fontWeight: 600, fontFamily: fonts.mono, background: "var(--color-bg-tertiary)", color: "var(--color-accent)", borderRadius: 9999, border: "1px solid var(--color-border-subtle)", marginBottom: 16 } }, "Feature Grid"),
+          React.createElement("h2", { style: { fontFamily: fonts.display, fontSize: 32, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--color-text-primary)", marginBottom: 8 } }, "Everything you need"),
+          React.createElement("p", { style: { fontSize: 16, color: "var(--color-text-secondary)" } }, "A complete toolkit for building production-ready interfaces."),
+        ),
+        React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 } },
+          ...features.map((f) =>
+            React.createElement("div", { key: f.title, style: { padding: 24, background: "var(--color-bg-secondary)", border: "1px solid var(--color-border-primary)", borderRadius: 12 } },
+              React.createElement("div", { style: { width: 40, height: 40, borderRadius: 10, background: "var(--color-accent)", opacity: 0.1, marginBottom: 16 } }),
+              React.createElement("h3", { style: { fontSize: 16, fontWeight: 600, fontFamily: fonts.sans, color: "var(--color-text-primary)", marginBottom: 8 } }, f.title),
+              React.createElement("p", { style: { fontSize: 14, color: "var(--color-text-secondary)", lineHeight: 1.6, margin: 0 } }, f.desc),
+            ),
+          ),
+        ),
+      );
+    },
+
+    DSPricingExample: ({ props }) => {
+      const plans = [
+        { name: "Starter", price: "$0", period: "/month", desc: "For personal projects", features: ["5 projects", "Basic analytics", "Community support"], cta: "Start Free", highlighted: false },
+        { name: "Pro", price: "$29", period: "/month", desc: "For growing teams", features: ["Unlimited projects", "Advanced analytics", "Priority support", "Custom domains", "Team collaboration"], cta: "Get Started", highlighted: true },
+        { name: "Enterprise", price: "Custom", period: "", desc: "For large organizations", features: ["Everything in Pro", "SSO & SAML", "Dedicated support", "SLA guarantee", "Custom integrations"], cta: "Contact Sales", highlighted: false },
+      ];
+      return React.createElement("section", { style: { marginBottom: 32 } },
+        React.createElement("div", { style: { textAlign: "center" as const, marginBottom: 40 } },
+          React.createElement("span", { style: { display: "inline-block", padding: "6px 16px", fontSize: 12, fontWeight: 600, fontFamily: fonts.mono, background: "var(--color-bg-tertiary)", color: "var(--color-accent)", borderRadius: 9999, border: "1px solid var(--color-border-subtle)", marginBottom: 16 } }, "Pricing Table"),
+          React.createElement("h2", { style: { fontFamily: fonts.display, fontSize: 32, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--color-text-primary)", marginBottom: 8 } }, "Simple, transparent pricing"),
+          React.createElement("p", { style: { fontSize: 16, color: "var(--color-text-secondary)" } }, "Choose the plan that fits your needs."),
+        ),
+        React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16, alignItems: "start" } },
+          ...plans.map((p) =>
+            React.createElement("div", {
+              key: p.name,
+              style: {
+                padding: 32, borderRadius: 16, border: p.highlighted ? "2px solid var(--color-accent)" : "1px solid var(--color-border-primary)",
+                background: p.highlighted ? "var(--color-bg-secondary)" : "var(--color-bg-primary)",
+                boxShadow: p.highlighted ? "0 8px 32px rgba(0,0,0,0.08)" : "none",
+                position: "relative" as const,
+              },
+            },
+              p.highlighted ? React.createElement("span", { style: { position: "absolute" as const, top: -12, left: "50%", transform: "translateX(-50%)", padding: "4px 16px", fontSize: 11, fontWeight: 700, fontFamily: fonts.sans, background: "var(--color-accent)", color: "var(--sf-white)", borderRadius: 9999, textTransform: "uppercase" as const, letterSpacing: "0.05em" } }, "Popular") : null,
+              React.createElement("h3", { style: { fontSize: 18, fontWeight: 600, fontFamily: fonts.sans, color: "var(--color-text-primary)", marginBottom: 4 } }, p.name),
+              React.createElement("p", { style: { fontSize: 13, color: "var(--color-text-tertiary)", marginBottom: 16 } }, p.desc),
+              React.createElement("div", { style: { marginBottom: 24 } },
+                React.createElement("span", { style: { fontSize: 40, fontWeight: 700, fontFamily: fonts.display, color: "var(--color-text-primary)", letterSpacing: "-0.02em" } }, p.price),
+                React.createElement("span", { style: { fontSize: 14, color: "var(--color-text-tertiary)" } }, p.period),
+              ),
+              React.createElement("ul", { style: { listStyle: "none", padding: 0, margin: "0 0 24px", display: "flex", flexDirection: "column" as const, gap: 10 } },
+                ...p.features.map((feat) =>
+                  React.createElement("li", { key: feat, style: { fontSize: 14, color: "var(--color-text-secondary)", display: "flex", alignItems: "center", gap: 8 } },
+                    React.createElement("span", { style: { width: 16, height: 16, borderRadius: 8, background: "var(--color-accent)", opacity: 0.15, flexShrink: 0 } }),
+                    feat,
+                  ),
+                ),
+              ),
+              React.createElement("button", {
+                style: {
+                  width: "100%", padding: "12px 24px", fontSize: 14, fontWeight: 600, fontFamily: fonts.sans, borderRadius: 8, cursor: "pointer", border: "none",
+                  background: p.highlighted ? "var(--color-accent)" : "var(--color-bg-tertiary)",
+                  color: p.highlighted ? "var(--sf-white)" : "var(--color-text-primary)",
+                },
+              }, p.cta),
+            ),
+          ),
+        ),
+      );
+    },
+
+    DSTestimonialsExample: ({ props }) => {
+      const testimonials = [
+        { name: "Sarah Chen", role: "Engineering Lead", text: "The design system saved us weeks of work. Every component just works out of the box." },
+        { name: "Marcus Rodriguez", role: "Product Designer", text: "Perfect color tokens and typography scale. Dark mode was effortless to implement." },
+        { name: "Alex Kim", role: "Frontend Developer", text: "Type-safe tokens and consistent spacing made our codebase so much cleaner." },
+      ];
+      return React.createElement("section", { style: { marginBottom: 32 } },
+        React.createElement("div", { style: { textAlign: "center" as const, marginBottom: 40 } },
+          React.createElement("span", { style: { display: "inline-block", padding: "6px 16px", fontSize: 12, fontWeight: 600, fontFamily: fonts.mono, background: "var(--color-bg-tertiary)", color: "var(--color-accent)", borderRadius: 9999, border: "1px solid var(--color-border-subtle)", marginBottom: 16 } }, "Testimonials"),
+          React.createElement("h2", { style: { fontFamily: fonts.display, fontSize: 32, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--color-text-primary)", marginBottom: 8 } }, "Loved by teams"),
+        ),
+        React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 } },
+          ...testimonials.map((t) =>
+            React.createElement("div", { key: t.name, style: { padding: 28, background: "var(--color-bg-secondary)", border: "1px solid var(--color-border-primary)", borderRadius: 12 } },
+              React.createElement("p", { style: { fontSize: 14, color: "var(--color-text-secondary)", lineHeight: 1.7, margin: "0 0 20px", fontStyle: "italic" as const } }, `"${t.text}"`),
+              React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 12 } },
+                React.createElement("div", { style: { width: 36, height: 36, borderRadius: 18, background: "var(--color-accent)", opacity: 0.15 } }),
+                React.createElement("div", null,
+                  React.createElement("div", { style: { fontSize: 14, fontWeight: 600, color: "var(--color-text-primary)" } }, t.name),
+                  React.createElement("div", { style: { fontSize: 12, color: "var(--color-text-tertiary)" } }, t.role),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+
+    DSCTAExample: ({ props }) => {
+      return React.createElement("section", {
+        style: { padding: "64px 40px", background: "var(--color-bg-secondary)", borderRadius: 16, border: "1px solid var(--color-border-primary)", textAlign: "center" as const, marginBottom: 32, position: "relative" as const, overflow: "hidden" },
+      },
+        React.createElement("div", { style: { position: "absolute" as const, inset: 0, background: "linear-gradient(135deg, var(--color-accent), transparent)", opacity: 0.03 } }),
+        React.createElement("div", { style: { position: "relative" as const, zIndex: 1 } },
+          React.createElement("span", { style: { display: "inline-block", padding: "6px 16px", fontSize: 12, fontWeight: 600, fontFamily: fonts.mono, background: "var(--color-bg-tertiary)", color: "var(--color-accent)", borderRadius: 9999, border: "1px solid var(--color-border-subtle)", marginBottom: 20 } }, "CTA Section"),
+          React.createElement("h2", { style: { fontFamily: fonts.display, fontSize: 32, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--color-text-primary)", marginBottom: 12 } }, `Ready to build with ${props.siteName}?`),
+          React.createElement("p", { style: { fontSize: 16, color: "var(--color-text-secondary)", maxWidth: 440, margin: "0 auto 28px", lineHeight: 1.6 } },
+            "Start using the design system today. Ship faster, stay consistent.",
+          ),
+          React.createElement("div", { style: { display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" as const } },
+            React.createElement("button", { style: { padding: "12px 32px", fontSize: 15, fontWeight: 600, fontFamily: fonts.sans, background: "var(--color-accent)", color: "var(--sf-white)", border: "none", borderRadius: 8, cursor: "pointer" } }, "Get Started Free"),
+            React.createElement("button", { style: { padding: "12px 32px", fontSize: 15, fontWeight: 600, fontFamily: fonts.sans, background: "transparent", color: "var(--color-text-primary)", border: "1px solid var(--color-border-primary)", borderRadius: 8, cursor: "pointer" } }, "View Documentation"),
+          ),
+        ),
+      );
+    },
+
     DSFooter: ({ props }) => {
       return React.createElement("footer", {
         style: { marginTop: 64, paddingTop: 24, borderTop: "1px solid var(--color-border-primary)", fontSize: 13, color: "var(--color-text-tertiary)", textAlign: "center" as const },

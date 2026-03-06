@@ -138,6 +138,44 @@ export const dsCatalog = defineCatalog(schema, {
       description: "Icon library section showing detected icons.",
     },
 
+    DSExamplesHeader: {
+      props: z.object({
+        title: z.string(),
+        subtitle: z.string(),
+      }),
+      description: "Divider heading introducing the layout examples section.",
+    },
+
+    DSHeroExample: {
+      props: z.object({
+        siteName: z.string(),
+        tagline: z.string().nullable(),
+      }),
+      description: "Example Hero section using design system tokens.",
+    },
+
+    DSFeatureGridExample: {
+      props: z.object({}),
+      description: "Example Feature Grid section using design system tokens.",
+    },
+
+    DSPricingExample: {
+      props: z.object({}),
+      description: "Example Pricing Table section using design system tokens.",
+    },
+
+    DSTestimonialsExample: {
+      props: z.object({}),
+      description: "Example Testimonials section using design system tokens.",
+    },
+
+    DSCTAExample: {
+      props: z.object({
+        siteName: z.string(),
+      }),
+      description: "Example CTA section using design system tokens.",
+    },
+
     DSFooter: {
       props: z.object({
         domain: z.string(),
