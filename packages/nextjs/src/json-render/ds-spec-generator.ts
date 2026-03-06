@@ -190,6 +190,28 @@ export function generateDesignSystemSpec(cwd: string, url: string): DSSpec {
     }
   } catch { /* ignore */ }
 
+  // ── Read background data ──
+  let pageBackground = "#ffffff";
+  let bgSections: { label: string; bgColor: string | null; bgGradient: string | null; bgImage: string | null; textColor: string | null; hasOverlay: boolean; height: number }[] = [];
+  try {
+    const bgPath = join(cwd, ".claude/backgrounds/background-data.json");
+    if (existsSync(bgPath)) {
+      const bgData = JSON.parse(readFileSync(bgPath, "utf-8"));
+      pageBackground = bgData.pageBackground || "#ffffff";
+      if (Array.isArray(bgData.sections)) {
+        bgSections = bgData.sections.map((s: Record<string, unknown>) => ({
+          label: (s.label as string) || "Section",
+          bgColor: (s.bgColor as string) || null,
+          bgGradient: (s.bgGradient as string) || null,
+          bgImage: (s.bgImage as string) || null,
+          textColor: (s.textColor as string) || null,
+          hasOverlay: !!(s.hasOverlay),
+          height: ((s.rect as Record<string, number>)?.height) || 400,
+        }));
+      }
+    }
+  } catch { /* ignore */ }
+
   // ── Read icon data ──
   let iconLibrary = "none";
   let iconNames: string[] = [];
@@ -308,7 +330,20 @@ export function generateDesignSystemSpec(cwd: string, url: string): DSSpec {
   tabPanelIds.push("tab-components");
   elements["tab-components"] = { type: "DSTabPanel", props: {}, children: componentsChildren };
 
-  // Tab 5: Layout Examples
+  // Tab 5: Backgrounds
+  tabNames.push("Backgrounds");
+  tabPanelIds.push("tab-backgrounds");
+  elements["backgrounds"] = {
+    type: "DSBackgrounds",
+    props: {
+      title: "Section Backgrounds",
+      pageBackground,
+      sections: bgSections,
+    },
+  };
+  elements["tab-backgrounds"] = { type: "DSTabPanel", props: {}, children: ["backgrounds"] };
+
+  // Tab 6: Layout Examples
   tabNames.push("Layout Examples");
   tabPanelIds.push("tab-examples");
   elements["examples-header"] = {
@@ -474,6 +509,17 @@ export const dsCatalog = defineCatalog(schema, {
     DSShadows: {
       props: z.object({ title: z.string(), items: z.array(z.object({ label: z.string(), value: z.string() })) }),
       description: "Shadow showcase.",
+    },
+    DSBackgrounds: {
+      props: z.object({
+        title: z.string(), pageBackground: z.string(),
+        sections: z.array(z.object({
+          label: z.string(), bgColor: z.string().nullable(), bgGradient: z.string().nullable(),
+          bgImage: z.string().nullable(), textColor: z.string().nullable(),
+          hasOverlay: z.boolean(), height: z.number(),
+        })),
+      }),
+      description: "Section background showcase.",
     },
     DSComponents: {
       props: z.object({ title: z.string() }),
@@ -750,6 +796,52 @@ export const { registry: dsRegistry } = defineRegistry(dsCatalog, {
             ),
           ),
         ),
+      );
+    },
+    DSBackgrounds: ({ props }) => {
+      return React.createElement(SectionWrapper, { title: props.title },
+        React.createElement(SubHeading, null, "Page Background"),
+        React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 16, marginBottom: 32, padding: 16, border: "1px solid var(--color-border-primary)", borderRadius: 8 } },
+          React.createElement("div", { style: { width: 64, height: 64, borderRadius: 8, background: props.pageBackground, border: "1px solid var(--color-border-primary)", flexShrink: 0 } }),
+          React.createElement("div", null,
+            React.createElement("div", { style: { fontSize: 14, fontWeight: 600, marginBottom: 4 } }, "Page Background"),
+            React.createElement("code", { style: { fontFamily: fonts.mono, fontSize: 12, color: "var(--color-text-secondary)" } }, props.pageBackground),
+          ),
+        ),
+        React.createElement(SubHeading, null, "Section Backgrounds"),
+        props.sections.length === 0
+          ? React.createElement("p", { style: { fontSize: 14, color: "var(--color-text-tertiary)", fontStyle: "italic" } }, "No distinct section backgrounds detected.")
+          : React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 16 } },
+              ...props.sections.map(function(sec: any, i: number) {
+                var bgStyle: any = {};
+                if (sec.bgGradient) bgStyle.background = sec.bgGradient;
+                else if (sec.bgColor) bgStyle.background = sec.bgColor;
+                if (sec.bgImage && !sec.bgGradient) { bgStyle.backgroundImage = sec.bgImage; bgStyle.backgroundSize = "cover"; bgStyle.backgroundPosition = "center"; }
+                return React.createElement("div", { key: sec.label + "-" + i, style: { border: "1px solid var(--color-border-primary)", borderRadius: 12, overflow: "hidden" } },
+                  React.createElement("div", {
+                    style: Object.assign({ height: 80, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }, bgStyle),
+                  },
+                    React.createElement("span", { style: { fontSize: 16, fontWeight: 600, fontFamily: fonts.display, color: sec.textColor || "var(--color-text-primary)", position: "relative", zIndex: 1 } }, sec.label),
+                    sec.hasOverlay ? React.createElement("div", { style: { position: "absolute", top: 0, right: 8, fontSize: 10, color: "var(--color-text-tertiary)", padding: "4px 8px", background: "var(--color-bg-primary)", borderRadius: "0 0 4px 4px", opacity: 0.8 } }, "overlay") : null,
+                  ),
+                  React.createElement("div", { style: { padding: "12px 16px", display: "flex", flexWrap: "wrap", gap: 16, fontSize: 12 } },
+                    sec.bgColor ? React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
+                      React.createElement("div", { style: { width: 16, height: 16, borderRadius: 4, background: sec.bgColor, border: "1px solid var(--color-border-subtle)", flexShrink: 0 } }),
+                      React.createElement("code", { style: { fontFamily: fonts.mono, color: "var(--color-text-secondary)" } }, sec.bgColor),
+                    ) : null,
+                    sec.bgGradient ? React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
+                      React.createElement("div", { style: { width: 32, height: 16, borderRadius: 4, background: sec.bgGradient, border: "1px solid var(--color-border-subtle)", flexShrink: 0 } }),
+                      React.createElement("code", { style: { fontFamily: fonts.mono, color: "var(--color-text-secondary)" } }, "gradient"),
+                    ) : null,
+                    sec.textColor ? React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
+                      React.createElement("span", { style: { fontSize: 11, color: "var(--color-text-tertiary)" } }, "text:"),
+                      React.createElement("div", { style: { width: 16, height: 16, borderRadius: 4, background: sec.textColor, border: "1px solid var(--color-border-subtle)", flexShrink: 0 } }),
+                      React.createElement("code", { style: { fontFamily: fonts.mono, color: "var(--color-text-secondary)" } }, sec.textColor),
+                    ) : null,
+                  ),
+                );
+              }),
+            ),
       );
     },
     DSComponents: ({ props }) => {

@@ -709,6 +709,180 @@ export async function extractIcons(cwd: string): Promise<void> {
   }
 }
 
+// ── Background extraction script (runs inside the browser) ──────────
+
+/**
+ * Extracts background styles from visible page sections.
+ * Captures background-color, gradients, and images from hero, feature,
+ * pricing, CTA, footer, and other major sections.
+ */
+export const BACKGROUND_EXTRACTION_SCRIPT = () => {
+  const rgbToHex = (rgb: string): string => {
+    const m = rgb.match(/rgba?\(\s*(\d+),\s*(\d+),\s*(\d+)/);
+    if (!m) return rgb;
+    return "#" + [m[1], m[2], m[3]].map(x => (+x).toString(16).padStart(2, "0")).join("");
+  };
+
+  const isTransparent = (val: string): boolean => {
+    return !val || val === "transparent" || val === "rgba(0, 0, 0, 0)" || val === "rgba(0,0,0,0)";
+  };
+
+  const getSectionLabel = (el: Element): string | null => {
+    const text = (
+      (el.className?.toString?.() || "") + " " +
+      (el.id || "") + " " +
+      (el.getAttribute("aria-label") || "") + " " +
+      (el.getAttribute("data-section") || "")
+    ).toLowerCase();
+
+    if (text.match(/hero|banner|jumbotron|splash/)) return "Hero";
+    if (text.match(/feature|benefit|capability/)) return "Features";
+    if (text.match(/pricing|plan|tier/)) return "Pricing";
+    if (text.match(/testimonial|review|quote/)) return "Testimonials";
+    if (text.match(/cta|call.?to.?action|signup|subscribe/)) return "CTA";
+    if (text.match(/faq|question|accordion/)) return "FAQ";
+    if (text.match(/contact|form|get.?in.?touch/)) return "Contact";
+    if (text.match(/about|team|story/)) return "About";
+    if (text.match(/partner|client|logo|trust/)) return "Partners";
+    if (text.match(/stat|number|metric|counter/)) return "Stats";
+    return null;
+  };
+
+  const sections: Array<{
+    label: string;
+    tag: string;
+    bgColor: string | null;
+    bgGradient: string | null;
+    bgImage: string | null;
+    bgSize: string | null;
+    bgPosition: string | null;
+    textColor: string | null;
+    borderBottom: string | null;
+    hasOverlay: boolean;
+    rect: { top: number; height: number };
+  }> = [];
+
+  const seen = new Set<string>();
+
+  // Gather candidate sections
+  const candidates = document.querySelectorAll(
+    "section, [class*='section'], [class*='Section'], " +
+    "header, footer, main > div, " +
+    "[class*='hero'], [class*='Hero'], " +
+    "[class*='banner'], [class*='Banner'], " +
+    "[class*='cta'], [class*='CTA'], " +
+    "[class*='pricing'], [class*='Pricing'], " +
+    "[class*='feature'], [class*='Feature'], " +
+    "[class*='testimonial'], [class*='Testimonial']"
+  );
+
+  for (const el of candidates) {
+    const rect = el.getBoundingClientRect();
+    // Skip tiny/invisible elements
+    if (rect.height < 100 || rect.width < 200) continue;
+
+    const s = getComputedStyle(el);
+    const bgColor = s.backgroundColor;
+    const bgImage = s.backgroundImage;
+    const hasColor = !isTransparent(bgColor);
+    const hasGradient = bgImage !== "none" && bgImage.includes("gradient");
+    const hasBgImage = bgImage !== "none" && (bgImage.includes("url(") || hasGradient);
+
+    // Skip sections with no interesting background
+    if (!hasColor && !hasBgImage) continue;
+
+    // Deduplicate by approximate position
+    const posKey = `${Math.round(rect.top / 50)}-${Math.round(rect.height / 50)}`;
+    if (seen.has(posKey)) continue;
+    seen.add(posKey);
+
+    // Determine label
+    let label = getSectionLabel(el);
+    if (!label) {
+      const tag = el.tagName.toLowerCase();
+      if (tag === "header" || (tag === "nav" && rect.top < 100)) label = "Header";
+      else if (tag === "footer") label = "Footer";
+      else if (rect.top < 200) label = "Hero";
+      else label = `Section (${Math.round(rect.top)}px)`;
+    }
+
+    // Check for overlay pseudo-elements
+    const before = getComputedStyle(el, "::before");
+    const after = getComputedStyle(el, "::after");
+    const hasOverlay = (
+      (!isTransparent(before.backgroundColor) && before.position === "absolute") ||
+      (!isTransparent(after.backgroundColor) && after.position === "absolute") ||
+      (before.backgroundImage !== "none" && before.position === "absolute") ||
+      (after.backgroundImage !== "none" && after.position === "absolute")
+    );
+
+    // Get text color from first visible heading or paragraph
+    let textColor: string | null = null;
+    const heading = el.querySelector("h1, h2, h3, p");
+    if (heading) {
+      textColor = rgbToHex(getComputedStyle(heading).color);
+    }
+
+    sections.push({
+      label,
+      tag: el.tagName.toLowerCase(),
+      bgColor: hasColor ? rgbToHex(bgColor) : null,
+      bgGradient: hasGradient ? bgImage : null,
+      bgImage: bgImage.includes("url(") ? bgImage : null,
+      bgSize: s.backgroundSize !== "auto" ? s.backgroundSize : null,
+      bgPosition: s.backgroundPosition !== "0% 0%" ? s.backgroundPosition : null,
+      textColor,
+      borderBottom: s.borderBottomWidth !== "0px" ? `${s.borderBottomWidth} ${s.borderBottomStyle} ${rgbToHex(s.borderBottomColor)}` : null,
+      hasOverlay,
+      rect: { top: Math.round(rect.top), height: Math.round(rect.height) },
+    });
+  }
+
+  // Sort by vertical position
+  sections.sort((a, b) => a.rect.top - b.rect.top);
+
+  // Also capture the page-level background
+  const bodyBg = getComputedStyle(document.body).backgroundColor;
+  const htmlBg = getComputedStyle(document.documentElement).backgroundColor;
+
+  return {
+    pageBackground: !isTransparent(bodyBg) ? rgbToHex(bodyBg) : (!isTransparent(htmlBg) ? rgbToHex(htmlBg) : "#ffffff"),
+    sections,
+  };
+};
+
+// ── Deterministic background extraction ─────────────────────────────
+
+export async function extractBackgrounds(cwd: string): Promise<void> {
+  const scriptExpr = `(${BACKGROUND_EXTRACTION_SCRIPT.toString()})()`;
+
+  try {
+    const rawOutput = execSync("agent-browser eval --stdin", {
+      input: scriptExpr,
+      encoding: "utf-8",
+      timeout: 15_000,
+    }).trim();
+
+    let bgData: Record<string, unknown>;
+    try {
+      let parsed = JSON.parse(rawOutput);
+      if (typeof parsed === "string") parsed = JSON.parse(parsed);
+      bgData = parsed;
+    } catch {
+      log.warn("background extraction: failed to parse eval output");
+      return;
+    }
+
+    const bgDir = join(cwd, ".claude/backgrounds");
+    writeFileSync(join(bgDir, "background-data.json"), JSON.stringify(bgData, null, 2), "utf-8");
+    const sectionCount = Array.isArray(bgData.sections) ? bgData.sections.length : 0;
+    log.success(`background-data.json (${sectionCount} sections)`);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    log.warn(`agent-browser background extraction failed: ${msg}`);
+  }
+}
+
 // ── Deterministic screenshot capture (replicate mode) ───────────────
 
 export async function captureScreenshots(cwd: string): Promise<void> {

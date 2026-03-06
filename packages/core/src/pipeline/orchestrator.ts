@@ -125,6 +125,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
   mkdirSync(join(ctx.cwd, ".claude/branding"), { recursive: true });
   mkdirSync(join(ctx.cwd, ".claude/icons"), { recursive: true });
   mkdirSync(join(ctx.cwd, ".claude/colors"), { recursive: true });
+  mkdirSync(join(ctx.cwd, ".claude/backgrounds"), { recursive: true });
   mkdirSync(join(ctx.cwd, "public/fonts"), { recursive: true });
   for (const dir of ctx.adapter.getRequiredDirs()) {
     mkdirSync(join(ctx.cwd, dir), { recursive: true });

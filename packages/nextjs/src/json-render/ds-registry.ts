@@ -240,6 +240,79 @@ export const { registry: dsRegistry } = defineRegistry(dsCatalog, {
       );
     },
 
+    DSBackgrounds: ({ props }) => {
+      return React.createElement(SectionWrapper, { title: props.title },
+        // Page background
+        React.createElement(SubHeading, null, "Page Background"),
+        React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 16, marginBottom: 32, padding: 16, border: "1px solid var(--color-border-primary)", borderRadius: 8 } },
+          React.createElement("div", { style: { width: 64, height: 64, borderRadius: 8, background: props.pageBackground, border: "1px solid var(--color-border-primary)", flexShrink: 0 } }),
+          React.createElement("div", null,
+            React.createElement("div", { style: { fontSize: 14, fontWeight: 600, marginBottom: 4 } }, "Page Background"),
+            React.createElement("code", { style: { fontFamily: fonts.mono, fontSize: 12, color: "var(--color-text-secondary)" } }, props.pageBackground),
+          ),
+        ),
+        // Section backgrounds
+        React.createElement(SubHeading, null, "Section Backgrounds"),
+        props.sections.length === 0
+          ? React.createElement("p", { style: { fontSize: 14, color: "var(--color-text-tertiary)", fontStyle: "italic" as const } }, "No distinct section backgrounds detected.")
+          : React.createElement("div", { style: { display: "flex", flexDirection: "column" as const, gap: 16 } },
+              ...props.sections.map((sec, i) => {
+                const bgStyle: Record<string, string> = {};
+                if (sec.bgGradient) {
+                  bgStyle.background = sec.bgGradient;
+                } else if (sec.bgColor) {
+                  bgStyle.background = sec.bgColor;
+                }
+                if (sec.bgImage && !sec.bgGradient) {
+                  bgStyle.backgroundImage = sec.bgImage;
+                  bgStyle.backgroundSize = "cover";
+                  bgStyle.backgroundPosition = "center";
+                }
+
+                return React.createElement("div", {
+                  key: `${sec.label}-${i}`,
+                  style: { border: "1px solid var(--color-border-primary)", borderRadius: 12, overflow: "hidden" },
+                },
+                  // Preview bar
+                  React.createElement("div", {
+                    style: {
+                      height: 80,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      position: "relative" as const,
+                      ...bgStyle,
+                    },
+                  },
+                    sec.textColor
+                      ? React.createElement("span", { style: { fontSize: 16, fontWeight: 600, fontFamily: fonts.display, color: sec.textColor, position: "relative" as const, zIndex: 1 } }, sec.label)
+                      : React.createElement("span", { style: { fontSize: 16, fontWeight: 600, fontFamily: fonts.display, color: "var(--color-text-primary)", position: "relative" as const, zIndex: 1 } }, sec.label),
+                    sec.hasOverlay ? React.createElement("div", { style: { position: "absolute" as const, top: 0, right: 8, fontSize: 10, color: "var(--color-text-tertiary)", padding: "4px 8px", background: "var(--color-bg-primary)", borderRadius: "0 0 4px 4px", opacity: 0.8 } }, "overlay") : null,
+                  ),
+                  // Details
+                  React.createElement("div", { style: { padding: "12px 16px", display: "flex", flexWrap: "wrap" as const, gap: 16, fontSize: 12 } },
+                    sec.bgColor ? React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
+                      React.createElement("div", { style: { width: 16, height: 16, borderRadius: 4, background: sec.bgColor, border: "1px solid var(--color-border-subtle)", flexShrink: 0 } }),
+                      React.createElement("code", { style: { fontFamily: fonts.mono, color: "var(--color-text-secondary)" } }, sec.bgColor),
+                    ) : null,
+                    sec.bgGradient ? React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
+                      React.createElement("div", { style: { width: 32, height: 16, borderRadius: 4, background: sec.bgGradient, border: "1px solid var(--color-border-subtle)", flexShrink: 0 } }),
+                      React.createElement("code", { style: { fontFamily: fonts.mono, color: "var(--color-text-secondary)", maxWidth: 300, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, display: "block" } }, "gradient"),
+                    ) : null,
+                    sec.textColor ? React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
+                      React.createElement("span", { style: { fontSize: 11, color: "var(--color-text-tertiary)" } }, "text:"),
+                      React.createElement("div", { style: { width: 16, height: 16, borderRadius: 4, background: sec.textColor, border: "1px solid var(--color-border-subtle)", flexShrink: 0 } }),
+                      React.createElement("code", { style: { fontFamily: fonts.mono, color: "var(--color-text-secondary)" } }, sec.textColor),
+                    ) : null,
+                    sec.bgImage ? React.createElement("span", { style: { fontSize: 11, color: "var(--color-text-tertiary)", fontFamily: fonts.mono, padding: "2px 8px", background: "var(--color-bg-tertiary)", borderRadius: 4 } }, "has background-image") : null,
+                    sec.hasOverlay ? React.createElement("span", { style: { fontSize: 11, color: "var(--color-text-tertiary)", fontFamily: fonts.mono, padding: "2px 8px", background: "var(--color-bg-tertiary)", borderRadius: 4 } }, "has overlay") : null,
+                  ),
+                );
+              }),
+            ),
+      );
+    },
+
     DSComponents: ({ props }) => {
       return React.createElement(SectionWrapper, { title: props.title },
         // Buttons

@@ -6,6 +6,7 @@ import {
   extractBrand,
   extractFonts,
   extractIcons,
+  extractBackgrounds,
   captureScreenshots,
 } from "./color-extractor.js";
 import { log } from "../ui/logger.js";
@@ -80,6 +81,9 @@ export async function runPhase0(
 
     updateStatus("Extracting icons...");
     await extractIcons(ctx.cwd);
+
+    updateStatus("Extracting backgrounds...");
+    await extractBackgrounds(ctx.cwd);
 
     // Screenshots (replicate mode only)
     if (ctx.mode === "replicate") {

@@ -136,6 +136,23 @@ export const dsCatalog = defineCatalog(schema, {
       description: "Shadow showcase with visual previews.",
     },
 
+    DSBackgrounds: {
+      props: z.object({
+        title: z.string(),
+        pageBackground: z.string(),
+        sections: z.array(z.object({
+          label: z.string(),
+          bgColor: z.string().nullable(),
+          bgGradient: z.string().nullable(),
+          bgImage: z.string().nullable(),
+          textColor: z.string().nullable(),
+          hasOverlay: z.boolean(),
+          height: z.number(),
+        })),
+      }),
+      description: "Background styles captured from page sections (hero, features, CTA, etc.).",
+    },
+
     DSComponents: {
       props: z.object({
         title: z.string(),
