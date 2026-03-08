@@ -3,7 +3,9 @@
 ISAC extracts the Brand DNA from any live website — fonts, colors, design tokens, branding, and icons — and generates a production-ready design system for your Next.js project. Powered by Claude Code.
 
 <p align="center">
-  <img src="https://s3.sa-east-1.amazonaws.com/download.metricasboss.com.br/export-1772621841033.gif" alt="ISAC benchmark — design system extraction in ~6s, $0.00 API cost" width="100%">
+  <video src="https://github.com/guataiba/isac-cli/raw/main/assets/isac-demo.mp4" autoplay loop muted playsinline width="100%">
+    ISAC benchmark — design system extraction in ~6s, $0.00 API cost
+  </video>
 </p>
 
 ## Packages
